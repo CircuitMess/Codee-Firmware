@@ -2,7 +2,6 @@
 #define CLOCKSTAR_FIRMWARE_SETTINGS_H
 
 #include <nvs.h>
-#include "core/lv_theme.h"
 
 struct SettingsStruct {
 	uint8_t screenBrightness = 100;

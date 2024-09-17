@@ -1,7 +1,7 @@
 #include <cstdio>
 #include "theme.h"
-
-static lv_theme_t theme;
+#include "themes/lv_theme_private.h"
+static lv_theme_t* theme;
 
 static struct {
 	lv_style_t scr;
@@ -26,14 +26,13 @@ lv_theme_t* theme_init(lv_disp_t* disp){
 	lv_style_set_text_color(&styles.label, lv_color_make(207, 198, 184));
 	lv_style_set_text_line_space(&styles.label, 2);
 
-	memset(&theme, 0, sizeof(lv_theme_t));
-	theme.apply_cb = theme_apply;
-	theme.parent = lv_disp_get_theme(disp);
-	theme.disp = disp;
-	theme.color_primary = lv_color_make(244, 126, 27);
-	theme.color_secondary = lv_color_make(207, 198, 184);
-	theme.font_small = &devin;
-	theme.font_normal = &devin;
-	theme.font_large = &devin;
-	return &theme;
+	theme = lv_theme_simple_init(disp);
+	lv_theme_set_apply_cb(theme, theme_apply);
+	theme->disp = disp;
+	theme->color_primary = lv_color_make(244, 126, 27);
+	theme->color_secondary = lv_color_make(207, 198, 184);
+	theme->font_small = &devin;
+	theme->font_normal = &devin;
+	theme->font_large = &devin;
+	return theme;
 }

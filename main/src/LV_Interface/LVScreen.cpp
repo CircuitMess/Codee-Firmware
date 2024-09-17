@@ -9,7 +9,7 @@ static constexpr const char* TAG = "LVScreen";
 LVScreen::LVScreen() : LVObject(nullptr){
 
 	lv_obj_add_event_cb(obj, [](lv_event_t* event){
-		auto screen = static_cast<LVScreen*>(event->user_data);
+		auto screen = static_cast<LVScreen*>(lv_event_get_user_data(event));
 		lv_indev_set_group(InputLVGL::getInstance()->getIndev(), screen->inputGroup);
 		screen->onStart();
 	}, LV_EVENT_SCREEN_LOADED, this);
@@ -22,7 +22,7 @@ LVScreen::~LVScreen(){
 		ESP_LOGE(TAG, "Destroying while still running! Call stop() first.");
 		abort();
 	}
-	lv_group_del(inputGroup);
+	lv_group_delete(inputGroup);
 }
 
 void LVScreen::transition(std::function<std::unique_ptr<LVScreen>()> create){

@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <unordered_map>
+#include <cstring>
 
 const char* TAG = "FSLVGL";
 std::unordered_set<FSLVGL::FileResource, std::hash<RamFile*>> FSLVGL::cache;
@@ -137,11 +138,11 @@ void FSLVGL::unloadCache(){
 	}
 }
 
-bool FSLVGL::ready_cb(struct _lv_fs_drv_t* drv){
+bool FSLVGL::ready_cb(struct lv_fs_drv_t* drv){
 	return true;
 }
 
-void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t mode){
+void* FSLVGL::open_cb(struct lv_fs_drv_t* drv, const char* path, lv_fs_mode_t mode){
 	auto cached = findCache(path);
 	if(cached != cache.end()){
 		cached->openCount++;
@@ -163,7 +164,7 @@ void* FSLVGL::open_cb(struct _lv_fs_drv_t* drv, const char* path, lv_fs_mode_t m
 	return (void*) fopen(p.c_str(), fsMode);
 }
 
-lv_fs_res_t FSLVGL::close_cb(struct _lv_fs_drv_t* drv, void* file_p){
+lv_fs_res_t FSLVGL::close_cb(struct lv_fs_drv_t* drv, void* file_p){
 	auto it = findCache(file_p);
 	if(it != cache.end()){
 		if(it->openCount != 0){
@@ -174,39 +175,39 @@ lv_fs_res_t FSLVGL::close_cb(struct _lv_fs_drv_t* drv, void* file_p){
 			delete it->ramFile;
 			cache.erase(it);
 		}
-		return 0;
+		return LV_FS_RES_OK;
 	}
 
 	fclose((FILE*) file_p);
-	return 0;
+	return LV_FS_RES_OK;
 }
 
-lv_fs_res_t FSLVGL::read_cb(struct _lv_fs_drv_t* drv, void* file_p, void* buf, uint32_t btr, uint32_t* br){
+lv_fs_res_t FSLVGL::read_cb(struct lv_fs_drv_t* drv, void* file_p, void* buf, uint32_t btr, uint32_t* br){
 	auto cached = findCache(file_p);
 	if(cached != cache.end()){
 		*br = (*cached).ramFile->read((uint8_t*) buf, btr);
-		return 0;
+		return LV_FS_RES_OK;
 	}
 
 	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
 	*br = fread(buf, 1, btr, (FILE*) file_p);
-	return 0;
+	return LV_FS_RES_OK;
 }
 
-lv_fs_res_t FSLVGL::write_cb(struct _lv_fs_drv_t* drv, void* file_p, const void* buf, uint32_t btw, uint32_t* bw){
+lv_fs_res_t FSLVGL::write_cb(struct lv_fs_drv_t* drv, void* file_p, const void* buf, uint32_t btw, uint32_t* bw){
 	auto cached = findCache(file_p);
 	if(cached != cache.end()){
 		*bw = 0;
-		return 0;
+		return LV_FS_RES_OK;
 	}
 
 	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
 
 	*bw = fwrite((uint8_t*) buf, 1, btw, (FILE*) file_p);
-	return 0;
+	return LV_FS_RES_OK;
 }
 
-lv_fs_res_t FSLVGL::seek_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t pos, lv_fs_whence_t whence){
+lv_fs_res_t FSLVGL::seek_cb(struct lv_fs_drv_t* drv, void* file_p, uint32_t pos, lv_fs_whence_t whence){
 	auto cached = findCache(file_p);
 	if(cached != cache.end()){
 		static const std::unordered_map<lv_fs_whence_t, int> SeekMap = {
@@ -215,7 +216,7 @@ lv_fs_res_t FSLVGL::seek_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t pos
 				{ LV_FS_SEEK_END, SEEK_END },
 		};
 		(*cached).ramFile->seek(pos, SeekMap.at(whence));
-		return 0;
+		return LV_FS_RES_OK;
 	}
 
 	if(ferror((FILE*) file_p)){
@@ -239,25 +240,25 @@ lv_fs_res_t FSLVGL::seek_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t pos
 	if(fseek((FILE*) file_p, pos, mode) != 0){
 		return LV_FS_RES_INV_PARAM;
 	}
-	return 0;
+	return LV_FS_RES_OK;
 
 }
 
-lv_fs_res_t FSLVGL::tell_cb(struct _lv_fs_drv_t* drv, void* file_p, uint32_t* pos_p){
+lv_fs_res_t FSLVGL::tell_cb(struct lv_fs_drv_t* drv, void* file_p, uint32_t* pos_p){
 	auto cached = findCache(file_p);
 	if(cached != cache.end()){
 		*pos_p = (*cached).ramFile->pos();
-		return 0;
+		return LV_FS_RES_OK;
 	}
 
 	if(ferror((FILE*) file_p)) return LV_FS_RES_NOT_EX;
 	auto val = ftell((FILE*) file_p);
 	if(val == -1) return LV_FS_RES_UNKNOWN;
 	*pos_p = val;
-	return 0;
+	return LV_FS_RES_OK;
 }
 
-void* FSLVGL::dir_open_cb(struct _lv_fs_drv_t* drv, const char* path){
+void* FSLVGL::dir_open_cb(struct lv_fs_drv_t* drv, const char* path){
 	auto fslvgl = (FSLVGL*) drv->user_data;
 	std::string p = fslvgl->Root + std::string(path);
 	DIR* dir = opendir(p.c_str());
@@ -265,14 +266,14 @@ void* FSLVGL::dir_open_cb(struct _lv_fs_drv_t* drv, const char* path){
 
 }
 
-lv_fs_res_t FSLVGL::dir_read_cb(struct _lv_fs_drv_t* drv, void* rddir_p, char* fn){
+lv_fs_res_t FSLVGL::dir_read_cb(lv_fs_drv_t* drv, void* rddir_p, char* fn, uint32_t fn_len){
 	auto entry = readdir((DIR*) rddir_p);
 	if(!entry) return LV_FS_RES_NOT_EX;
-	strncpy(fn, entry->d_name, 256);
-	return 0;
+	strncpy(fn, entry->d_name, fn_len);
+	return LV_FS_RES_OK;
 }
 
-lv_fs_res_t FSLVGL::dir_close_cb(struct _lv_fs_drv_t* drv, void* rddir_p){
+lv_fs_res_t FSLVGL::dir_close_cb(struct lv_fs_drv_t* drv, void* rddir_p){
 	closedir((DIR*) rddir_p);
-	return 0;
+	return LV_FS_RES_OK;
 }

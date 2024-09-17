@@ -15,18 +15,16 @@ InputLVGL::InputLVGL() : Threaded("InputLVGL", 1024, 6, 0), queue(QueueSize){
 
 	Events::listen(Facility::Input, &queue);
 
-	static lv_indev_drv_t inputDriver;
-	lv_indev_drv_init(&inputDriver);
-	inputDriver.type = LV_INDEV_TYPE_ENCODER;
-	inputDriver.long_press_repeat_time = 20;
-	inputDriver.long_press_time = 350;
-	inputDriver.read_cb = [](lv_indev_drv_t* drv, lv_indev_data_t* data){ InputLVGL::getInstance()->read(drv, data); };
-	inputDevice = lv_indev_drv_register(&inputDriver);
+
+	inputDevice = lv_indev_create();
+	lv_indev_set_type(inputDevice, LV_INDEV_TYPE_ENCODER);
+	lv_indev_set_read_cb(inputDevice, [](lv_indev_t* drv, lv_indev_data_t* data){ InputLVGL::getInstance()->read(drv, data); });
+	lv_indev_set_long_press_time(inputDevice, 350);
 
 	start();
 }
 
-void InputLVGL::read(lv_indev_drv_t* drv, lv_indev_data_t* data){
+void InputLVGL::read(lv_indev_t* drv, lv_indev_data_t* data){
 	if(keyMap.count(lastKey) == 0) return;
 
 	auto key = keyMap.at(lastKey);

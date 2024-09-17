@@ -5,7 +5,7 @@ LVSelectable::LVSelectable(lv_obj_t* parent) : LVObject(parent){
 	inputGroup = lv_group_create();
 
 	lv_obj_add_event_cb(obj, [](lv_event_t* e){
-		LVSelectable* sel = static_cast<LVSelectable*>(e->user_data);
+		LVSelectable* sel = static_cast<LVSelectable*>(lv_event_get_user_data(e));
 		sel->select();
 	}, LV_EVENT_CLICKED, this);
 }
@@ -17,8 +17,9 @@ LVSelectable::~LVSelectable(){
 void LVSelectable::select(){
 	active = true;
 
-	if(InputLVGL::getInstance()->getIndev()->group != inputGroup){
-		parentGroup = InputLVGL::getInstance()->getIndev()->group;
+	auto curr = lv_indev_get_group(InputLVGL::getInstance()->getIndev());
+	if(curr != inputGroup){
+		parentGroup = curr;
 		lv_indev_set_group(InputLVGL::getInstance()->getIndev(), inputGroup);
 	}
 
@@ -33,7 +34,7 @@ void LVSelectable::deselect(){
 	parentGroup = nullptr;
 	active = false;
 
-	lv_event_send(obj, LV_EVENT_READY, nullptr);
+	lv_obj_send_event(obj, LV_EVENT_READY, nullptr);
 
 	onDeselect();
 }

@@ -24,11 +24,9 @@ private:
 	static constexpr uint8_t Rows = 64;
 	uint8_t drawBuffer[2*128*Rows];
 
-	lv_disp_draw_buf_t lvDrawBuf;
-	lv_disp_drv_t lvDispDrv;
 	lv_disp_t* lvDisplay;
 
-	static void flush(lv_disp_drv_t* dispDrv, const lv_area_t* area, lv_color_t* pixels);
+	static void flush(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map);
 
 	std::unique_ptr<LVScreen> currentScreen;
 

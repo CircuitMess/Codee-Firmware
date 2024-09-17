@@ -11,7 +11,7 @@ class InputLVGL : private Threaded {
 public:
 	InputLVGL();
 
-	void read(lv_indev_drv_t* drv, lv_indev_data_t* data);
+	void read(lv_indev_t* drv, lv_indev_data_t* data);
 	static InputLVGL* getInstance();
 
 	[[nodiscard]] lv_indev_t* getIndev() const;

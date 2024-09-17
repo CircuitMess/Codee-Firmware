@@ -4,33 +4,29 @@
 
 LVGL::LVGL(Display& display) : display(display){
 	lv_init();
-	lv_disp_draw_buf_init(&lvDrawBuf, drawBuffer, nullptr, sizeof(drawBuffer) / 2);
 
-	lv_disp_drv_init(&lvDispDrv);
-	lvDispDrv.hor_res = 128;
-	lvDispDrv.ver_res = 128;
-	lvDispDrv.flush_cb = flush;
-	lvDispDrv.draw_buf = &lvDrawBuf;
-	lvDispDrv.user_data = this;
-	lvDisplay = lv_disp_drv_register(&lvDispDrv);
+	lvDisplay = lv_display_create(128, 128);
+	lv_display_set_user_data(lvDisplay, this);
+	lv_display_set_flush_cb(lvDisplay, flush);
+	lv_display_set_buffers(lvDisplay, drawBuffer, nullptr, sizeof(drawBuffer), LV_DISPLAY_RENDER_MODE_PARTIAL);
 
 	auto theme = theme_init(lvDisplay);
 	lv_disp_set_theme(lvDisplay, theme);
 }
 
-void LVGL::flush(lv_disp_drv_t* dispDrv, const lv_area_t* area, lv_color_t* pixels){
-	auto lvgl = static_cast<LVGL*>(dispDrv->user_data);
+void LVGL::flush(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map){
+	auto lvgl = static_cast<LVGL*>(lv_display_get_user_data(disp));
 	auto lgfx = lvgl->display.getLGFX();
 
 	auto x = area->x1;
 	auto y = area->y1;
 	auto w = (area->x2 - area->x1 + 1);
 	auto h = (area->y2 - area->y1 + 1);
-	auto data = &pixels->full;
+	auto data = px_map;
 
 	lgfx.pushImage(x, y, w, h, data);
 
-	lv_disp_flush_ready(dispDrv);
+	lv_display_flush_ready(disp);
 }
 
 void LVGL::loop(){
@@ -40,7 +36,8 @@ void LVGL::loop(){
 	if(!currentScreen) return;
 
 	auto ttn = lv_timer_handler();
-	if(ttn <= 0 || ttn > LV_DISP_DEF_REFR_PERIOD) ttn = 1;
+
+	if(ttn <= 0 || ttn > LV_DEF_REFR_PERIOD) ttn = 1;
 	vTaskDelay(ttn);
 }
 
