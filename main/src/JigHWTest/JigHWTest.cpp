@@ -45,7 +45,6 @@ JigHWTest::JigHWTest(){
 	tests.push_back({ JigHWTest::RTCTest, "RTC", [](){} });
 	tests.push_back({ JigHWTest::Time1, "RTC crystal", [](){} });
 	tests.push_back({ JigHWTest::Time2, "RTC crystal", [](){} });
-	tests.push_back({ JigHWTest::IMUTest, "Gyroscope", [](){} });
 	tests.push_back({ JigHWTest::SPIFFSTest, "SPIFFS", [](){} });
 	tests.push_back({ JigHWTest::BatteryCalib, "Battery calibration", [](){ esp_efuse_batch_write_cancel(); }});
 	tests.push_back({ JigHWTest::BatteryCheck, "Battery check", [](){} });
@@ -320,7 +319,7 @@ uint32_t JigHWTest::calcChecksum(FILE* file){
 }
 
 void JigHWTest::AudioVisualTest(){
-	ledc_timer_config_t ledc_timer = {
+/*	ledc_timer_config_t ledc_timer = {
 			.speed_mode       = LEDC_LOW_SPEED_MODE,
 			.duty_resolution  = LEDC_TIMER_10_BIT,
 			.timer_num        = LEDC_TIMER_0,
@@ -461,7 +460,7 @@ void JigHWTest::AudioVisualTest(){
 		gpio_set_level(statusLed, 0);
 
 		vTaskDelay(500);
-	}
+	}*/
 }
 
 bool JigHWTest::RTCTest(){
@@ -521,12 +520,6 @@ bool JigHWTest::Time2(){
 		lastTime = unixt;
 	}
 	return true;
-}
-
-bool JigHWTest::IMUTest(){
-	uint8_t data;
-	auto ret = i2c->readReg(0x6A, 0x0FU, &data, 1, 10);
-	return ret == ESP_OK && data == 0x6AU;
 }
 
 bool JigHWTest::HWVersion(){

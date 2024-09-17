@@ -44,16 +44,6 @@ void shutdown(){
 
 void init(){
 
-	gpio_config_t cfg = {
-			.pin_bit_mask = (1ULL << I2C_SDA) | (1ULL << I2C_SCL),
-			.mode = GPIO_MODE_INPUT
-	};
-	gpio_config(&cfg);
-
-	gpio_set_direction((gpio_num_t)I2C_SCL, GPIO_MODE_OUTPUT);
-	gpio_set_level((gpio_num_t)I2C_SCL, 0);
-
-
 	auto nvs = new NVSFlash();
 	Services.set(Service::NVS, nvs);
 
@@ -77,12 +67,12 @@ void init(){
 	bl = new BacklightBrightness(blPwm);
 	Services.set(Service::Backlight, bl);
 
-	auto battery = new Battery();
-	if(battery->isShutdown()){
-		shutdown();
-		return;
-	}
-	Services.set(Service::Battery, battery);
+//	auto battery = new Battery();
+//	if(battery->isShutdown()){
+//		shutdown();
+//		return;
+//	}
+//	Services.set(Service::Battery, battery);
 
 	auto led = new LEDService();
 	Services.set(Service::LED, led);
@@ -144,7 +134,7 @@ void init(){
 
 	// Start Battery scanning after everything else, otherwise Critical
 	// Battery event might come while initialization is still in progress
-	battery->begin();
+//	battery->begin();
 }
 
 extern "C" void app_main(void){
