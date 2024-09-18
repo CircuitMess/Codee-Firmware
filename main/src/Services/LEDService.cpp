@@ -4,16 +4,20 @@
 #include "Util/LEDBlinkFunction.h"
 #include "Util/LEDBreatheFunction.h"
 #include "Util/LEDBreatheToFunction.h"
+#include "Pins.hpp"
 
 static const char* TAG = "LEDService";
 
-const std::map<LED, LEDService::PwnMappingInfo> LEDService::PwmMappings = {};
+const std::map<LED, LEDService::PwnMappingInfo> LEDService::PwmMappings = {
+		{ LED::Green, { (gpio_num_t) LED_G, LEDC_CHANNEL_2, 100 }},
+		{ LED::Yellow, { (gpio_num_t) LED_Y, LEDC_CHANNEL_3, 100 }},
+		{ LED::Orange, { (gpio_num_t) LED_O, LEDC_CHANNEL_4, 100 }},
+		{ LED::Red, { (gpio_num_t) LED_R, LEDC_CHANNEL_5, 100 }},
+};
 
 
 LEDService::LEDService() : Threaded("LEDService"), instructionQueue(25){
 	for(LED led = (LED) 0; (uint8_t) led < (uint8_t) LED::COUNT; led = (LED) ((uint8_t) led + 1)){
-		const bool isPwm = PwmMappings.contains(led);
-
 		PwnMappingInfo ledData = PwmMappings.at(led);
 		SingleLED* ledDevice = new SinglePwmLED(ledData.pin, ledData.channel, ledData.limit);
 		ledDevices[led] = ledDevice;
@@ -72,9 +76,9 @@ void LEDService::breathe(LED led, uint32_t period /*= 1000*/){
 
 void LEDService::set(LED led, float percent){
 	LEDInstructionInfo instruction{
-		.led = led,
-		.instruction = Set,
-		.targetPercent = std::clamp(percent, 0.0f, 100.0f)
+			.led = led,
+			.instruction = Set,
+			.targetPercent = std::clamp(percent, 0.0f, 100.0f)
 	};
 
 	instructionQueue.post(instruction);

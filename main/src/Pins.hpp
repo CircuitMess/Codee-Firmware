@@ -21,8 +21,6 @@
 #define TFT_DC 37
 #define TFT_RST 38
 
-#define JIG_STATUS 0
-
 #define LED_G 43
 #define LED_Y 44
 #define LED_O 15

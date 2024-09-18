@@ -11,7 +11,7 @@
 #include "Util/Queue.h"
 
 enum class LED : uint8_t {
-	COUNT
+	Green, Yellow, Orange, Red, COUNT
 };
 
 class LEDService : private Threaded {
@@ -40,11 +40,6 @@ private:
 		gpio_num_t pin = GPIO_NUM_NC;
 		ledc_channel_t channel = LEDC_CHANNEL_0;
 		uint8_t limit = 100;
-	};
-
-	struct ExpanderMappingInfo {
-		uint8_t pin = 0;
-		uint8_t limit = 0xFF;
 	};
 
 	static const std::map<LED, PwnMappingInfo> PwmMappings;

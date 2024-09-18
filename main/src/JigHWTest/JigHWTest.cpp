@@ -24,16 +24,6 @@ int16_t JigHWTest::voltOffset = 0;
 
 
 JigHWTest::JigHWTest(){
-	gpio_config_t io_conf = {
-			.pin_bit_mask = 1 << JIG_STATUS,
-			.mode = GPIO_MODE_OUTPUT,
-			.pull_up_en = GPIO_PULLUP_DISABLE,
-			.pull_down_en = GPIO_PULLDOWN_DISABLE,
-			.intr_type = GPIO_INTR_DISABLE
-	};
-	gpio_config(&io_conf);
-	gpio_set_level(statusLed, 1);
-
 	display = new Display();
 	canvas = &display->getLGFX();
 
@@ -140,7 +130,6 @@ void JigHWTest::start(){
 
 	if(!pass){
 		printf("TEST:fail:%s\n", currentTest);
-		gpio_set_level(statusLed, 0);
 		vTaskDelete(nullptr);
 	}
 

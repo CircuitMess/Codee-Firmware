@@ -23,6 +23,7 @@
 #include "Periph/NVSFlash.h"
 #include "driver/rtc_io.h"
 #include "Services/LEDService.h"
+#include "Services/Time.h"
 
 BacklightBrightness* bl;
 
@@ -67,12 +68,17 @@ void init(){
 	bl = new BacklightBrightness(blPwm);
 	Services.set(Service::Backlight, bl);
 
-//	auto battery = new Battery();
-//	if(battery->isShutdown()){
-//		shutdown();
-//		return;
-//	}
-//	Services.set(Service::Battery, battery);
+	auto battery = new Battery();
+	if(battery->isShutdown()){
+		shutdown();
+		return;
+	}
+	Services.set(Service::Battery, battery);
+
+	auto i2c = new I2C(I2C_NUM_0, (gpio_num_t) I2C_SDA, (gpio_num_t) I2C_SCL);
+	auto rtc = new RTC(*i2c);
+	auto time = new Time(*rtc);
+	Services.set(Service::Time, time);
 
 	auto led = new LEDService();
 	Services.set(Service::LED, led);
@@ -98,8 +104,6 @@ void init(){
 	auto lvFS = new FSLVGL('S');
 
 	auto gamer = new GameRunner(*disp);
-
-
 
 
 	if(settings->get().sound){
@@ -134,7 +138,7 @@ void init(){
 
 	// Start Battery scanning after everything else, otherwise Critical
 	// Battery event might come while initialization is still in progress
-//	battery->begin();
+	battery->begin();
 }
 
 extern "C" void app_main(void){

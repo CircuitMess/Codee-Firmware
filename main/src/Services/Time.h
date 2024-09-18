@@ -25,7 +25,7 @@ public:
 private:
 	RTC& rtc;
 
-	static constexpr uint32_t UpdateInterval = 5000; // [ms]
+	static constexpr uint32_t SyncInterval = 5000; // [ms], interval when RTC is polled for accurate time
 	uint64_t updateTime = 0;
 
 	time_t time;
