@@ -47,7 +47,7 @@ void Display::setupPanel(){
 			.panel_height = 128,
 			.offset_x = 2,
 			.offset_y = 1,
-			.offset_rotation = 2,
+			.offset_rotation = 1,
 			.readable = false,
 			.invert = false,
 			.rgb_order = false,

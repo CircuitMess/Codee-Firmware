@@ -21,24 +21,21 @@
 #include <Util/stdafx.h>
 #include "JigHWTest/JigHWTest.h"
 #include "Periph/NVSFlash.h"
-#include "driver/rtc_io.h"
 #include "Services/LEDService.h"
 #include "Services/Time.h"
+#include "Services/Sleep.h"
+#include "Screens/IntroScreen.h"
 
 BacklightBrightness* bl;
 
 void shutdown(){
 	bl->fadeOut();
 
-/*	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_AUTO);
+	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_AUTO);
 	esp_sleep_pd_config(ESP_PD_DOMAIN_RC_FAST, ESP_PD_OPTION_AUTO);
 	esp_sleep_pd_config(ESP_PD_DOMAIN_CPU, ESP_PD_OPTION_AUTO);
 	esp_sleep_pd_config(ESP_PD_DOMAIN_XTAL, ESP_PD_OPTION_AUTO);
 	esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
-
-	//PIN_BL will be held high, since that is the last state set by bl->fadeOut()
-	//Required to prevent MOSFET activation on TFT_BL with leaked current if pin is floating
-	rtc_gpio_isolate((gpio_num_t)PIN_BL);*/
 
 	esp_deep_sleep_start();
 }
@@ -63,7 +60,7 @@ void init(){
 		vTaskDelete(nullptr);
 	}
 
-	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, true);
+	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, false);
 	blPwm->detach();
 	bl = new BacklightBrightness(blPwm);
 	Services.set(Service::Backlight, bl);
@@ -88,8 +85,6 @@ void init(){
 	auto disp = new Display();
 	Services.set(Service::Display, disp);
 
-	auto splashStart = millis();
-
 	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
 	auto audio = new ChirpSystem(*buzzPwm);
 	Services.set(Service::Audio, audio);
@@ -97,48 +92,26 @@ void init(){
 	auto input = new Input();
 	Services.set(Service::Input, input);
 
-//	auto sleep = new Sleep();
-
 	auto lvgl = new LVGL(*disp);
 	auto lvInput = new InputLVGL();
 	auto lvFS = new FSLVGL('S');
 
 	auto gamer = new GameRunner(*disp);
 
-
-	if(settings->get().sound){
-		audio->play({
-							Chirp { NOTE_D4, NOTE_A4, 100 },
-							Chirp { 0, 0, 50 },
-							Chirp { NOTE_D5, NOTE_D5, 100 },
-							Chirp { 0, 0, 50 },
-							Chirp { NOTE_A4, NOTE_A4, 100 },
-							Chirp { 0, 0, 50 },
-							Chirp { NOTE_G5, NOTE_G4, 100 },
-							Chirp { 0, 0, 50 },
-							Chirp { NOTE_D4, NOTE_A4, 100 },
-							Chirp { NOTE_D5, NOTE_D5, 100 },
-					});
-	}
-
 	lvFS->loadCache();
 
 	auto ui = new UIThread(*lvgl, *gamer, *lvFS);
 	Services.set(Service::UI, ui);
 
-	while(millis() - splashStart < 2000){
-		delayMillis(10);
-	}
-
-	bl->fadeOut();
-	ui->start();
-//	ui->startScreen([](){ return std::make_unique<MainMenu>(true); });
-	delayMillis(200);
 	bl->fadeIn();
+	ui->start();
+	ui->startScreen([](){ return std::make_unique<IntroScreen>(); });
 
 	// Start Battery scanning after everything else, otherwise Critical
 	// Battery event might come while initialization is still in progress
 	battery->begin();
+
+	auto sleep = new Sleep();
 }
 
 extern "C" void app_main(void){
