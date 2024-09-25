@@ -1,6 +1,9 @@
 #include "IntroScreen.h"
 #include "Util/Services.h"
 #include "Services/StatsManager.h"
+#include "UIThread.h"
+#include "DeathScreen.h"
+#include "HatchScreen.h"
 
 IntroScreen::IntroScreen(){
 	lv_obj_set_size(*this, 128, 128);
@@ -12,21 +15,18 @@ IntroScreen::IntroScreen(){
 	lv_gif_pause(gif);
 
 	lv_obj_add_event_cb(gif, [](lv_event_t* e){
-		//TODO - transition to death/hatch/duckscreen
+		auto statsMan = (StatsManager*)Services.get(Service::Stats);
+		auto ui = (UIThread*)Services.get(Service::UI);
 
-		/*	auto statsMan = (StatsManager*)Services.get(Service::Stats);
 		if(statsMan->isHatched()){
 			if(statsMan->hasDied()){
-				auto duck = new DeathState(temp);
-				duck->start();
+				ui->startScreen([](){ return std::make_unique<DeathScreen>(); });
 			}else{
-				auto duck = new DuckScreen(temp);
-				duck->start();
+//				ui->startScreen([](){ return std::make_unique<PetScreen>(); });
 			}
 		}else{
-			auto hatch = new HatchingState(temp);
-			hatch->start();
-		}*/
+			ui->startScreen([](){ return std::make_unique<HatchScreen>(); });
+		}
 	}, LV_EVENT_READY, this);
 
 }

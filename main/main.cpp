@@ -25,6 +25,7 @@
 #include "Services/Time.h"
 #include "Services/Sleep.h"
 #include "Screens/IntroScreen.h"
+#include "Services/StatsManager.h"
 
 BacklightBrightness* bl;
 
@@ -95,6 +96,9 @@ void init(){
 	auto lvgl = new LVGL(*disp);
 	auto lvInput = new InputLVGL();
 	auto lvFS = new FSLVGL('S');
+
+	auto stats = new StatsManager();
+	Services.set(Service::Stats, stats);
 
 	auto gamer = new GameRunner(*disp);
 
