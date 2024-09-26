@@ -25,12 +25,20 @@
 #include "Services/Time.h"
 #include "Services/Sleep.h"
 #include "Screens/IntroScreen.h"
+#include "Screens/HatchScreen.h"
 #include "Services/StatsManager.h"
 
 BacklightBrightness* bl;
 
 void shutdown(){
 	bl->fadeOut();
+
+	static const uint8_t HeldPins[] = {LED_G, LED_Y,LED_O,LED_R,PIN_BL,PIN_BUZZ};
+
+	for(const auto& pin:HeldPins){
+		gpio_set_level((gpio_num_t) pin, 0);
+		gpio_deep_sleep_hold_en();
+	}
 
 	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_AUTO);
 	esp_sleep_pd_config(ESP_PD_DOMAIN_RC_FAST, ESP_PD_OPTION_AUTO);

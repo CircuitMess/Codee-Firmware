@@ -69,11 +69,23 @@ void Sleep::goSleep(){
 
 	auto battery = (Battery*)Services.get(Service::Battery);
 	auto perc = std::max(battery->getPerc(), (uint8_t) 10);
-	esp_sleep_enable_timer_wakeup((172800000000 / 100) * perc); // 2 days
+	esp_sleep_enable_timer_wakeup((172800000000 / 100) * perc); // 2 days max, shorter if battery is lower
 
 	auto bl = (BacklightBrightness*)Services.get(Service::Backlight);
 	bl->fadeOut();
+
+	static const uint8_t HeldPins[] = {LED_G, LED_Y,LED_O,LED_R,PIN_BL,PIN_BUZZ};
+
+	for(const auto& pin:HeldPins){
+		gpio_set_level((gpio_num_t) pin, 0);
+		gpio_hold_en((gpio_num_t) pin);
+	}
+
 	esp_light_sleep_start();
+
+	for(const auto& pin:HeldPins){
+		gpio_hold_dis((gpio_num_t) pin);
+	}
 
 
 	auto cause = esp_sleep_get_wakeup_cause();

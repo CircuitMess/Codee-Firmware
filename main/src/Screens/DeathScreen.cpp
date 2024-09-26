@@ -25,31 +25,25 @@ DeathScreen::DeathScreen() : stats((StatsManager*) Services.get(Service::Stats))
 		lv_timer_set_period(screen->timer, exitPause);
 		lv_timer_reset(screen->timer);
 		lv_timer_resume(screen->timer);
-		printf("gif over\n");
 	}, LV_EVENT_READY, this);
 
 }
 
 void DeathScreen::onStart(){
 	timer = lv_timer_create([](lv_timer_t* t){
-		printf("timer lambda\n");
 		auto screen = (DeathScreen*) lv_timer_get_user_data(t);
 		if(!screen->exploded){
 			lv_gif_resume(screen->explosion);
 			lv_timer_set_period(t, duckVisibleMillis);
 			lv_timer_reset(t);
 			screen->exploded = true;
-			printf("start explosion\n");
 		}else{
 			if(screen->exit){
-				printf("exit\n");
-
 				auto ui = (UIThread*) Services.get(Service::UI);
 				ui->startScreen([](){ return std::make_unique<HatchScreen>(); });
 			}else{
 				lv_obj_add_flag(screen->duck, LV_OBJ_FLAG_HIDDEN);
 				lv_timer_pause(t);
-				printf("hide duck\n");
 			}
 		}
 	}, explosionStart, this);

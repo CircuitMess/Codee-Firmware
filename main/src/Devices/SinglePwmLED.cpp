@@ -11,5 +11,9 @@ SinglePwmLED::~SinglePwmLED(){
 }
 
 void SinglePwmLED::write(uint8_t val){
+	if(val == 0){
+		pwm.detach();
+		return;
+	}
 	pwm.setDuty(val);
 }
