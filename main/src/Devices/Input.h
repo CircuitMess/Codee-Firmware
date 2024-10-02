@@ -9,7 +9,10 @@
 
 class Input : public SleepyThreaded {
 public:
-	Input();
+	/**
+	 * @param invertLogic Defaults to false. false - GPIO high means button is pressed, true - GPIO low means button is pressed
+	 */
+	Input(bool invertLogic = false);
 	virtual ~Input();
 
 	enum Button { Left, Right, A, B };
@@ -40,6 +43,7 @@ private:
 	using Threaded::start;
 	using Threaded::stop;
 
+	bool invertLogic = false;
 };
 
 

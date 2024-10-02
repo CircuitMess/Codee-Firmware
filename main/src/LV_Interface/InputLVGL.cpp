@@ -2,13 +2,13 @@
 #include "Pins.hpp"
 
 InputLVGL* InputLVGL::instance = nullptr;
-const std::map<Input::Button, lv_key_t> InputLVGL::keyMap = {{ Input::Button::Left,    LV_KEY_UP },
-															 { Input::Button::Right,  LV_KEY_DOWN },
+const std::map<Input::Button, lv_key_t> InputLVGL::keyMap = {{ Input::Button::Left,    LV_KEY_LEFT },
+															 { Input::Button::Right,  LV_KEY_RIGHT },
 															 { Input::Button::A,     LV_KEY_ENTER },
 															 { Input::Button::B,     LV_KEY_ESC }};
 
-const std::map<lv_key_t, lv_key_t> InputLVGL::vertRemap = {{ LV_KEY_UP,    LV_KEY_LEFT },
-														   { LV_KEY_DOWN,  LV_KEY_RIGHT }};
+const std::map<lv_key_t, lv_key_t> InputLVGL::vertRemap = {{ LV_KEY_LEFT,    LV_KEY_UP },
+														   { LV_KEY_RIGHT,  LV_KEY_DOWN }};
 
 InputLVGL::InputLVGL() : Threaded("InputLVGL", 1024, 6, 0), queue(QueueSize){
 	instance = this;

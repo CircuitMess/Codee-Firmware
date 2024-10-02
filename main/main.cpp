@@ -98,7 +98,7 @@ void init(){
 	auto audio = new ChirpSystem(*buzzPwm);
 	Services.set(Service::Audio, audio);
 
-	auto input = new Input();
+	auto input = new Input(true);
 	Services.set(Service::Input, input);
 
 	auto lvgl = new LVGL(*disp);

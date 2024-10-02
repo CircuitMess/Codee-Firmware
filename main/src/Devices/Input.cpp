@@ -19,9 +19,9 @@ const std::unordered_map<Input::Button, const char*> Input::PinLabels{
 		{ B,     "B" },
 };
 
-Input::Input() : SleepyThreaded(SleepTime, "Input", 2048, 6, 0){
+Input::Input(bool invertLogic) : SleepyThreaded(SleepTime, "Input", 2048, 6, 0), invertLogic(invertLogic){
 	auto mask = 0ULL;
-	for(const auto& pair : PinMap){
+	for(const auto& pair: PinMap){
 		const auto port = pair.first;
 		const auto pin = pair.second;
 
@@ -34,8 +34,8 @@ Input::Input() : SleepyThreaded(SleepTime, "Input", 2048, 6, 0){
 	gpio_config_t io_conf = {
 			.pin_bit_mask = mask,
 			.mode = GPIO_MODE_INPUT,
-			.pull_up_en = GPIO_PULLUP_ENABLE,
-			.pull_down_en = GPIO_PULLDOWN_DISABLE,
+			.pull_up_en = invertLogic ? GPIO_PULLUP_ENABLE : GPIO_PULLUP_DISABLE,
+			.pull_down_en = invertLogic ? GPIO_PULLDOWN_DISABLE : GPIO_PULLDOWN_ENABLE,
 			.intr_type = GPIO_INTR_DISABLE
 	};
 	gpio_config(&io_conf);
@@ -56,7 +56,7 @@ void Input::scan(){
 		const auto port = pair.first;
 		const auto pin = pair.second;
 
-		bool state = gpio_get_level(pin);
+		bool state = invertLogic ^ gpio_get_level(pin);
 
 		if(state){
 			pressed(port);
