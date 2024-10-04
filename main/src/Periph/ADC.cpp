@@ -6,13 +6,13 @@
 static const char* TAG = "ADC";
 
 ADC::ADC(gpio_num_t pin, float ema_a, int min, int max, int readingOffset) : pin(pin), ema_a(ema_a), min(min), max(max), offset(readingOffset){
-	if(pin != GPIO_NUM_1){
-		ESP_LOGE(TAG, "Only GPIO 1 is supported for ADC");
+	if(pin != TargetPin){
+		ESP_LOGE(TAG, "Only GPIO %d is supported for ADC", TargetPin);
 		valid = false;
 		return;
 	}
 
-	if(pin == GPIO_NUM_1){
+	if(pin == TargetPin){
 		adc1_config_width(ADC_WIDTH_BIT_12);
 		adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_12);
 	}

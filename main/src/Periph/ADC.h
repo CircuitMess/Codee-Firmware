@@ -2,6 +2,7 @@
 #define CLOCKSTAR_FIRMWARE_ADC_H
 
 #include <hal/gpio_types.h>
+#include "Pins.hpp"
 
 class ADC {
 public:
@@ -24,6 +25,8 @@ private:
 	float ema_a;
 	const float min, max;
 	const float offset;
+
+	static constexpr gpio_num_t TargetPin = (gpio_num_t)PIN_BATT;
 
 	float val = -1;
 
