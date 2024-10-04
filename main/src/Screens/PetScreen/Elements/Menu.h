@@ -13,23 +13,30 @@ struct MenuItem {
 	Games game;
 };
 
-class Menu : public LVObject{
+class Menu : public LVObject {
 public:
 	Menu(lv_obj_t* parent, lv_group_t* inputGroup);
+	~Menu() override;
 
 private:
 	void launch(Games game);
 
+	lv_group_t* inputGroup;
+	void shake();
+	lv_anim_t shakeAnim;
+	static constexpr uint32_t ShakeAnimDuration = 50;
+
+
 	std::vector<GrayscaleImageElement*> items;
 	lv_obj_t* border;
 
-	static constexpr MenuItem GameItems[(uint32_t)Games::COUNT] = {
-			{ 1, "S:/MenuIcons/Icon1.bin", "S:/MenuIcons/Icon1.bin", Games::Oily},
-			{ 2, "S:/MenuIcons/Icon2.bin","S:/MenuIcons/Locked2.bin", Games::PolarSwim },
-			{ 3,"S:/MenuIcons/Icon3.bin","S:/MenuIcons/Locked3.bin",Games::PingoSnack},
+	static constexpr MenuItem GameItems[(uint32_t) Games::COUNT] = {
+			{ 1, "S:/MenuIcons/Icon1.bin", "S:/MenuIcons/Icon1.bin",   Games::Oily },
+			{ 2, "S:/MenuIcons/Icon2.bin", "S:/MenuIcons/Locked2.bin", Games::PolarSwim },
+			{ 3, "S:/MenuIcons/Icon3.bin", "S:/MenuIcons/Locked3.bin", Games::PingoSnack },
 			{ 4, "S:/MenuIcons/Icon4.bin", "S:/MenuIcons/Locked4.bin", Games::PolarJump },
-			{ 5,"S:/MenuIcons/Icon5.bin", "S:/MenuIcons/Locked5.bin", Games::Dance },
-			{ 6,"S:/MenuIcons/Icon6.bin", "S:/MenuIcons/Locked6.bin",Games::IceBlast},
+			{ 5, "S:/MenuIcons/Icon5.bin", "S:/MenuIcons/Locked5.bin", Games::Dance },
+			{ 6, "S:/MenuIcons/Icon6.bin", "S:/MenuIcons/Locked6.bin", Games::IceBlast },
 	};
 };
 

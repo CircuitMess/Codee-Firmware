@@ -37,6 +37,23 @@ PetScreen::PetScreen() : statsManager((StatsManager*) Services.get(Service::Stat
 
 	hideGroup = lv_group_create();
 	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), hideGroup);
+
+	//used for switching inputGroups after menu hiding is over
+	lv_obj_t* unhideElement = lv_obj_create(*this);
+	lv_group_set_editing(hideGroup, true);
+	lv_obj_add_flag(unhideElement, LV_OBJ_FLAG_FLOATING);
+	lv_group_add_obj(hideGroup, unhideElement);
+	lv_obj_add_event_cb(unhideElement, [](lv_event_t* e){
+		auto screen = (PetScreen*) lv_event_get_user_data(e);
+		lv_indev_set_group(InputLVGL::getInstance()->getIndev(), screen->inputGroup);
+	}, LV_EVENT_KEY, this);
+}
+
+PetScreen::~PetScreen(){
+	lv_obj_t* menuObj = *menu;
+	lv_anim_delete(menuObj, nullptr);
+
+	lv_group_delete(hideGroup);
 }
 
 void PetScreen::loop(){
@@ -199,8 +216,6 @@ void PetScreen::onStart(){
 
 void PetScreen::onStop(){
 	Events::unlisten(&queue);
-
-	lv_group_delete(hideGroup);
 }
 
 void PetScreen::statsChanged(const Stats& stats, bool leveledUp){
@@ -259,6 +274,4 @@ void PetScreen::unhideMenu(){
 	lv_anim_set_exec_cb(&hiderAnimation, [](void* var, int32_t v){ lv_obj_set_y((lv_obj_t*) var, v); });
 	lv_anim_set_path_cb(&hiderAnimation, lv_anim_path_ease_out);
 	lv_anim_start(&hiderAnimation);
-
-	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), inputGroup);
 }

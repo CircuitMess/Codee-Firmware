@@ -13,6 +13,7 @@
 class PetScreen : public LVScreen {
 public:
 	PetScreen();
+	~PetScreen() override;
 
 private:
 	void loop() override;
@@ -47,8 +48,6 @@ private:
 
 
 	lv_anim_t hiderAnimation;
-//	MenuHider hider;
-
 
 	uint64_t randCounter = 0;
 	uint64_t randInterval = 0; //between 2s and 6s
