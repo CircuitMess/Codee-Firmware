@@ -47,6 +47,8 @@ PetScreen::PetScreen() : statsManager((StatsManager*) Services.get(Service::Stat
 		auto screen = (PetScreen*) lv_event_get_user_data(e);
 		lv_indev_set_group(InputLVGL::getInstance()->getIndev(), screen->inputGroup);
 	}, LV_EVENT_KEY, this);
+
+	levelupGroup = lv_group_create();
 }
 
 PetScreen::~PetScreen(){
@@ -54,9 +56,12 @@ PetScreen::~PetScreen(){
 	lv_anim_delete(menuObj, nullptr);
 
 	lv_group_delete(hideGroup);
+	lv_group_delete(levelupGroup);
 }
 
 void PetScreen::loop(){
+	if(levelupInProgress) return;
+
 	if(dead){
 		auto ui = (UIThread*) Services.get(Service::UI);
 		ui->startScreen([](){ return std::make_unique<DeathScreen>(); });
@@ -86,98 +91,6 @@ void PetScreen::loop(){
 
 	statsSprite->setBattery(battery->getPerc());
 
-
-//LEVEL UP handling
-/*
-	if(luState != None){
-		hider.activity();
-
-		if(luState == FadeIn || luState == FadeOut){
-			if(luMicros == 0){
-				luMicros = ::micros();
-				return;
-			}
-
-			bgSprite->push();
-			statsSprite->push();
-			osSprite->push();
-			characterSprite->push();
-			menu.push();
-
-			luFile.seek(0);
-
-			float t = (float) (::micros() - luMicros) / 500000.0f;
-			if(t >= 1.0f){
-				if(luState == FadeIn){
-					luState = Image;
-					base->drawIcon(luFile, 0, 0, 160, 128);
-					luMicros = ::micros();
-				}else if(luState == FadeOut){
-					luState = None;
-					luMicros = 0;
-					luFile.close();
-				}
-
-				return;
-			}
-
-			if(luState == FadeOut){
-				t = 1.0f - t;
-			}
-
-			luFile.seek(0);
-			for(int i = 0; i < 160 * 128; i++){
-				int y = i / 160;
-				int x = i - y * 160;
-
-				Color target;
-				luFile.read(reinterpret_cast<uint8_t*>(&target), 2);
-
-				Color original = base->readPixel(x, y);
-
-				uint8_t oR = (original >> 11) & 0b11111;
-				uint8_t oG = (original >> 5) & 0b111111;
-				uint8_t oB = original & 0b11111;
-
-				uint8_t tR = (target >> 11) & 0b11111;
-				uint8_t tG = (target >> 5) & 0b111111;
-				uint8_t tB = target & 0b11111;
-
-				uint8_t r = oR + (tR - oR) * t;
-				uint8_t g = oG + (tG - oG) * t;
-				uint8_t b = oB + (tB - oB) * t;
-
-				uint16_t computed =
-						(r & 0b11111) << 11 |
-						(g & 0b111111) << 5 |
-						(b & 0b11111);
-
-				base->writePixel(x, y, computed);
-			}
-		}else if(luState == Image){
-			if(!luApplied){
-				currentStats = targetStats = prevStats = StatMan.get();
-
-				characterSprite->setRusty(currentStats.oilLevel < rustThreshold);
-				characterSprite->setCharLevel(StatMan.getLevel());
-				bgSprite->setLevel(StatMan.getLevel());
-				osSprite->setLevel(StatMan.getLevel());
-				statsSprite->setXPLevel();
-				luApplied = true;
-
-				menu.repos();
-			}
-
-			if(::micros() - luMicros >= 3000000){
-				luState = FadeOut;
-				luMicros = ::micros();
-			}
-		}
-
-		return;
-	}
-*/
-
 	//playing random duck animations while idling
 	if(micros() - randCounter >= randInterval){
 		randCounter = micros();
@@ -195,7 +108,6 @@ void PetScreen::loop(){
 
 		characterSprite->setAnim(anim);
 	}
-
 }
 
 void PetScreen::onStart(){
@@ -211,7 +123,9 @@ void PetScreen::onStart(){
 	Events::listen(Facility::Stats, &queue);
 	Events::listen(Facility::Input, &queue);
 
-	unhideMenu();
+	if(!levelupInProgress){
+		unhideMenu();
+	}
 }
 
 void PetScreen::onStop(){
@@ -226,16 +140,9 @@ void PetScreen::statsChanged(const Stats& stats, bool leveledUp){
 		dead = false;
 	}
 
-/*	if(leveledUp){
-		File file = SPIFFS.open(String("/LevelUp/") + StatMan.getLevel() + ".raw");
-		luFile = file;
-
-		luState = FadeIn;
-		luMicros = 0;
-		luApplied = false;
-
-		return;
-	}*/
+	if(leveledUp && !levelupInProgress){
+		startLevelupAnim();
+	}
 
 	if(characterSprite) characterSprite->setRusty(stats.oilLevel < rustThreshold);
 
@@ -274,4 +181,60 @@ void PetScreen::unhideMenu(){
 	lv_anim_set_exec_cb(&hiderAnimation, [](void* var, int32_t v){ lv_obj_set_y((lv_obj_t*) var, v); });
 	lv_anim_set_path_cb(&hiderAnimation, lv_anim_path_ease_out);
 	lv_anim_start(&hiderAnimation);
+}
+
+void PetScreen::startLevelupAnim(){
+	levelupImg = lv_image_create(*this);
+	lv_obj_add_flag(levelupImg, LV_OBJ_FLAG_FLOATING);
+	lv_obj_set_style_opa(levelupImg, LV_OPA_TRANSP, 0);
+	std::string path = "S:/LevelUp/" + std::to_string(statsManager->getLevel()) + ".bin";
+	lv_image_set_src(levelupImg, path.c_str());
+
+
+	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), levelupGroup);
+	levelupInProgress = true;
+
+	lv_anim_init(&levelupAnim);
+	lv_anim_set_var(&levelupAnim, levelupImg);
+	lv_anim_set_user_data(&levelupAnim, this);
+	lv_anim_set_values(&levelupAnim, LV_OPA_TRANSP, LV_OPA_COVER);
+	lv_anim_set_duration(&levelupAnim, LevelupFadeTime);
+	lv_anim_set_exec_cb(&levelupAnim, [](void* var, int32_t v){ lv_obj_set_style_opa((lv_obj_t*) var, v, 0); });
+	lv_anim_set_path_cb(&levelupAnim, lv_anim_path_linear);
+
+	lv_anim_set_completed_cb(&levelupAnim, [](lv_anim_t* anim){
+		auto screen = (PetScreen*) lv_anim_get_user_data(anim);
+		screen->levelupTimer = lv_timer_create([](lv_timer_t* t){
+			auto screen = (PetScreen*) lv_timer_get_user_data(t);
+			screen->stopLevelupAnim();
+		}, LevelupShowTime, screen);
+	});
+	lv_anim_start(&levelupAnim);
+}
+
+void PetScreen::stopLevelupAnim(){
+	if(!levelupInProgress) return;
+
+	lv_timer_delete(levelupTimer);
+
+	lv_anim_init(&levelupAnim);
+	lv_anim_set_var(&levelupAnim, levelupImg);
+	lv_anim_set_user_data(&levelupAnim, this);
+	lv_anim_set_values(&levelupAnim, LV_OPA_COVER, LV_OPA_TRANSP);
+	lv_anim_set_duration(&levelupAnim, LevelupFadeTime);
+	lv_anim_set_exec_cb(&levelupAnim, [](void* var, int32_t v){ lv_obj_set_style_opa((lv_obj_t*) var, v, 0); });
+	lv_anim_set_path_cb(&levelupAnim, lv_anim_path_linear);
+
+	lv_anim_set_completed_cb(&levelupAnim, [](lv_anim_t* anim){
+		auto screen = (PetScreen*) lv_anim_get_user_data(anim);
+		lv_obj_delete(screen->levelupImg);
+		screen->levelupImg = nullptr;
+		screen->levelupInProgress = false;
+		if(screen->menuHidden){
+			screen->unhideMenu();
+		}else{
+			lv_indev_set_group(InputLVGL::getInstance()->getIndev(), screen->inputGroup);
+		}
+	});
+	lv_anim_start(&levelupAnim);
 }

@@ -38,6 +38,7 @@ private:
 	bool dead = false;
 	constexpr static uint8_t rustThreshold = 25;
 
+	//Menu
 	static constexpr int16_t MenuY = -4;
 	Menu* menu;
 	bool menuHidden = true;
@@ -45,9 +46,18 @@ private:
 	static constexpr uint32_t HideTimeout = 5000; //[ms] = 5s
 	static constexpr uint32_t HideAnimDuration = 300;
 	lv_group_t* hideGroup;
-
-
 	lv_anim_t hiderAnimation;
+
+	//Levelup
+	bool levelupInProgress = false;
+	lv_group_t* levelupGroup;
+	static constexpr uint32_t LevelupShowTime = 3000; //[ms] = 3s
+	static constexpr uint32_t LevelupFadeTime = 500; //[ms] = 0.5s
+	lv_anim_t levelupAnim;
+	lv_timer_t* levelupTimer;
+	void startLevelupAnim();
+	void stopLevelupAnim();
+	lv_obj_t* levelupImg;
 
 	uint64_t randCounter = 0;
 	uint64_t randInterval = 0; //between 2s and 6s
