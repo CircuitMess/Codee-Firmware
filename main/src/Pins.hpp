@@ -1,13 +1,10 @@
 #ifndef CLOCKSTAR_LIBRARY_PINS_HPP
 #define CLOCKSTAR_LIBRARY_PINS_HPP
 
-#define BTN_LEFT 5
-#define BTN_RIGHT 4
-#define BTN_A 3
-#define BTN_B 2
-
-#define BTN_UP BTN_LEFT
-#define BTN_DOWN BTN_RIGHT
+#define BTN_A 5
+#define BTN_B 4
+#define BTN_C 3
+#define BTN_D 2
 
 #define PIN_BL 43
 #define PIN_BUZZ 44
