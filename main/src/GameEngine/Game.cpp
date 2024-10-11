@@ -149,7 +149,7 @@ void Game::loop(uint micros){
 	if(inputQueue.get(e, 0)){
 		if(e.facility == Facility::Input){
 			auto data = (Input::Data*) e.data;
-			if(data->btn == Input::B && data->action == Input::Data::Press){
+			if(data->btn == Input::D && data->action == Input::Data::Press){
 				stop();
 //				audio.play({{ NOTE_E6, NOTE_E6, 100 },
 //							{ NOTE_C6, NOTE_C6, 100 },

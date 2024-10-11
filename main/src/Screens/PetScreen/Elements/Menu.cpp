@@ -2,7 +2,8 @@
 #include "Util/Services.h"
 #include "Services/StatsManager.h"
 #include "LV_Interface/InputLVGL.h"
-
+#include "UIThread.h"
+#include "Screens/Settings/SettingsScreen.h"
 Menu::Menu(lv_obj_t* parent, lv_group_t* inputGroup) : LVObject(parent), inputGroup(inputGroup){
 
 	items.reserve((uint32_t) Games::COUNT + 1);
@@ -27,9 +28,8 @@ Menu::Menu(lv_obj_t* parent, lv_group_t* inputGroup) : LVObject(parent), inputGr
 
 			obj = *(new GrayscaleImageElement(*this, "S:/MenuIcons/settings.bin", "S:/MenuIcons/settings.bin", false));
 			lv_obj_add_event_cb(obj, [](lv_event_t* e){
-				auto menu = (Menu*) lv_event_get_user_data(e);
-
-				//TODO - open settings
+				auto ui = (UIThread*) Services.get(Service::UI);
+				ui->startScreen([](){ return std::make_unique<SettingsScreen>(); });
 			}, LV_EVENT_CLICKED, this);
 
 		}else{
