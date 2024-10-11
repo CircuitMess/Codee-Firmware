@@ -4,6 +4,8 @@
 #include "LV_Interface/InputLVGL.h"
 #include "UIThread.h"
 #include "Screens/Settings/SettingsScreen.h"
+#include "Screens/SplashScreen.h"
+
 Menu::Menu(lv_obj_t* parent, lv_group_t* inputGroup) : LVObject(parent), inputGroup(inputGroup){
 
 	items.reserve((uint32_t) Games::COUNT + 1);
@@ -43,7 +45,9 @@ Menu::Menu(lv_obj_t* parent, lv_group_t* inputGroup) : LVObject(parent), inputGr
 				if(menu->items[index - 1]->isGrayscale()){
 					menu->shake();
 				}else{
-					menu->launch(GameItems[index - 1].game);
+					auto game = GameItems[index - 1].game;
+					auto ui = (UIThread*) Services.get(Service::UI);
+					ui->startScreen([game](){ return std::make_unique<SplashScreen>(game); });
 				}
 			}, LV_EVENT_CLICKED, this);
 		}
@@ -109,8 +113,4 @@ void Menu::shake(){
 		lv_obj_set_style_translate_x(obj, 0, 0);
 	});
 	lv_anim_start(&shakeAnim);
-}
-
-void Menu::launch(Games game){
-	//TODO - launch game
 }
