@@ -15,8 +15,8 @@ const std::unordered_map<Input::Button, gpio_num_t> Input::PinMap{
 const std::unordered_map<Input::Button, const char*> Input::PinLabels{
 		{ A,     "A" },
 		{ B,     "B" },
-		{ C,     "B" },
-		{ D,     "B" },
+		{ C,     "C" },
+		{ D,     "D" },
 };
 
 Input::Input(bool invertLogic) : SleepyThreaded(SleepTime, "Input", 2048, 6, 0), invertLogic(invertLogic){
