@@ -61,10 +61,10 @@ void Sleep::goSleep(){
 		led->off((LED)i);
 	}
 
-	gpio_wakeup_enable((gpio_num_t) BTN_LEFT, GPIO_INTR_LOW_LEVEL);
-	gpio_wakeup_enable((gpio_num_t) BTN_RIGHT, GPIO_INTR_LOW_LEVEL);
 	gpio_wakeup_enable((gpio_num_t) BTN_A, GPIO_INTR_LOW_LEVEL);
 	gpio_wakeup_enable((gpio_num_t) BTN_B, GPIO_INTR_LOW_LEVEL);
+	gpio_wakeup_enable((gpio_num_t) BTN_C, GPIO_INTR_LOW_LEVEL);
+	gpio_wakeup_enable((gpio_num_t) BTN_D, GPIO_INTR_LOW_LEVEL);
 	esp_sleep_enable_gpio_wakeup();
 
 	auto battery = (Battery*)Services.get(Service::Battery);
