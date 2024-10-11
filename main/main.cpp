@@ -69,7 +69,7 @@ void init(){
 		vTaskDelete(nullptr);
 	}
 
-	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, false);
+	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, true);
 	blPwm->detach();
 	bl = new BacklightBrightness(blPwm);
 	Services.set(Service::Backlight, bl);
