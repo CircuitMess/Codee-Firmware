@@ -1,7 +1,5 @@
 #include "GameRunner.h"
-
-#include <Games/Game6/Game6.h>
-
+#include "Games/Game6/Game6.h"
 #include "Util/stdafx.h"
 #include "Devices/Battery.h"
 
