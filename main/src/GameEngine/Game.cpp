@@ -7,7 +7,7 @@
 //#include "Services/HighScoreManager.h"
 //#include "Screens/Game/AwardsScreen.h"
 //#include "Services/LEDService.h"
-#include <Screens/PetScreen/PetScreen.h>
+#include "Screens/PetScreen/PetScreen.h"
 
 #include "Util/stdafx.h"
 
