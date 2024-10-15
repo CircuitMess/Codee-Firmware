@@ -61,31 +61,37 @@ void Sleep::goSleep(){
 		led->off((LED)i);
 	}
 
-	gpio_wakeup_enable((gpio_num_t) BTN_A, GPIO_INTR_LOW_LEVEL);
-	gpio_wakeup_enable((gpio_num_t) BTN_B, GPIO_INTR_LOW_LEVEL);
-	gpio_wakeup_enable((gpio_num_t) BTN_C, GPIO_INTR_LOW_LEVEL);
-	gpio_wakeup_enable((gpio_num_t) BTN_D, GPIO_INTR_LOW_LEVEL);
+
+	static const gpio_num_t WakeupGpios[] = { (gpio_num_t) BTN_A, (gpio_num_t) BTN_B, (gpio_num_t) BTN_C, (gpio_num_t) BTN_D };
+	for(const auto& pin: WakeupGpios){
+		gpio_sleep_sel_en(pin);
+		gpio_sleep_set_pull_mode(pin, GPIO_PULLUP_ONLY);
+		gpio_wakeup_enable(pin, GPIO_INTR_LOW_LEVEL);
+	}
 	esp_sleep_enable_gpio_wakeup();
 
 	auto battery = (Battery*)Services.get(Service::Battery);
 	auto perc = std::max(battery->getPerc(), (uint8_t) 10);
-	esp_sleep_enable_timer_wakeup((172800000000 / 100) * perc); // 2 days max, shorter if battery is lower
+	esp_sleep_enable_timer_wakeup((172800000000 / (uint64_t) 100) * (uint64_t) perc); // 2 days max, shorter if battery is lower
 
 	auto bl = (BacklightBrightness*)Services.get(Service::Backlight);
 	bl->fadeOut();
 
-	static const uint8_t HeldPins[] = {LED_G, LED_Y,LED_O,LED_R,PIN_BL,PIN_BUZZ};
+	static const uint8_t HeldPins[] = { LED_G, LED_Y, LED_O, LED_R, PIN_BUZZ };
 
 	for(const auto& pin:HeldPins){
 		gpio_set_level((gpio_num_t) pin, 0);
 		gpio_hold_en((gpio_num_t) pin);
 	}
+	gpio_set_level((gpio_num_t) PIN_BL, 1);
+	gpio_hold_en((gpio_num_t) PIN_BL);
 
 	esp_light_sleep_start();
 
 	for(const auto& pin:HeldPins){
 		gpio_hold_dis((gpio_num_t) pin);
 	}
+	gpio_hold_dis((gpio_num_t) PIN_BL);
 
 
 	auto cause = esp_sleep_get_wakeup_cause();
