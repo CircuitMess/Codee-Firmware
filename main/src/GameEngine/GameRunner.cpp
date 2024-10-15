@@ -1,9 +1,12 @@
 #include "GameRunner.h"
+
+#include <Games/Game6/Game6.h>
+
 #include "Util/stdafx.h"
 #include "Devices/Battery.h"
 
 static const std::unordered_map<Games, std::function<std::unique_ptr<Game>(Sprite& canvas)>> Launcher{
-
+	{Games::IceBlast, [](Sprite& canvas) { return std::make_unique<Game6>(canvas); }},
 };
 
 GameRunner::GameRunner(Display& display) : display(display){

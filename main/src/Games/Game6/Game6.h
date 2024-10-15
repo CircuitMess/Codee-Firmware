@@ -4,8 +4,8 @@
 #include "GameEngine/Game.h"
 #include "Player.h"
 #include "GameEngine/Rendering/AnimRC.h"
-#include "Common/Hearts.h"
-#include "Common/Score.h"
+#include "Games/Common/Hearts.h"
+#include "Games/Common/Score.h"
 
 class Game6 : public Game {
 public:
@@ -14,10 +14,10 @@ public:
 protected:
 	void onLoad() override;
 	void onLoop(float deltaTime) override;
-	void onStart() override;
-	void onStop() override;
 	void handleInput(const Input::Data& data) override;
 	//Stats returnStats() override;
+
+	inline virtual uint32_t getXP() const override { return 0; }
 
 private:
 	std::unique_ptr<Hearts> hearts;
@@ -37,13 +37,12 @@ private:
 	static constexpr float winTime = 3.f;
 	static constexpr float winAcceleration = 40.f;
 
-	static constexpr glm::vec2 startPosition = { 70, 42 };
+	static constexpr glm::vec2 startPosition = { 55, 42 };
 
 	uint8_t level = 0;
 	void nextLevel();
 	void gameOver();
 	void spawnRandomAsteroid();
-
 
 	//------------ Player ------------
 	Player player;
@@ -55,7 +54,6 @@ private:
 	float invincibilityTime = 0;
 	float invincibilityBlink = 0;
 	float invincibilityBlinkDuration = 0.2f;
-	std::shared_ptr<AnimRC> playerAnim;
 
 	static constexpr std::initializer_list<glm::vec2> playerHitbox = {
 			{ 2,  32 },
@@ -95,16 +93,16 @@ private:
 		const char* path;
 		PixelDim dim;
 	};
-	static constexpr ImageDesc asteroidIcons[] = {{ "/asteroidS.raw", { 15, 14 }},
-												  { "/asteroidM.raw", { 20, 21 }},
-												  { "/asteroidL.raw", { 31, 30 }}};
+	static constexpr ImageDesc iceIcons[] = {{ "/ice-1.raw", { 23, 14 }},
+		{ "/ice-3.raw", { 32, 23 }},
+		{ "/ice-2.raw", { 39, 25 }}};
 
 	struct Asteroid {
 		std::shared_ptr<GameObject> gObj;
 		glm::vec2 velocity;
 		AsteroidSize size;
 
-		bool operator==(const Asteroid& other){
+		bool operator==(const Asteroid& other) const {
 			return (velocity == other.velocity) && (gObj == other.gObj) && (size == other.size);
 		}
 	};
@@ -123,7 +121,7 @@ private:
 		GameObject left;
 		GameObject right;
 	} wrapWalls;
-	constexpr static glm::vec2 wrapWallsSize = { 160.0f + 4 * asteroidRadius[(uint8_t)AsteroidSize::Large] + 2,
+	constexpr static glm::vec2 wrapWallsSize = { 128.0f + 4 * asteroidRadius[(uint8_t)AsteroidSize::Large] + 2,
 												 128.0f + 4 * asteroidRadius[(uint8_t)AsteroidSize::Large] + 2 };
 	//------------ Asteroid end ------------
 
@@ -131,6 +129,5 @@ private:
 	bool leftHold = false;
 	bool rightHold = false;
 };
-
 
 #endif //CIRCUITPET_FIRMWARE_GAME6_H

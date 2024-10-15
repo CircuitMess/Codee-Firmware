@@ -7,6 +7,8 @@
 //#include "Services/HighScoreManager.h"
 //#include "Screens/Game/AwardsScreen.h"
 //#include "Services/LEDService.h"
+#include <Screens/PetScreen/PetScreen.h>
+
 #include "Util/stdafx.h"
 
 Game::Game(Sprite& base, Games gameType, const char* root, std::vector<ResDescriptor> resources) :
@@ -117,13 +119,13 @@ void Game::handleInput(const Input::Data& data){
 void Game::exit(){
 	exited = true;
 
-/*	std::vector<AchievementData> achievements;
-	achievementSystem->endSession(achievements);
-
 	auto ui = (UIThread*) Services.get(Service::UI);
 	if(ui == nullptr){
 		return;
 	}
+
+/*	std::vector<AchievementData> achievements;
+	achievementSystem->endSession(achievements);
 
 	const HighScoreManager* hsm = (HighScoreManager*) Services.get(Service::HighScore);
 	if(hsm == nullptr){
@@ -137,11 +139,11 @@ void Game::exit(){
 	if(hsm->isHighScore(type, score) || xp != 0 || !achievements.empty()){
 		ui->startScreen([type, score, xp, &achievements](){ return std::make_unique<AwardsScreen>(type, score, xp, achievements); });
 		return;
-	}
+	}*/
 
-	ui->startScreen([type](){
-		return std::make_unique<GameMenuScreen>(type);
-	});*/
+	ui->startScreen([](){
+		return std::make_unique<PetScreen>();
+	});
 }
 
 void Game::loop(uint micros){
@@ -151,10 +153,12 @@ void Game::loop(uint micros){
 			auto data = (Input::Data*) e.data;
 			if(data->btn == Input::B && data->action == Input::Data::Press){
 				stop();
-//				audio.play({{ NOTE_E6, NOTE_E6, 100 },
-//							{ NOTE_C6, NOTE_C6, 100 },
-//							{ NOTE_E6, NOTE_E6, 100 },
-//							{ NOTE_C6, NOTE_C6, 100 }});
+
+				ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio);
+				audio->play({{ NOTE_E6, NOTE_E6, 100 },
+							{ NOTE_C6, NOTE_C6, 100 },
+							{ NOTE_E6, NOTE_E6, 100 },
+							{ NOTE_C6, NOTE_C6, 100 }});
 
 				auto ui = (UIThread*) Services.get(Service::UI);
 				ui->exitGame();
