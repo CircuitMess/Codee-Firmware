@@ -30,9 +30,9 @@ public:
 
 	const Stats& get() const;
 	uint8_t getLevel() const;
-	uint8_t getLevel(uint16_t exp) const;
+	static uint8_t getLevel(uint16_t exp);
 	uint8_t getExpPercentage() const;
-	uint8_t getExpPercentage(uint16_t exp) const;
+	static uint8_t getExpPercentage(uint16_t exp);
 
 private:
 	void store();
