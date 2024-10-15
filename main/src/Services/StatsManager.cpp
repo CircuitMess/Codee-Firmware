@@ -60,7 +60,7 @@ uint8_t StatsManager::getLevel() const{
 	return getLevel(stats.experience);
 }
 
-uint8_t StatsManager::getLevel(uint16_t exp) const{
+uint8_t StatsManager::getLevel(uint16_t exp) {
 	const uint8_t levelupsNum = sizeof(LevelupThresholds) / sizeof(uint16_t);
 	uint16_t requiredXP = 0;
 	for(uint8_t i = 0; i < levelupsNum; i++){
@@ -76,7 +76,7 @@ uint8_t StatsManager::getExpPercentage() const{
 	return getExpPercentage(stats.experience);
 }
 
-uint8_t StatsManager::getExpPercentage(uint16_t exp) const{
+uint8_t StatsManager::getExpPercentage(uint16_t exp){
 	if(getLevel(exp) == 1){
 		return (uint8_t) (((float) exp * 100) / LevelupThresholds[0]);
 	}
