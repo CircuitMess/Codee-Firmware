@@ -57,7 +57,7 @@ private:
 
 	constexpr static int16_t barsY = -5;
 	constexpr static uint16_t barsX[3] = {8, 26, 44};
-	constexpr static const char* barsIcons[4] = {"/BarP.raw", "/BarY.raw", "/BarB.raw", "/BarR.raw"};
+	constexpr static const char* barsIcons[3] = {"/BarP.raw", "/BarY.raw", "/BarB.raw"};
 
 	bool circlesPressed[3] = {false, false, false};
 	constexpr static uint16_t circlesY = 104;
@@ -68,7 +68,7 @@ private:
 
 	std::deque<ObjPtr> notes[3];
 	constexpr static const char* notesIcons[3] = {"/note1.raw", "/note2.raw", "/note3.raw"};
-	constexpr static const char* danceGIFs[4] = {"/dance1.gif", "/dance2.gif", "/dance3.gif", "/dance4.gif"};
+	constexpr static const char* danceGIFs[3] = {"/dance1.gif", "/dance2.gif", "/dance3.gif"};
 
 	constexpr static float notePerfectY = circlesY + 5;
 	constexpr static float noteTolerance = 8.0f;

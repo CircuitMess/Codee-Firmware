@@ -15,7 +15,6 @@ Game5::Game5(Sprite& base) : Game(base, Games::Dance, "/Games/5", {
 		{ barsIcons[0],           {}, true },
 		{ barsIcons[1],           {}, true },
 		{ barsIcons[2],           {}, true },
-		{ barsIcons[3],           {}, true },
 		{ circlesIcons[0],        {}, true },
 		{ circlesIcons[1],        {}, true },
 		{ circlesIcons[2],        {}, true },
@@ -29,14 +28,13 @@ Game5::Game5(Sprite& base) : Game(base, Games::Dance, "/Games/5", {
 		{ danceGIFs[0],          {}, false },
 		{ danceGIFs[1],          {}, false },
 		{ danceGIFs[2],          {}, false },
-		{ danceGIFs[3],          {}, false },
 		{ "/fail.gif",            {}, false },
 		{ "/idle.gif",            {}, false },
 		{ "/win.gif",            {}, false },
 		{ "/starFull.raw",            {}, true },
 		{ "/starEmpty.raw",            {}, true },
 		RES_HEART}),
-				 bottomWall(nullptr, std::make_unique<RectCC>(glm::vec2 { 160, 20 })),
+				 bottomWall(nullptr, std::make_unique<RectCC>(glm::vec2 { 128, 20 })),
 				 scoreBar(std::make_shared<GameObject>(std::make_unique<SpriteRC>(PixelDim { 7, 110 }), nullptr)){
 
 	bottomWall.setPos({ 0, 138 });
@@ -59,27 +57,27 @@ void Game5::onStop(){
 
 void Game5::onLoad(){
 	auto bg = std::make_shared<GameObject>(
-			std::make_unique<StaticRC>(getFile("/bg.raw"), PixelDim{160, 128}), nullptr);
+			std::make_unique<StaticRC>(getFile("/bg.raw"), PixelDim{128, 128}), nullptr);
 	bg->getRenderComponent()->setLayer(-1);
 	addObject(bg);
 
 	scoreStar = std::make_shared<GameObject>(
 			std::make_unique<StaticRC>(getFile("/starEmpty.raw"), PixelDim{17, 13}), nullptr);
-	scoreStar->setPos({141, 4});
+	scoreStar->setPos({110, 4});
 	scoreStar->getRenderComponent()->setLayer(1);
 	addObject(scoreStar);
 
 	hearts = std::make_unique<Hearts>(getFile(FILE_HEART));
-	hearts->getGO()->setPos({ 113, 4 });
+	hearts->getGO()->setPos({ 84, 4 });
 	addObject(hearts->getGO());
 
 	for(uint8_t i = 0; i < 3; ++i){
-		bars[i] = std::make_shared<GameObject>(std::make_unique<StaticRC>(getFile(barsIcons[i]), PixelDim { 14, 115 }), nullptr);
+		bars[i] = std::make_shared<GameObject>(std::make_unique<StaticRC>(getFile(barsIcons[i]), PixelDim { 7, 118 }), nullptr);
 		bars[i]->setPos({ barsX[i], barsY });
 		addObject(bars[i]);
 
-		circles[i] = std::make_shared<GameObject>(std::make_unique<StaticRC>(getFile(circlesIcons[i]), PixelDim { 18, 18 }),
-												  std::make_unique<CircleCC>(9, glm::vec2 { 9, 9 }));
+		circles[i] = std::make_shared<GameObject>(std::make_unique<StaticRC>(getFile(circlesIcons[i]), PixelDim { 13, 13 }),
+												  std::make_unique<CircleCC>(7.5f, glm::vec2 { 7.5f, 7.5f }));
 		circles[i]->getRenderComponent()->setLayer(1);
 		circles[i]->setPos({ circlesX[i], circlesY });
 		addObject(circles[i]);
@@ -232,7 +230,7 @@ void Game5::noteHit(uint8_t track){
 			return;
 		}
 
-		uint8_t i = rand() % 4;
+		uint8_t i = rand() % 3;
 		duckRC->setAnim(getFile(danceGIFs[i]));
 
 		duckRC->setLoopMode(GIF::LoopMode::Infinite);
@@ -318,7 +316,7 @@ void Game5::updateTracks(float delta){
 
 			auto rc = std::static_pointer_cast<StaticRC>(bars[i]->getRenderComponent());
 			if((int)(failTime[i] / failBlinkDuration) % 2 == 0){
-				rc->setFile(getFile(barsIcons[3]));
+				rc->setFile(getFile(barsIcons[2]));
 			}else{
 				rc->setFile(getFile(barsIcons[i]));
 			}
