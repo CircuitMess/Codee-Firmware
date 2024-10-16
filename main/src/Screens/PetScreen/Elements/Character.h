@@ -2,45 +2,62 @@
 #define CIRCUITPET_FIRMWARE_CHARACTERSPRITE_H
 
 #include "LV_Interface/LVObject.h"
+#include "LV_Interface/LVGIF.h"
 #include <optional>
 #include <string>
 
-enum class Anim : uint8_t {
-	General, Scratch, LookAround, Count // Stretch, Wave, Dance, Knock, TODO - add other anims when available
-};
-
-struct CharacterAnim {
-	uint8_t charLevel;
-	bool rusty;
-	Anim anim;
-};
-
 class Character : public LVObject {
 public:
-	Character(lv_obj_t* parentSprite, uint8_t charLevel, bool rusty, Anim currentAnim);
-	void setCharLevel(uint8_t charLevel);
-	void setRusty(bool rusty);
+	Character(lv_obj_t* parent, uint8_t level, bool rusty);
+	~Character() override;
 
-	void setAnim(Anim anim);
+	void setLevel(uint8_t level);
+	void setRusty(bool rusty);
+	void playIdle();
 
 private:
-	lv_obj_t* gif;
+	LVGIF* gif = nullptr;
 
-	uint8_t charLevel; //0-3
-	bool rusty; //0-1
-	Anim currentAnim;
+	struct {
+		const char* idle;
+		const char* idle_r;
+		const char* alt;
+		const char* alt_r;
+	} static constexpr Paths[3] = {
+			{
+				.idle = "S:/Pingo/1_idle",
+				.idle_r = "S:/Pingo/1R_idle",
+				.alt = "S:/Pingo/1_alt",
+				.alt_r = "S:/Pingo/1R_alt"
+			},
+			{
+				.idle = "S:/Pingo/2_idle",
+				.idle_r = "S:/Pingo/2R_idle",
+				.alt = "S:/Pingo/2_alt",
+				.alt_r = "S:/Pingo/2R_alt"
+			},
+			{
+					.idle = "S:/Pingo/3_idle",
+					.idle_r = "S:/Pingo/3R_idle",
+					.alt = "S:/Pingo/3_alt",
+					.alt_r = "S:/Pingo/3R_alt"
+			},
+	};
+	static constexpr const char* getAnimPath(uint8_t level, bool rustLevel, bool alt);
+	static constexpr uint8_t getAnimIndex(uint8_t level);
 
-	std::optional<CharacterAnim> nextAnim;
+	struct QueuedAnim {
+		uint8_t level = 0;
+		bool rusty = false;
+		bool alt = false;
+		explicit operator bool() const { return level != 0; }
+	} queuedAnim = {};
 
-	void registerNextAnim(); //queues up nextAnim to be started when current anim ends
-	void startNextAnim(); //starts queued nextAnim, then clears it
-	std::string getAnimPath(uint8_t charLevel, bool rustLevel, Anim anim);
+	void startAnim(); // starts and clears queued anim, or plays anim for current level and rust
 
-	uint8_t getGIFLevel(uint8_t level);
+	uint8_t level; // [1-6]
+	bool rusty;
 
-	int16_t x = 0, y = 0;
-
-	bool canChange = false;
 };
 
 

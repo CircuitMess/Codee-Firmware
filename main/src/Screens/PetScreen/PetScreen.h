@@ -59,9 +59,8 @@ private:
 	void stopLevelupAnim();
 	lv_obj_t* levelupImg;
 
-	uint64_t randCounter = 0;
-	uint64_t randInterval = 0; //between 2s and 6s
-	bool specialAnimPlaying = false;
+	uint64_t lastAlt = 0;
+	uint64_t altCooldown = 0;
 
 	uint8_t selection = 0;
 

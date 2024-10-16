@@ -25,12 +25,11 @@ PetScreen::PetScreen() : statsManager((StatsManager*) Services.get(Service::Stat
 	lv_obj_set_size(topBar, lv_pct(100), LV_SIZE_CONTENT);
 
 
-	characterSprite = new Character(*this, statsManager->getLevel(), statsManager->get().oilLevel < rustThreshold, Anim::General);
+	characterSprite = new Character(*this, statsManager->getLevel(), statsManager->get().oilLevel < rustThreshold);
 	lv_obj_set_pos(*characterSprite, characterX, characterY);
 
 	characterSprite->setRusty(statsManager->get().oilLevel < rustThreshold);
-	characterSprite->setCharLevel(statsManager->getLevel());
-	characterSprite->setAnim(Anim::General);
+	characterSprite->setLevel(statsManager->getLevel());
 
 	menu = new Menu(*this, inputGroup);
 	lv_obj_align(*menu, LV_ALIGN_BOTTOM_MID, 0, 50);
@@ -91,22 +90,10 @@ void PetScreen::loop(){
 
 	statsSprite->setBattery(battery->getPerc());
 
-	//playing random duck animations while idling
-	if(micros() - randCounter >= randInterval){
-		randCounter = micros();
-		Anim anim;
-		if(!specialAnimPlaying){
-			specialAnimPlaying = true;
-			randInterval = 1000000;
-			int num = 1 + esp_random() % ((uint8_t) Anim::Count - 1);
-			anim = (Anim) (num);
-		}else{
-			specialAnimPlaying = false;
-			randInterval = esp_random() % 4000000 + 2000000;
-			anim = Anim::General;
-		}
-
-		characterSprite->setAnim(anim);
+	if(millis() - lastAlt >= altCooldown){
+		lastAlt = millis();
+		altCooldown = (esp_random()%8000) + 4000;
+		characterSprite->playIdle();
 	}
 }
 
@@ -117,8 +104,8 @@ void PetScreen::onStart(){
 	}
 
 	statsChanged(statsManager->get(), false);
-	randInterval = esp_random() % 4000000 + 2000000;
-	randCounter = micros();
+	lastAlt = millis();
+	altCooldown = (esp_random()%8000) + 4000;
 
 	Events::listen(Facility::Stats, &queue);
 	Events::listen(Facility::Input, &queue);
