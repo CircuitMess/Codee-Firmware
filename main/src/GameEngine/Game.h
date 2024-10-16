@@ -26,6 +26,8 @@ class Game {
 	friend GameSystem;
 
 public:
+	virtual ~Game() = default;
+
 	void load();
 	bool isLoaded() const;
 
