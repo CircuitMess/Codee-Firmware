@@ -4,6 +4,7 @@
 #include "UIThread.h"
 #include "DeathScreen.h"
 #include "HatchScreen.h"
+#include "PetScreen/PetScreen.h"
 
 IntroScreen::IntroScreen(){
 	lv_obj_set_size(*this, 128, 128);
@@ -22,7 +23,7 @@ IntroScreen::IntroScreen(){
 			if(statsMan->hasDied()){
 				ui->startScreen([](){ return std::make_unique<DeathScreen>(); });
 			}else{
-//				ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+				ui->startScreen([](){ return std::make_unique<PetScreen>(); });
 			}
 		}else{
 			ui->startScreen([](){ return std::make_unique<HatchScreen>(); });

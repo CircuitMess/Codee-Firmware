@@ -3,6 +3,7 @@
 #include "Util/Services.h"
 #include "Devices/Input.h"
 #include "UIThread.h"
+#include "PetScreen/PetScreen.h"
 
 HatchScreen::HatchScreen() : queue(4){
 
@@ -25,7 +26,7 @@ HatchScreen::HatchScreen() : queue(4){
 
 	lv_obj_add_event_cb(gif, [](lv_event_t* e){
 		auto ui = (UIThread*) Services.get(Service::UI);
-//		ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+		ui->startScreen([](){ return std::make_unique<PetScreen>(); });
 	}, LV_EVENT_READY, this);
 
 	Events::listen(Facility::Input, &queue);
