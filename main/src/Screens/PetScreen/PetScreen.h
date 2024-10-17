@@ -12,12 +12,14 @@
 class PetScreen : public LVScreen {
 public:
 	PetScreen();
-	~PetScreen() override;
 
 private:
 	void loop() override;
 	void onStart() override;
 	void onStop() override;
+
+	EventQueue evts;
+	void processEvents();
 
 	void statsChanged(const Stats& stats, bool leveledUp);
 
@@ -25,22 +27,17 @@ private:
 	Battery* battery;
 
 	Character* characterSprite;
-
 	StatsSprite* statsSprite;
 	StatSprite* xpSprite;
-
 	Menu* menu;
+
 	bool startShown = false;
-
-	bool dead = false;
-	constexpr static uint8_t rustThreshold = 25;
-
 	bool stopped = false;
+
+	constexpr static uint8_t RustThreshold = 25;
 
 	uint64_t lastAlt = 0;
 	uint64_t altCooldown = 0;
-
-	uint8_t selection = 0;
 
 	static constexpr const char* BgPaths[6] = {
 			"S:/Bg/Level1.bin",
@@ -50,9 +47,6 @@ private:
 			"S:/Bg/Level5.bin",
 			"S:/Bg/Level6.bin"
 	};
-
-	EventQueue queue;
-
 
 };
 
