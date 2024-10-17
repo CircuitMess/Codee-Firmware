@@ -57,6 +57,8 @@ LVGIF::LVGIF(lv_obj_t* parent, const char* path) : LVObject(parent), path(path){
 
 			if(gif->loopType == LoopType::On){
 				gif->index = 0;
+			}else{
+				lv_timer_pause(gif->timer);
 			}
 		}
 
