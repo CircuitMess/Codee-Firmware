@@ -22,7 +22,7 @@ PetScreen::PetScreen() : statsManager((StatsManager*) Services.get(Service::Stat
 
 	characterSprite = new Character(*this, statsManager->getLevel(), stats.oilLevel < rustThreshold);
 	lv_obj_add_flag(*characterSprite, LV_OBJ_FLAG_FLOATING);
-	lv_obj_center(*characterSprite);
+	lv_obj_align(*characterSprite, LV_ALIGN_CENTER, 0, 10);
 
 	characterSprite->setRusty(stats.oilLevel < rustThreshold);
 	characterSprite->setLevel(statsManager->getLevel());

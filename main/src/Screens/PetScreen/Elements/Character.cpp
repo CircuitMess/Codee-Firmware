@@ -82,7 +82,7 @@ constexpr const char* Character::getAnimPath(uint8_t level, bool rusty, bool alt
 }
 
 constexpr uint8_t Character::getAnimIndex(uint8_t level){
-	if(level <= 3){
+	if(level <= 2){
 		return 0;
 	}else if(level <= 5){
 		return 1;
