@@ -1,43 +1,40 @@
 #ifndef CODEE_FIRMWARE_MENU_H
 #define CODEE_FIRMWARE_MENU_H
 
+
 #include "LV_Interface/LVObject.h"
-#include "GrayscaleImageElement.h"
-#include "GameEngine/Game.h"
-
-
-struct MenuItem {
-	uint8_t levelRequired;
-	const char* unlockedPath;
-	const char* lockedPath;
-	Games game;
-};
+#include "ext/vector_int2.hpp"
+#include "misc/lv_timer_private.h"
+#include "Util/Events.h"
 
 class Menu : public LVObject {
 public:
-	Menu(lv_obj_t* parent, lv_group_t* inputGroup);
+	Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch);
 	~Menu() override;
 
+	void loop();
+
 private:
-	void launch(Games game);
+	static constexpr glm::ivec2 ItemSize = { 32, 32 };
 
-	lv_group_t* inputGroup;
-	void shake();
-	lv_anim_t shakeAnim;
-	static constexpr uint32_t ShakeAnimDuration = 50;
+	lv_obj_t* container;
 
+	void hide();
+	void show();
 
-	std::vector<GrayscaleImageElement*> items;
-	lv_obj_t* border;
+	std::function<void(uint8_t)> launch;
 
-	static constexpr MenuItem GameItems[(uint32_t) Games::COUNT] = {
-			{ 1, "S:/MenuIcons/Icon1.bin", "S:/MenuIcons/Icon1.bin",   Games::Oily },
-			{ 2, "S:/MenuIcons/Icon2.bin", "S:/MenuIcons/Locked2.bin", Games::PolarSwim },
-			{ 3, "S:/MenuIcons/Icon3.bin", "S:/MenuIcons/Locked3.bin", Games::PingoSnack },
-			{ 4, "S:/MenuIcons/Icon4.bin", "S:/MenuIcons/Locked4.bin", Games::PolarJump },
-			{ 5, "S:/MenuIcons/Icon5.bin", "S:/MenuIcons/Locked5.bin", Games::Dance },
-			{ 6, "S:/MenuIcons/Icon6.bin", "S:/MenuIcons/Locked6.bin", Games::IceBlast },
-	};
+	EventQueue evts;
+	lv_group_t* grp;
+
+	static constexpr uint32_t HideTimeout = 3000;
+	lv_timer_t* hideTimer;
+	bool hidden = false;
+	bool hiding = false;
+
+	int32_t startPos;
+	lv_anim_t hideAnim;
+
 };
 
 

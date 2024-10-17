@@ -6,7 +6,7 @@
 #include "Devices/Input.h"
 #include "Elements/Character.h"
 #include "Elements/StatsSprite.h"
-#include "Screens/PetScreen/Elements/Menu.h"
+#include "Elements/Menu.h"
 #include "Devices/Battery.h"
 
 class PetScreen : public LVScreen {
@@ -21,9 +21,6 @@ private:
 
 	void statsChanged(const Stats& stats, bool leveledUp);
 
-	void hideMenu();
-	void unhideMenu();
-
 	StatsManager* statsManager;
 	Battery* battery;
 
@@ -32,18 +29,11 @@ private:
 	StatsSprite* statsSprite;
 	StatSprite* xpSprite;
 
+	Menu* menu;
+
 	bool dead = false;
 	constexpr static uint8_t rustThreshold = 25;
 
-	//Menu
-	static constexpr int16_t MenuY = -4;
-	Menu* menu;
-	bool menuHidden = true;
-	uint64_t hideMillis = 0;
-	static constexpr uint32_t HideTimeout = 5000; //[ms] = 5s
-	static constexpr uint32_t HideAnimDuration = 300;
-	lv_group_t* hideGroup;
-	lv_anim_t hiderAnimation;
 
 	//Levelup
 	bool levelupInProgress = false;
