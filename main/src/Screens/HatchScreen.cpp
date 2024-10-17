@@ -10,13 +10,12 @@ HatchScreen::HatchScreen() : queue(4){
 	lv_obj_set_style_bg_image_opa(*this, LV_OPA_COVER, 0);
 
 	gif = new LVGIF(*this, "S:/Anim/Hatch");
-	gif->setLoopCallback([](){
+	gif->setLoopCallback([this](){
 		auto stats = (StatsManager*) Services.get(Service::Stats);
 		stats->reset();
 		stats->setHatched(true);
 
-		auto ui = (UIThread*) Services.get(Service::UI);
-		ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+		transition([](){ return std::make_unique<PetScreen>(); });
 	});
 	lv_obj_add_flag(*gif, LV_OBJ_FLAG_HIDDEN);
 
