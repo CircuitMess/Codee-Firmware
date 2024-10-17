@@ -2,6 +2,7 @@
 #include "LVGL.h"
 #include "InputLVGL.h"
 #include <cstdio>
+#include <utility>
 #include <esp_log.h>
 
 static constexpr const char* TAG = "LVScreen";
@@ -12,6 +13,7 @@ LVScreen::LVScreen() : LVObject(nullptr){
 		auto screen = static_cast<LVScreen*>(lv_event_get_user_data(event));
 		lv_indev_set_group(InputLVGL::getInstance()->getIndev(), screen->inputGroup);
 		screen->onStart();
+		screen->loaded = true;
 	}, LV_EVENT_SCREEN_LOADED, this);
 
 	inputGroup = lv_group_create();
@@ -25,17 +27,20 @@ LVScreen::~LVScreen(){
 	lv_group_delete(inputGroup);
 }
 
-void LVScreen::transition(std::function<std::unique_ptr<LVScreen>()> create){
+void LVScreen::transition(std::function<std::unique_ptr<LVScreen>()> create, lv_screen_load_anim_t anim){
 	if(lvgl == nullptr){
 		ESP_LOGE(TAG, "Starting transition, but LVGL ptr isn't set");
 		abort();
 	}
-	lvgl->startScreen(create);
+	lvgl->startScreen(std::move(create), anim);
 }
 
 void LVScreen::start(LVGL* lvgl){
 	this->lvgl = lvgl;
-	if(running) return;
+	if(running){
+		printf("Already running\n");
+		return;
+	}
 	onStarting();
 	running = true;
 }
@@ -43,6 +48,7 @@ void LVScreen::start(LVGL* lvgl){
 void LVScreen::stop(){
 	if(!running) return;
 	running = false;
+	loaded = false;
 	onStop();
 }
 
