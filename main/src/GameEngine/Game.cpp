@@ -6,6 +6,7 @@
 #include "Util/Notes.h"
 #include "Screens/ScoreScreen.h"
 #include "Util/stdafx.h"
+#include "Screens/PetScreen/PetScreen.h"
 
 Game::Game(Sprite& base, Games gameType, const char* root, std::vector<ResDescriptor> resources) :
 		collision(this), inputQueue(12), audio(*(ChirpSystem*) Services.get(Service::Audio)), gameType(gameType), base(base),
@@ -93,6 +94,11 @@ void Game::exit(){
 	}
 
 	auto stats = returnStats();
+
+	if(stats.oilLevel + stats.happiness + stats.experience == 0){
+		ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+		return;
+	}
 
 	ui->startScreen([stats](){ return std::make_unique<ScoreScreen>(stats); });
 }
