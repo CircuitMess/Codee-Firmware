@@ -42,6 +42,7 @@ private:
 
 	float multiplier;
 	bool done = false;
+	bool exitFlag = false;
 
 	std::shared_ptr<AnimRC> duckAnim;
 	std::shared_ptr<GameObject> indicatorGO;
