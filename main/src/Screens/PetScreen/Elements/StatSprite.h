@@ -18,7 +18,7 @@ private:
 	lv_obj_t* icon;
 	lv_obj_t* bar;
 
-	constexpr static uint8_t BarWidth = 24;
+	constexpr static uint8_t BarWidth = 23;
 	constexpr static uint8_t BarWidthLong = 97;
 	constexpr static uint8_t BarHeight = 7;
 
