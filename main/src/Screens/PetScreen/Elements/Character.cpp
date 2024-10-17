@@ -2,11 +2,8 @@
 #include <sstream>
 
 Character::Character(lv_obj_t* parent, uint8_t level, bool rusty) : LVObject(parent), level(level), rusty(rusty){
+	lv_obj_set_size(*this, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 	startAnim();
-}
-
-Character::~Character(){
-	gif->stop();
 }
 
 void Character::setLevel(uint8_t level){

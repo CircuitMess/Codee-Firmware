@@ -4,7 +4,6 @@
 #include "LV_Interface/LVScreen.h"
 #include "Services/Stats.hpp"
 #include "Devices/Input.h"
-#include "Elements/OSIcon.h"
 #include "Elements/Character.h"
 #include "Elements/StatsSprite.h"
 #include "Screens/PetScreen/Elements/Menu.h"
@@ -25,15 +24,13 @@ private:
 	void hideMenu();
 	void unhideMenu();
 
-	lv_obj_t* topBar;
-
 	StatsManager* statsManager;
 	Battery* battery;
 
-	OSIcon* osSprite;
 	Character* characterSprite;
 
 	StatsSprite* statsSprite;
+	StatSprite* xpSprite;
 
 	bool dead = false;
 	constexpr static uint8_t rustThreshold = 25;
@@ -64,10 +61,14 @@ private:
 
 	uint8_t selection = 0;
 
-	constexpr static uint8_t characterX = 34;
-	constexpr static uint8_t characterY = 36;
-
-	char bgPath[20] = { 0 };
+	static constexpr const char* BgPaths[6] = {
+			"S:/Bg/Level1.bin",
+			"S:/Bg/Level2.bin",
+			"S:/Bg/Level3.bin",
+			"S:/Bg/Level4.bin",
+			"S:/Bg/Level5.bin",
+			"S:/Bg/Level6.bin"
+	};
 
 	EventQueue queue;
 

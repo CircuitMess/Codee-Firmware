@@ -8,27 +8,23 @@
 #include "LV_Interface/InputLVGL.h"
 
 PetScreen::PetScreen() : statsManager((StatsManager*) Services.get(Service::Stats)), battery((Battery*) Services.get(Service::Battery)), queue(12){
-	sprintf(bgPath, "S:/Bg/Level%d.bin", statsManager->getLevel());
-	lv_obj_set_style_bg_image_src(*this, bgPath, 0);
+	const auto lvl = std::clamp(statsManager->getLevel()-1, 0, 5);
+	lv_obj_set_style_bg_image_src(*this, BgPaths[lvl], 0);
 
-	lv_obj_set_style_pad_all(*this, 1, 0);
+	const auto stats = statsManager->get();
+	statsSprite = new StatsSprite(*this, stats.oilLevel, stats.happiness, statsManager->getLevel(), 100);
+	lv_obj_add_flag(*statsSprite, LV_OBJ_FLAG_FLOATING);
+	lv_obj_align(*statsSprite, LV_ALIGN_TOP_MID, 0, 0);
 
-	topBar = lv_obj_create(*this);
-	lv_obj_set_layout(topBar, LV_LAYOUT_FLEX);
-	lv_obj_set_flex_flow(topBar, LV_FLEX_FLOW_ROW_WRAP);
-	lv_obj_set_flex_align(topBar, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-	lv_obj_set_style_pad_row(topBar, 2, 0);
+	xpSprite = new StatSprite(*this, StatSprite::XP, statsManager->getExpPercentage());
+	lv_obj_add_flag(*xpSprite, LV_OBJ_FLAG_FLOATING);
+	lv_obj_align(*xpSprite, LV_ALIGN_BOTTOM_LEFT, 2, -2);
 
-	statsSprite = new StatsSprite(topBar, statsManager->get().oilLevel, statsManager->get().happiness, 100);
-	osSprite = new OSIcon(topBar, statsManager->getLevel());
+	characterSprite = new Character(*this, statsManager->getLevel(), stats.oilLevel < rustThreshold);
+	lv_obj_add_flag(*characterSprite, LV_OBJ_FLAG_FLOATING);
+	lv_obj_center(*characterSprite);
 
-	lv_obj_set_size(topBar, lv_pct(100), LV_SIZE_CONTENT);
-
-
-	characterSprite = new Character(*this, statsManager->getLevel(), statsManager->get().oilLevel < rustThreshold);
-	lv_obj_set_pos(*characterSprite, characterX, characterY);
-
-	characterSprite->setRusty(statsManager->get().oilLevel < rustThreshold);
+	characterSprite->setRusty(stats.oilLevel < rustThreshold);
 	characterSprite->setLevel(statsManager->getLevel());
 
 	menu = new Menu(*this, inputGroup);
@@ -134,8 +130,10 @@ void PetScreen::statsChanged(const Stats& stats, bool leveledUp){
 	if(characterSprite) characterSprite->setRusty(stats.oilLevel < rustThreshold);
 
 	statsSprite->setHappiness(stats.happiness);
-	statsSprite->setOilLevel(stats.oilLevel);
-	statsSprite->setXPLevel();
+	statsSprite->setOil(stats.oilLevel);
+	statsSprite->setLevel(statsManager->getLevel());
+
+	xpSprite->set(statsManager->getExpPercentage());
 }
 
 void PetScreen::hideMenu(){

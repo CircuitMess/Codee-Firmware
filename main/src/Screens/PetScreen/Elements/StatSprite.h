@@ -6,36 +6,28 @@
 class StatSprite : public LVObject {
 public:
 	enum Type {
-		Happiness, OilLevel, Battery, XPLevel
+		Happiness, Oil, Battery, XP
 	};
-	StatSprite(lv_obj_t* parent, Type type, uint8_t level, bool longBar = false);
-	void setLevel(uint8_t level);
+
+	StatSprite(lv_obj_t* parent, Type type, uint8_t perc);
+	void set(uint8_t perc);
 
 private:
-	Type type;
-	uint8_t level;
+	const Type type;
 
 	lv_obj_t* icon;
 	lv_obj_t* bar;
-	bool longBar;
 
-	constexpr static uint8_t iconWidth = 15;
-	constexpr static uint8_t XPiconWidth = 19;
-	constexpr static uint8_t iconHeight = 10;
-	constexpr static uint8_t barWidth = 24;
-	constexpr static uint8_t longBarWidth = 97;
-	constexpr static uint8_t barHeight = 7;
-	static constexpr const char* paths[] = {
-			"S:/Stats/Happiness.bin",
-			"S:/Stats/OilLevel.bin",
-			"S:/Stats/Battery.bin",
-			"S:/Stats/Exp.bin"
-	};
+	constexpr static uint8_t BarWidth = 24;
+	constexpr static uint8_t BarWidthLong = 97;
+	constexpr static uint8_t BarHeight = 7;
 
-	static constexpr const char* BarPath = "S:/Stats/bar.bin";
-	static constexpr const char* LongbarPath = "S:/Stats/LongBar.bin";
+	static constexpr const char* BarPath = "S:/Stats/Bar.bin";
+	static constexpr const char* BarPathLong = "S:/Stats/BarLong.bin";
 
-	void drawLevel(uint8_t length);
+	static const lv_point_precise_t LinePoints[];
+	static const lv_point_precise_t LinePointsLong[];
+
 };
 
 

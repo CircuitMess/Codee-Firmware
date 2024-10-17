@@ -9,7 +9,6 @@
 class Character : public LVObject {
 public:
 	Character(lv_obj_t* parent, uint8_t level, bool rusty);
-	~Character() override;
 
 	void setLevel(uint8_t level);
 	void setRusty(bool rusty);
@@ -25,16 +24,16 @@ private:
 		const char* alt_r;
 	} static constexpr Paths[3] = {
 			{
-				.idle = "S:/Pingo/1_idle",
-				.idle_r = "S:/Pingo/1R_idle",
-				.alt = "S:/Pingo/1_alt",
-				.alt_r = "S:/Pingo/1R_alt"
+					.idle = "S:/Pingo/1_idle",
+					.idle_r = "S:/Pingo/1R_idle",
+					.alt = "S:/Pingo/1_alt",
+					.alt_r = "S:/Pingo/1R_alt"
 			},
 			{
-				.idle = "S:/Pingo/2_idle",
-				.idle_r = "S:/Pingo/2R_idle",
-				.alt = "S:/Pingo/2_alt",
-				.alt_r = "S:/Pingo/2R_alt"
+					.idle = "S:/Pingo/2_idle",
+					.idle_r = "S:/Pingo/2R_idle",
+					.alt = "S:/Pingo/2_alt",
+					.alt_r = "S:/Pingo/2R_alt"
 			},
 			{
 					.idle = "S:/Pingo/3_idle",
