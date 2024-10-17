@@ -30,6 +30,7 @@ private:
 	StatSprite* xpSprite;
 
 	Menu* menu;
+	bool startShown = false;
 
 	bool dead = false;
 	constexpr static uint8_t rustThreshold = 25;

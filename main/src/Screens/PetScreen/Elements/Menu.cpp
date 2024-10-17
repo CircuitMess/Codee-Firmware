@@ -95,6 +95,15 @@ void Menu::stop(){
 	lv_timer_pause(hideTimer);
 }
 
+void Menu::hideNow(){
+	if(hidden || hiding) return;
+	hiding = false;
+	hidden = true;
+
+	startPos = lv_obj_get_y(*this);
+	lv_obj_set_style_translate_y(*this, 128-startPos, 0);
+}
+
 void Menu::hide(){
 	if(hidden || hiding) return;
 	hiding = true;

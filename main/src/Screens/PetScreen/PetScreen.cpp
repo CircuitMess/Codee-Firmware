@@ -31,6 +31,9 @@ PetScreen::PetScreen() : statsManager((StatsManager*) Services.get(Service::Stat
 	menu = new Menu(*this, [](uint8_t i){});
 	lv_obj_add_flag(*menu, LV_OBJ_FLAG_FLOATING);
 	lv_obj_align(*menu, LV_ALIGN_CENTER, 0, 30);
+
+	lv_obj_update_layout(*this);
+	menu->hideNow();
 }
 
 PetScreen::~PetScreen(){
@@ -39,6 +42,13 @@ PetScreen::~PetScreen(){
 
 void PetScreen::loop(){
 	if(stopped) return;
+
+	// Start level up before showing menu
+
+	if(!startShown){
+		startShown = true;
+		menu->show();
+	}
 
 	menu->loop();
 

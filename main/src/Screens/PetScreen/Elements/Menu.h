@@ -15,13 +15,15 @@ public:
 	void loop();
 	void stop();
 
+	void hideNow();
+	void show();
+
 private:
 	static constexpr glm::ivec2 ItemSize = { 32, 32 };
 
 	lv_obj_t* container;
 
 	void hide();
-	void show();
 
 	std::function<void(uint8_t)> launch;
 
