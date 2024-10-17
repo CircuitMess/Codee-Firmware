@@ -10,20 +10,21 @@ IntroScreen::IntroScreen(){
 	lv_obj_set_size(*this, 128, 128);
 
 	gif = new LVGIF(*this, "S:/Anim/Intro");
+	gif->setLooping(LVGIF::LoopType::Single);
 	lv_obj_set_pos(*gif, 0, 0);
 
-	gif->setLoopCallback([](){
-		auto statsMan = (StatsManager*)Services.get(Service::Stats);
-		auto ui = (UIThread*)Services.get(Service::UI);
+	gif->setLoopCallback([this](){
+		lv_obj_add_flag(*gif, LV_OBJ_FLAG_HIDDEN);
 
+		auto statsMan = (StatsManager*)Services.get(Service::Stats);
 		if(statsMan->isHatched()){
 			if(statsMan->hasDied()){
-				ui->startScreen([](){ return std::make_unique<DeathScreen>(); });
+				transition([](){ return std::make_unique<DeathScreen>(); }, LV_SCR_LOAD_ANIM_FADE_IN);
 			}else{
-				ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+				transition([](){ return std::make_unique<PetScreen>(); }, LV_SCR_LOAD_ANIM_FADE_IN);
 			}
 		}else{
-			ui->startScreen([](){ return std::make_unique<HatchScreen>(); });
+			transition([](){ return std::make_unique<HatchScreen>(); }, LV_SCR_LOAD_ANIM_FADE_IN);
 		}
 	});
 }
