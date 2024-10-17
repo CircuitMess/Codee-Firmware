@@ -4,7 +4,7 @@
 #include "Util/Services.h"
 #include "Util/stdafx.h"
 
-Game1::Game1(Sprite& canvas) : Game(canvas, Games::Oily, "/Games/Game1/", {
+Game1::Game1(Sprite& canvas) : Game(canvas, Games::Oily, "/Games/1/", {
 		{ "Arrow.raw",    {}, true },
 		{ "EmptyCan.raw", {}, true },
 		{ "bg.raw",       {}, true },
