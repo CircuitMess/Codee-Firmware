@@ -12,7 +12,6 @@ class RamFile : public FileImpl {
 public:
 	RamFile(File file, bool use32bAligned = false);
 	RamFile(uint8_t* data, size_t size, const char* name);
-	RamFile(const char* path, bool use32bAligned = false);
 	~RamFile() override;
 
 	operator bool() override;
@@ -22,14 +21,12 @@ public:
 
 	size_t size() const override;
 	const char* name() const override;
-	std::string path();
-
 
 	size_t read(uint8_t* dest, size_t len) override;
 	size_t write(const uint8_t* buf, size_t size) override;
 	void flush() override;
 
-	bool seek(int pos, int whence = SEEK_SET) override;
+	bool seek(int pos, int whence) override;
 	size_t pos() const override;
 
 private:

@@ -44,43 +44,6 @@ RamFile::RamFile(uint8_t* data, size_t size, const char* name) : data(data), fil
 
 }
 
-RamFile::RamFile(const char* path, bool use32bAligned) {
-	auto file = fopen(path, "rb");
-	if(file == nullptr){
-		ESP_LOGE(TAG, "Couldn't open file: %s", path);
-		return;
-	}
-
-	fseek(file, 0L, SEEK_END);
-	fileSize = ftell(file);
-	rewind(file);
-
-	if(fileSize == 0){
-		ESP_LOGE(TAG, "File is empty: %s", path);
-		fclose(file);
-		return;
-	}
-	size_t allocSize = fileSize;
-	if(use32bAligned){
-		auto rest = fileSize % 4;
-		if(rest != 0){
-			allocSize += (4 - rest);
-		}
-	}
-
-	data = (uint8_t*) heap_caps_malloc(allocSize, MALLOC_CAP_SPIRAM | (use32bAligned ? MALLOC_CAP_32BIT : MALLOC_CAP_8BIT));
-	if(data == nullptr){
-		fileSize = 0;
-		ESP_LOGE(TAG, "Couldn't allocate memory for %s. Need %zu B, largest block: %zu B", path, allocSize,
-				 heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | (use32bAligned ? MALLOC_CAP_32BIT : MALLOC_CAP_8BIT)));
-		fclose(file);
-		return;
-	}
-
-	fread(data, 1, fileSize, file);
-	fclose(file);
-}
-
 RamFile::~RamFile(){
 	if(!borrowed){
 		free(data);
@@ -110,10 +73,6 @@ size_t RamFile::size() const{
 
 const char* RamFile::name() const{
 	return filePath.c_str();
-}
-
-std::string RamFile::path(){
-	return filePath;
 }
 
 size_t IRAM_ATTR RamFile::read(uint8_t* dest, size_t len){
