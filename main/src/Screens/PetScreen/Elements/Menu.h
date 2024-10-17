@@ -13,6 +13,7 @@ public:
 	~Menu() override;
 
 	void loop();
+	void stop();
 
 private:
 	static constexpr glm::ivec2 ItemSize = { 32, 32 };

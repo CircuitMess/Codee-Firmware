@@ -34,17 +34,7 @@ private:
 	bool dead = false;
 	constexpr static uint8_t rustThreshold = 25;
 
-
-	//Levelup
-	bool levelupInProgress = false;
-	lv_group_t* levelupGroup;
-	static constexpr uint32_t LevelupShowTime = 3000; //[ms] = 3s
-	static constexpr uint32_t LevelupFadeTime = 500; //[ms] = 0.5s
-	lv_anim_t levelupAnim;
-	lv_timer_t* levelupTimer;
-	void startLevelupAnim();
-	void stopLevelupAnim();
-	lv_obj_t* levelupImg;
+	bool stopped = false;
 
 	uint64_t lastAlt = 0;
 	uint64_t altCooldown = 0;

@@ -6,6 +6,7 @@
 #include "Util/stdafx.h"
 #include "Devices/Battery.h"
 #include "LV_Interface/InputLVGL.h"
+#include "Screens/LevelUpScreen.h"
 
 PetScreen::PetScreen() : statsManager((StatsManager*) Services.get(Service::Stats)), battery((Battery*) Services.get(Service::Battery)), queue(12){
 	const auto lvl = std::clamp(statsManager->getLevel()-1, 0, 5);
@@ -37,9 +38,9 @@ PetScreen::~PetScreen(){
 }
 
 void PetScreen::loop(){
-	menu->loop();
+	if(stopped) return;
 
-	if(levelupInProgress) return;
+	menu->loop();
 
 	if(dead){
 		auto ui = (UIThread*) Services.get(Service::UI);
@@ -66,13 +67,10 @@ void PetScreen::onStart(){
 	altCooldown = (esp_random()%8000) + 4000;
 
 	Events::listen(Facility::Stats, &queue);
-
-	if(!levelupInProgress){
-		// unhideMenu();
-	}
 }
 
 void PetScreen::onStop(){
+	menu->stop();
 	Events::unlisten(&queue);
 }
 
@@ -84,8 +82,12 @@ void PetScreen::statsChanged(const Stats& stats, bool leveledUp){
 		dead = false;
 	}
 
-	if(leveledUp && !levelupInProgress){
-		startLevelupAnim();
+	if(leveledUp){
+		menu->stop();
+		stopped = true;
+		const auto level = statsManager->getLevel();
+		transition([level](){ return std::make_unique<LevelUpScreen>(level); }, LV_SCR_LOAD_ANIM_FADE_IN);
+		return;
 	}
 
 	characterSprite->setRusty(stats.oilLevel < rustThreshold);
@@ -95,55 +97,4 @@ void PetScreen::statsChanged(const Stats& stats, bool leveledUp){
 	statsSprite->setLevel(statsManager->getLevel());
 
 	xpSprite->set(statsManager->getExpPercentage());
-}
-
-void PetScreen::startLevelupAnim(){
-	levelupImg = lv_image_create(*this);
-	lv_obj_add_flag(levelupImg, LV_OBJ_FLAG_FLOATING);
-	lv_obj_set_style_opa(levelupImg, LV_OPA_TRANSP, 0);
-	std::string path = "S:/LevelUp/" + std::to_string(statsManager->getLevel()) + ".bin";
-	lv_image_set_src(levelupImg, path.c_str());
-
-
-	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), levelupGroup);
-	levelupInProgress = true;
-
-	lv_anim_init(&levelupAnim);
-	lv_anim_set_var(&levelupAnim, levelupImg);
-	lv_anim_set_user_data(&levelupAnim, this);
-	lv_anim_set_values(&levelupAnim, LV_OPA_TRANSP, LV_OPA_COVER);
-	lv_anim_set_duration(&levelupAnim, LevelupFadeTime);
-	lv_anim_set_exec_cb(&levelupAnim, [](void* var, int32_t v){ lv_obj_set_style_opa((lv_obj_t*) var, v, 0); });
-	lv_anim_set_path_cb(&levelupAnim, lv_anim_path_linear);
-
-	lv_anim_set_completed_cb(&levelupAnim, [](lv_anim_t* anim){
-		auto screen = (PetScreen*) lv_anim_get_user_data(anim);
-		screen->levelupTimer = lv_timer_create([](lv_timer_t* t){
-			auto screen = (PetScreen*) lv_timer_get_user_data(t);
-			screen->stopLevelupAnim();
-		}, LevelupShowTime, screen);
-	});
-	lv_anim_start(&levelupAnim);
-}
-
-void PetScreen::stopLevelupAnim(){
-	if(!levelupInProgress) return;
-
-	lv_timer_delete(levelupTimer);
-
-	lv_anim_init(&levelupAnim);
-	lv_anim_set_var(&levelupAnim, levelupImg);
-	lv_anim_set_user_data(&levelupAnim, this);
-	lv_anim_set_values(&levelupAnim, LV_OPA_COVER, LV_OPA_TRANSP);
-	lv_anim_set_duration(&levelupAnim, LevelupFadeTime);
-	lv_anim_set_exec_cb(&levelupAnim, [](void* var, int32_t v){ lv_obj_set_style_opa((lv_obj_t*) var, v, 0); });
-	lv_anim_set_path_cb(&levelupAnim, lv_anim_path_linear);
-
-	lv_anim_set_completed_cb(&levelupAnim, [](lv_anim_t* anim){
-		auto screen = (PetScreen*) lv_anim_get_user_data(anim);
-		lv_obj_delete(screen->levelupImg);
-		screen->levelupImg = nullptr;
-		screen->levelupInProgress = false;
-	});
-	lv_anim_start(&levelupAnim);
 }

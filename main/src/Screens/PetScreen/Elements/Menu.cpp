@@ -90,6 +90,11 @@ void Menu::loop(){
 	free(evt.data);
 }
 
+void Menu::stop(){
+	Events::unlisten(&evts);
+	lv_timer_pause(hideTimer);
+}
+
 void Menu::hide(){
 	if(hidden || hiding) return;
 	hiding = true;
