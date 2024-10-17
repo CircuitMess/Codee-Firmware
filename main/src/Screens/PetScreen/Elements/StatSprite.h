@@ -19,7 +19,7 @@ private:
 	lv_obj_t* bar;
 
 	constexpr static uint8_t BarWidth = 23;
-	constexpr static uint8_t BarWidthLong = 97;
+	constexpr static uint8_t BarWidthLong = 111;
 	constexpr static uint8_t BarHeight = 7;
 
 	static constexpr const char* BarPath = "S:/Stats/Bar.bin";
