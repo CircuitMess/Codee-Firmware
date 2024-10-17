@@ -37,11 +37,14 @@ Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(par
 		lv_group_add_obj(grp, img);
 	};
 
+	addItem("S:/Menu/Settings.bin");
+
 	for(int i = 0; i < 6; i++){
 		const auto path = "S:/Menu/Game" + std::to_string(i+1) + ".bin";
 		addItem(path.c_str());
 	}
-	addItem("S:/Menu/Settings.bin");
+
+	lv_group_focus_obj(lv_obj_get_child(container, 1));
 
 	hideTimer = lv_timer_create([](lv_timer_t* timer){
 		auto menu = (Menu*) timer->user_data;
