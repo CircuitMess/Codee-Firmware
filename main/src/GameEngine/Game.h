@@ -15,7 +15,7 @@
 #include "Devices/Input.h"
 #include "Services/ChirpSystem.h"
 #include <atomic>
-//#include "Services/AchievementSystem.h"
+#include "Services/Stats.hpp"
 
 enum class Games : uint8_t {
 	Oily, PolarSwim, PingoSnack, PolarJump, Dance, IceBlast, COUNT
@@ -26,7 +26,7 @@ class Game {
 	friend GameSystem;
 
 public:
-	virtual ~Game();
+	virtual ~Game() = default;
 
 	void load();
 	bool isLoaded() const;
@@ -36,7 +36,7 @@ public:
 
 	void loop(uint micros);
 
-	inline Games getType() const { return gameType; }
+	inline Games getType() const{ return gameType; }
 
 	void exit();
 
@@ -57,10 +57,6 @@ protected:
 	void removeObject(const GameObjPtr& obj);
 	void removeObjects(std::initializer_list<const GameObjPtr> objs);
 
-//	void addAchi(Achievement ID, int32_t increment);
-//	void setAchiIfBigger(Achievement ID, int32_t value);
-//	void resetAchi(Achievement ID);
-
 	CollisionSystem collision;
 
 	EventQueue inputQueue;
@@ -68,11 +64,7 @@ protected:
 
 	ChirpSystem& audio;
 
-//	void setRobot(std::shared_ptr<RoboCtrl::RobotDriver> robot);
-
-	virtual uint32_t getXP() const = 0;
-
-	inline virtual uint32_t getScore() const { return 0; }
+	virtual Stats returnStats() = 0;
 
 	inline static bool exited = false; // yolo
 	// Exit is going to get called in the game's onLoop, and when exit is called, the Game object
@@ -90,18 +82,11 @@ private:
 	bool started = false;
 	ThreadedClosure loadTask;
 
-	volatile bool popped = false;
-
 	RenderSystem render;
 
 	std::set<GameObjPtr> objects;
 
 	void loadFunc();
-
-//	AchievementSystem* achievementSystem;
-
-//	std::shared_ptr<RoboCtrl::RobotDriver> robot;
-
 };
 
 

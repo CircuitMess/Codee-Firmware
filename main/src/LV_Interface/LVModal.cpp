@@ -22,7 +22,7 @@ LVModal::LVModal(LVScreen* parent) : LVObject((lv_obj_t*) *parent), parentScreen
 
 	lv_obj_add_event_cb(obj, [](lv_event_t* event){
 		auto container = (lv_obj_t*) lv_event_get_user_data(event);
-		lv_obj_del_async(container);
+		lv_obj_delete_async(container);
 	}, LV_EVENT_DELETE, container);
 
 	lv_obj_set_size(container, 102, 92);
@@ -44,10 +44,10 @@ LVModal::LVModal(LVScreen* parent) : LVObject((lv_obj_t*) *parent), parentScreen
 
 LVModal::~LVModal(){
 	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), oldGroup);
-	lv_group_del(inputGroup);
+	lv_group_delete(inputGroup);
 	current = nullptr;
 }
 
 void LVModal::setBg(const char* src){
-	lv_obj_set_style_bg_img_src(container, src, 0);
+	lv_obj_set_style_bg_image_src(container, src, 0);
 }
