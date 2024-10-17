@@ -24,7 +24,6 @@ protected:
 
 private:
 	StatsManager* statsManager;
-	ChirpSystem* audio;
 
 	void handleInput(const Input::Data& data) override;
 	void addPoints(int difference);

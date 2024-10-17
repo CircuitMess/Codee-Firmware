@@ -12,8 +12,7 @@ Game1::Game1(Sprite& canvas) : Game(canvas, Games::Oily, "/Games/1/", {
 		{ "OilyDone.gif", {}, true },
 		{ "OilyIdle.gif", {}, true },
 		{ "OilyJump.gif", {}, true }}),
-							   statsManager((StatsManager*) Services.get(Service::Stats)),
-							   audio((ChirpSystem*) Services.get(Service::Audio)){
+							   statsManager((StatsManager*) Services.get(Service::Stats)){
 
 }
 
@@ -123,10 +122,10 @@ void Game1::addPoints(int difference){
 	if(done){
 
 	}else if(indicator->getDifference() < 30){
-		audio->play({{ 250, 200, 50 },
+		audio.play({{ 250, 200, 50 },
 					 { 400, 700, 50 }});
 	}else if(indicator->getDifference() >= 30){
-		audio->play({{ 300, 300, 50 },
+		audio.play({{ 300, 300, 50 },
 					 { 0,   0,   50 },
 					 { 300, 300, 50 }});
 	}
@@ -134,7 +133,7 @@ void Game1::addPoints(int difference){
 	if(fillPercent >= 0.999f){
 		Sound s = {{ 600, 400,  200 },
 				   { 400, 1000, 200 }};
-		audio->play(s);
+		audio.play(s);
 
 		removeObject(barGO);
 		removeObject(indicatorGO);
@@ -142,14 +141,14 @@ void Game1::addPoints(int difference){
 		done = true;
 	}else{
 		if(indicator->getDifference() < 30){
-			audio->play({{ 250, 200, 50 },
+			audio.play({{ 250, 200, 50 },
 						 { 400, 700, 50 }});
 			duckAnim->setAnim(getFile("OilyJump.gif"));
 			duckAnim->setLoopDoneCallback([this](uint32_t){
 				resetAnim();
 			});
 		}else if(indicator->getDifference() >= 30){
-			audio->play({{ 300, 300, 50 },
+			audio.play({{ 300, 300, 50 },
 						 { 0,   0,   50 },
 						 { 300, 300, 50 }});
 		}
@@ -171,7 +170,7 @@ void Game1::handleInput(const Input::Data& data){
 	if(data.action != Input::Data::Press) return;
 
 	if(data.btn == Input::D){
-		audio->play(Sound{ Chirp{ 400, 350, 50 }});
+		audio.play(Sound{ Chirp{ 400, 350, 50 }});
 		exit();
 		return;
 	}
