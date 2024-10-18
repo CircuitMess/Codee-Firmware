@@ -23,7 +23,6 @@ private:
 
 	void statsChanged(const Stats& stats, bool leveledUp);
 
-	int8_t queuedLaunch = -1;
 	void launch(uint8_t i);
 
 	StatsManager* statsManager;

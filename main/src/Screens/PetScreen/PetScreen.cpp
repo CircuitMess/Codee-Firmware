@@ -28,7 +28,7 @@ PetScreen::PetScreen() : evts(6), statsManager((StatsManager*) Services.get(Serv
 	lv_obj_add_flag(*xpSprite, LV_OBJ_FLAG_FLOATING);
 	lv_obj_align(*xpSprite, LV_ALIGN_BOTTOM_LEFT, 2, -2);
 
-	menu = new Menu(*this, [this](uint8_t i){ queuedLaunch = i; });
+	menu = new Menu(*this, inputGroup, [this](uint8_t i){ launch(i); });
 	lv_obj_add_flag(*menu, LV_OBJ_FLAG_FLOATING);
 	lv_obj_align(*menu, LV_ALIGN_CENTER, 0, 30);
 
@@ -56,12 +56,6 @@ void PetScreen::loop(){
 	if(!startShown){
 		startShown = true;
 		menu->show();
-	}
-
-	menu->loop(); // This will queue a launch
-	if(queuedLaunch != -1){
-		launch(queuedLaunch);
-		return;
 	}
 
 	statsSprite->setBattery(battery->getPerc());

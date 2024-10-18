@@ -6,8 +6,9 @@
 #include "Util/stdafx.h"
 #include "Services/StatsManager.h"
 #include "Util/Services.h"
+#include "LV_Interface/InputLVGL.h"
 
-Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(parent), launch(std::move(launch)), evts(6){
+Menu::Menu(lv_obj_t* parent, lv_group_t* grp, std::function<void(uint8_t)> launch) : LVObject(parent), launch(std::move(launch)), grp(grp){
 	lv_obj_set_size(*this, 128, FrameSize.y);
 	lv_obj_set_style_pad_ver(*this, (FrameSize.y - ItemSize.y) / 2, 0);
 
@@ -31,13 +32,29 @@ Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(par
 	lv_obj_set_flex_align(container, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
 	lv_obj_set_style_pad_gap(container, 12, 0);
 
-	grp = lv_group_create();
+	const auto addItem = [this, container, grp](const char* icon){
+		lv_obj_t* btn = lv_button_create(container);
+		lv_obj_set_size(btn, ItemSize.x, ItemSize.y);
+		lv_obj_set_style_bg_image_src(btn, icon, 0);
+		lv_obj_set_style_bg_image_opa(btn, LV_OPA_COVER, 0);
+		lv_obj_add_flag(btn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+		lv_group_add_obj(grp, btn);
 
-	const auto addItem = [this, container](const char* icon){
-		lv_obj_t* img = lv_image_create(container);
-		lv_image_set_src(img, icon);
-		lv_obj_add_flag(img, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
-		lv_group_add_obj(grp, img);
+		lv_obj_add_event_cb(btn, [](lv_event_t* e){
+			const auto code = lv_event_get_code(e);
+			if(code != LV_EVENT_FOCUSED && code != LV_EVENT_CLICKED && code != LV_EVENT_CANCEL) return;
+
+			auto menu = (Menu*) lv_event_get_user_data(e);
+			lv_timer_reset(menu->hideTimer);
+
+			if(code == LV_EVENT_CLICKED){
+				const auto target = (lv_obj_t*) lv_event_get_target(e);
+				const auto index = lv_obj_get_index(target);
+				menu->click(index);
+			}else if(code == LV_EVENT_CANCEL){
+				menu->hide();
+			}
+		}, LV_EVENT_ALL, this);
 	};
 
 	addItem("S:/Menu/Settings.bin");
@@ -52,10 +69,6 @@ Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(par
 		}
 	}
 
-	lv_obj_t* first = lv_obj_get_child(container, 1);
-	lv_group_focus_obj(first);
-	lv_obj_scroll_to_view(first, LV_ANIM_OFF);
-
 	lv_obj_t* frame = lv_image_create(*this);
 	lv_image_set_src(frame, "S:/Menu/Frame.bin");
 	lv_obj_center(frame);
@@ -65,7 +78,26 @@ Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(par
 		menu->hide();
 	}, HideTimeout, this);
 
-	Events::listen(Facility::Input, &evts);
+	hideGrp = lv_group_create();
+	lv_group_set_editing(hideGrp, true);
+	lv_obj_t* hideObj = lv_obj_create(*this);
+	lv_obj_set_size(hideObj, 0, 0);
+	lv_obj_add_flag(hideObj, LV_OBJ_FLAG_FLOATING);
+	lv_group_add_obj(hideGrp, hideObj);
+
+	lv_obj_add_event_cb(hideObj, [](lv_event_t* e){
+		const auto code = lv_event_get_code(e);
+		if(code != LV_EVENT_KEY && code != LV_EVENT_CLICKED) return;
+
+		auto menu = (Menu*) lv_event_get_user_data(e);
+		if(menu->hidden){
+			menu->show();
+		}
+	}, LV_EVENT_ALL, this);
+
+	lv_obj_t* first = lv_obj_get_child(container, 1);
+	lv_group_focus_obj(first);
+	lv_obj_scroll_to_view(first, LV_ANIM_OFF);
 }
 
 Menu::~Menu(){
@@ -73,48 +105,11 @@ Menu::~Menu(){
 		lv_anim_delete(shakeAnim.var, nullptr);
 	}
 
-	Events::unlisten(&evts);
 	lv_timer_delete(hideTimer);
-	lv_group_delete(grp);
-}
-
-void Menu::loop(){
-	Event evt{};
-	if(!evts.get(evt, 0)) return;
-	if(evt.facility != Facility::Input){
-		free(evt.data);
-		return;
-	}
-
-	const auto data = (Input::Data*) evt.data;
-
-	if(data->action != Input::Data::Press) return;
-
-	if(hidden){
-		show();
-	}else{
-		lv_timer_reset(hideTimer);
-
-		if(data->btn == Input::A){
-			lv_group_focus_prev(grp);
-		}else if(data->btn == Input::B){
-			lv_group_focus_next(grp);
-		}else if(data->btn == Input::C && !hiding){
-			free(evt.data);
-			const auto target = lv_group_get_focused(grp);
-			const auto index = lv_obj_get_index(target);
-			click(index);
-			return;
-		}else if(data->btn == Input::D && !hidden && !hiding){
-			hide();
-		}
-	}
-
-	free(evt.data);
+	lv_group_delete(hideGrp);
 }
 
 void Menu::stop(){
-	Events::unlisten(&evts);
 	lv_timer_pause(hideTimer);
 }
 
@@ -167,6 +162,8 @@ void Menu::hideNow(){
 	hiding = false;
 	hidden = true;
 
+	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), hideGrp);
+
 	startPos = lv_obj_get_y(*this);
 	lv_obj_set_style_translate_y(*this, 128-startPos, 0);
 }
@@ -177,6 +174,8 @@ void Menu::hide(){
 	hidden = true;
 
 	lv_timer_pause(hideTimer);
+
+	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), hideGrp);
 
 	startPos = lv_obj_get_y(*this);
 
@@ -202,6 +201,8 @@ void Menu::show(){
 
 	lv_timer_reset(hideTimer);
 	lv_timer_resume(hideTimer);
+
+	lv_indev_set_group(lv_indev_active(), grp);
 
 	if(hiding){
 		lv_anim_delete(this, nullptr);

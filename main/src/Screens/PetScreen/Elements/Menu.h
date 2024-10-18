@@ -9,10 +9,9 @@
 
 class Menu : public LVObject {
 public:
-	Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch);
+	Menu(lv_obj_t* parent, lv_group_t* grp, std::function<void(uint8_t)> launch);
 	~Menu() override;
 
-	void loop();
 	void stop();
 
 	void hideNow();
@@ -32,8 +31,8 @@ private:
 	lv_anim_t shakeAnim;
 	static constexpr uint32_t ShakeAnimDuration = 50;
 
-	EventQueue evts;
 	lv_group_t* grp;
+	lv_group_t* hideGrp;
 
 	static constexpr uint32_t HideTimeout = 3000;
 	lv_timer_t* hideTimer;
