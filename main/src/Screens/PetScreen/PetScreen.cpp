@@ -18,7 +18,7 @@ PetScreen::PetScreen() : evts(6), statsManager((StatsManager*) Services.get(Serv
 	lv_obj_add_flag(*characterSprite, LV_OBJ_FLAG_FLOATING);
 	lv_obj_align(*characterSprite, LV_ALIGN_CENTER, 0, 10);
 
-	statsSprite = new StatsSprite(*this, stats.oilLevel, stats.happiness, statsManager->getLevel(), 100);
+	statsSprite = new StatsSprite(*this, stats.oilLevel, stats.happiness, 100, statsManager->getLevel());
 	lv_obj_add_flag(*statsSprite, LV_OBJ_FLAG_FLOATING);
 	lv_obj_align(*statsSprite, LV_ALIGN_TOP_MID, 0, 0);
 
