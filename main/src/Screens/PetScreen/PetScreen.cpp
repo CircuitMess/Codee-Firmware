@@ -7,6 +7,8 @@
 #include "Devices/Battery.h"
 #include "LV_Interface/InputLVGL.h"
 #include "Screens/LevelUpScreen.h"
+#include "Screens/SplashScreen.h"
+#include "Screens/Settings/SettingsScreen.h"
 
 PetScreen::PetScreen() : evts(6), statsManager((StatsManager*) Services.get(Service::Stats)), battery((Battery*) Services.get(Service::Battery)){
 	const auto lvl = std::clamp(statsManager->getLevel()-1, 0, 5);
@@ -26,7 +28,7 @@ PetScreen::PetScreen() : evts(6), statsManager((StatsManager*) Services.get(Serv
 	lv_obj_add_flag(*xpSprite, LV_OBJ_FLAG_FLOATING);
 	lv_obj_align(*xpSprite, LV_ALIGN_BOTTOM_LEFT, 2, -2);
 
-	menu = new Menu(*this, [](uint8_t i){});
+	menu = new Menu(*this, [this](uint8_t i){ queuedLaunch = i; });
 	lv_obj_add_flag(*menu, LV_OBJ_FLAG_FLOATING);
 	lv_obj_align(*menu, LV_ALIGN_CENTER, 0, 30);
 
@@ -56,7 +58,11 @@ void PetScreen::loop(){
 		menu->show();
 	}
 
-	menu->loop();
+	menu->loop(); // This will queue a launch
+	if(queuedLaunch != -1){
+		launch(queuedLaunch);
+		return;
+	}
 
 	statsSprite->setBattery(battery->getPerc());
 
@@ -68,6 +74,27 @@ void PetScreen::loop(){
 
 	// Here transitions happen, so should be last
 	processEvents();
+}
+
+void PetScreen::launch(uint8_t i){
+	if(i == 0){
+		menu->stop();
+		Events::unlisten(&evts);
+		stopped = true;
+
+		transition([](){ return std::make_unique<SettingsScreen>(); });
+		return;
+	}
+
+	const auto lvl = statsManager->getLevel();
+	if(lvl < i) return;
+
+	menu->stop();
+	Events::unlisten(&evts);
+	stopped = true;
+
+	const auto game = (Games) (i-1);
+	transition([game](){ return std::make_unique<SplashScreen>(game); });
 }
 
 void PetScreen::processEvents(){
