@@ -19,8 +19,6 @@ public:
 	~Menu() override;
 
 private:
-	void launch(Games game);
-
 	lv_group_t* inputGroup;
 	void shake();
 	lv_anim_t shakeAnim;

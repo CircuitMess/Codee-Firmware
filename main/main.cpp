@@ -69,13 +69,13 @@ void init(){
 		vTaskDelete(nullptr);
 	}
 
-	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, false);
+	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, true);
 	blPwm->detach();
 	bl = new BacklightBrightness(blPwm);
 	Services.set(Service::Backlight, bl);
 
 	auto battery = new Battery();
-	if(battery->isShutdown()){
+	if(false && battery->isShutdown()){
 		shutdown();
 		return;
 	}
@@ -121,7 +121,7 @@ void init(){
 
 	// Start Battery scanning after everything else, otherwise Critical
 	// Battery event might come while initialization is still in progress
-	battery->begin();
+	// battery->begin();
 
 	auto sleep = new Sleep();
 }

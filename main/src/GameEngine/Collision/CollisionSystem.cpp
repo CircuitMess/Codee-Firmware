@@ -384,6 +384,11 @@ void CollisionSystem::drawDebug(Sprite& canvas){
 	std::set<const GameObject*> drawn;
 
 	for(const auto& pair : pairs){
+
+		if(std::find(removedPairs.begin(), removedPairs.end(), pair) != removedPairs.end()){
+			continue;
+		}
+
 		Color c = pair.colliding ? TFT_GREEN : TFT_RED;
 
 		const auto draw = [&canvas, &drawn](Color c, const GameObject& obj){
@@ -411,7 +416,7 @@ void CollisionSystem::drawDebug(Sprite& canvas){
 }
 
 void CollisionSystem::drawPolygon(const GameObject& poly, Sprite& canvas, Color color){
-	auto points = poly.getCollisionComponent()->getPolygon()->getPoints();
+	auto& points = poly.getCollisionComponent()->getPolygon()->getPoints();
 
 	if(points.empty()) return;
 	if(points.size() == 1){
@@ -419,11 +424,11 @@ void CollisionSystem::drawPolygon(const GameObject& poly, Sprite& canvas, Color 
 		return;
 	}
 
-	points = getRotatedTranslatedPoly(poly);
+	auto rotated_points = getRotatedTranslatedPoly(poly);
 
-	for(size_t i = 0; i < points.size(); i++){
-		glm::vec2 p1 = points[i];
-		glm::vec2 p2 = points[(i + 1) % points.size()];
+	for(size_t i = 0; i < rotated_points.size(); i++){
+		glm::vec2 p1 = rotated_points[i];
+		glm::vec2 p2 = rotated_points[(i + 1) % rotated_points.size()];
 
 		canvas.drawLine(p1.x, p1.y, p2.x, p2.y, color);
 	}
