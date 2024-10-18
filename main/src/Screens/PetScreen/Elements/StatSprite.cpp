@@ -80,10 +80,10 @@ StatSprite::StatSprite(lv_obj_t* parent, Type type, uint8_t perc) : LVObject(par
 	lv_image_set_src(icon, Paths[type]);
 
 
-	set(perc);
+	set(perc, false);
 }
 
-void StatSprite::set(uint8_t perc){
+void StatSprite::set(uint8_t perc, bool anim){
 	perc = std::clamp((int) perc, 0, 100);
 
 	const uint16_t hue = type == XP ? 277 : std::round((float) perc / 100.0f * 60.0f / 255.0f * 360.0f);
@@ -94,5 +94,5 @@ void StatSprite::set(uint8_t perc){
 	lv_color_t botColor = lv_color_hsv_to_rgb(hue, 100, 65);
 	lv_obj_set_style_bg_grad_color(bar, botColor, LV_PART_INDICATOR);
 
-	lv_bar_set_value(bar, perc, LV_ANIM_ON);
+	lv_bar_set_value(bar, perc, anim ? LV_ANIM_ON : LV_ANIM_OFF);
 }

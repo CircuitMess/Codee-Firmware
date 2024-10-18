@@ -10,7 +10,7 @@ public:
 	};
 
 	StatSprite(lv_obj_t* parent, Type type, uint8_t perc);
-	void set(uint8_t perc);
+	void set(uint8_t perc, bool anim = true);
 
 private:
 	const Type type;
