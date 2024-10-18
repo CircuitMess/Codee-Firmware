@@ -6,17 +6,17 @@
 
 // button index -> GPIO port
 const std::unordered_map<Input::Button, gpio_num_t> Input::PinMap{
-		{ Left,  (gpio_num_t) BTN_LEFT },
-		{ Right, (gpio_num_t) BTN_RIGHT },
 		{ A,     (gpio_num_t) BTN_A },
-		{ B,     (gpio_num_t) BTN_B }
+		{ B,     (gpio_num_t) BTN_B },
+		{ C,     (gpio_num_t) BTN_C },
+		{ D,     (gpio_num_t) BTN_D },
 };
 
 const std::unordered_map<Input::Button, const char*> Input::PinLabels{
-		{ Left,  "Left/Up" },
-		{ Right, "Right/Down" },
 		{ A,     "A" },
 		{ B,     "B" },
+		{ C,     "C" },
+		{ D,     "D" },
 };
 
 Input::Input(bool invertLogic) : SleepyThreaded(SleepTime, "Input", 2048, 6, 0), invertLogic(invertLogic){

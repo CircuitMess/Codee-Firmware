@@ -15,7 +15,7 @@ public:
 	Input(bool invertLogic = false);
 	virtual ~Input();
 
-	enum Button { Left, Right, A, B };
+	enum Button { A, B, C, D };
 	static const std::unordered_map<Button, const char*> PinLabels;
 
 	struct Data {

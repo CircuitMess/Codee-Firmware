@@ -9,7 +9,7 @@ public:
 		Happiness, OilLevel, Battery, XPLevel
 	};
 	StatSprite(lv_obj_t* parent, Type type, uint8_t level, bool longBar = false);
-	void setLevel(uint8_t level);
+	void setLevel(uint8_t level, bool anim = true);
 
 private:
 	Type type;
