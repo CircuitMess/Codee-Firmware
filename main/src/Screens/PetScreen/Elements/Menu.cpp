@@ -52,7 +52,9 @@ Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(par
 		}
 	}
 
-	lv_group_focus_obj(lv_obj_get_child(container, 1));
+	lv_obj_t* first = lv_obj_get_child(container, 1);
+	lv_group_focus_obj(first);
+	lv_obj_scroll_to_view(first, LV_ANIM_OFF);
 
 	lv_obj_t* frame = lv_image_create(*this);
 	lv_image_set_src(frame, "S:/Menu/Frame.bin");
