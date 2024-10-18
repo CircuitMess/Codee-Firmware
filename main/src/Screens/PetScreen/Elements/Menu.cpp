@@ -8,9 +8,10 @@
 #include "Util/Services.h"
 
 Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(parent), launch(std::move(launch)), evts(6){
-	lv_obj_set_size(*this, 128, ItemSize.y);
+	lv_obj_set_size(*this, 128, FrameSize.y);
+	lv_obj_set_style_pad_ver(*this, (FrameSize.y - ItemSize.y) / 2, 0);
 
-	container = lv_obj_create(*this);
+	lv_obj_t* container = lv_obj_create(*this);
 	lv_obj_set_size(container, ItemSize.x, ItemSize.y);
 	lv_obj_center(container);
 
@@ -32,7 +33,7 @@ Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(par
 
 	grp = lv_group_create();
 
-	const auto addItem = [this](const char* icon){
+	const auto addItem = [this, container](const char* icon){
 		lv_obj_t* img = lv_image_create(container);
 		lv_image_set_src(img, icon);
 		lv_obj_add_flag(img, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
@@ -47,6 +48,10 @@ Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(par
 	}
 
 	lv_group_focus_obj(lv_obj_get_child(container, 1));
+
+	lv_obj_t* frame = lv_image_create(*this);
+	lv_image_set_src(frame, "S:/Menu/Frame.bin");
+	lv_obj_center(frame);
 
 	hideTimer = lv_timer_create([](lv_timer_t* timer){
 		auto menu = (Menu*) timer->user_data;
@@ -87,7 +92,7 @@ void Menu::loop(){
 			lv_group_focus_prev(grp);
 		}else if(data->btn == Input::B){
 			lv_group_focus_next(grp);
-		}else if(data->btn == Input::C && !hiding){ // TODO: Shake if locked // locked icon
+		}else if(data->btn == Input::C && !hiding){
 			free(evt.data);
 			const auto target = lv_group_get_focused(grp);
 			const auto index = lv_obj_get_index(target);
@@ -136,7 +141,9 @@ void Menu::shake(){
 	lv_anim_set_duration(&shakeAnim, ShakeAnimDuration);
 	lv_anim_set_repeat_count(&shakeAnim, 2);
 	lv_anim_set_playback_duration(&shakeAnim, ShakeAnimDuration);
-	lv_anim_set_exec_cb(&shakeAnim, [](void* var, int32_t v){ lv_obj_set_style_translate_x((lv_obj_t*) var, v, 0); });
+	lv_anim_set_exec_cb(&shakeAnim, [](void* var, int32_t v){
+		lv_obj_set_style_translate_x((lv_obj_t*) var, v, 0);
+	});
 	lv_anim_set_path_cb(&shakeAnim, lv_anim_path_linear);
 	lv_anim_set_deleted_cb(&shakeAnim, [](lv_anim_t* a){
 		auto menu = (Menu*) a->user_data;

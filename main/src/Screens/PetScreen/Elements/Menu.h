@@ -20,8 +20,7 @@ public:
 
 private:
 	static constexpr glm::ivec2 ItemSize = { 32, 32 };
-
-	lv_obj_t* container;
+	static constexpr glm::ivec2 FrameSize = { 36, 36 };
 
 	void hide();
 
