@@ -19,7 +19,7 @@ protected:
 	void onLoad() override;
 	void onLoop(float deltaTime) override;
 	void handleInput(const Input::Data& data) override;
-	//Stats returnStats() override;
+	Stats returnStats() override;
 
 private:
 	enum {
@@ -34,8 +34,8 @@ private:
 	ObjPtr scoreStar;
 	ObjPtr bars[3];
 	ObjPtr circles[3];
-	ObjPtr duck;
-	std::shared_ptr<AnimRC> duckRC;
+	ObjPtr player;
+	std::shared_ptr<AnimRC> playerRC;
 
 	void gameDone(bool success);
 	constexpr static float gameDonePause = 1.5f;
@@ -55,20 +55,20 @@ private:
 	constexpr static float failBlinkDuration = 0.2f;
 	bool fail[3] = {0};
 
-	constexpr static int16_t barsY = -5;
-	constexpr static uint16_t barsX[3] = {8, 26, 44};
-	constexpr static const char* barsIcons[3] = {"/BarP.raw", "/BarY.raw", "/BarB.raw"};
+	constexpr static int16_t barsY = 0;
+	constexpr static uint16_t barsX[3] = {4, 19, 34};
+	constexpr static const char* barsIcons[3] = {"/BarY.raw", "/BarP.raw", "/BarB.raw"};
 
 	bool circlesPressed[3] = {false, false, false};
-	constexpr static uint16_t circlesY = 104;
-	constexpr static uint16_t circlesX[3] = {6, 24, 42};
-	constexpr static const char* circlesIcons[3] = {"/circ_p1.raw", "/circ_y1.raw", "/circ_b1.raw"};
-	constexpr static const char* circlesIconsPressed[3] = {"/circ_p2.raw", "/circ_y2.raw", "/circ_b2.raw"};
+	constexpr static uint16_t circlesY = 112;
+	constexpr static uint16_t circlesX[3] = {1, 16, 31};
+	constexpr static const char* circlesIcons[3] = {"/circ-y1.raw", "/circ-p1.raw", "/circ-b1.raw"};
+	constexpr static const char* circlesIconsPressed[3] = {"/circ-y2.raw", "/circ-p2.raw", "/circ-b2.raw"};
 
 
 	std::deque<ObjPtr> notes[3];
-	constexpr static const char* notesIcons[3] = {"/note1.raw", "/note2.raw", "/note3.raw"};
-	constexpr static const char* danceGIFs[3] = {"/dance1.gif", "/dance2.gif", "/dance3.gif"};
+	constexpr static const char* notesIcon = "/dot.raw";
+	constexpr static const char* danceGIFs[] = {"/dance1.gif", "/dance2.gif", "/dance3.gif"};
 
 	constexpr static float notePerfectY = circlesY + 5;
 	constexpr static float noteTolerance = 8.0f;
