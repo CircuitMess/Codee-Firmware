@@ -98,6 +98,8 @@ void Menu::loop(){
 			const auto index = lv_obj_get_index(target);
 			click(index);
 			return;
+		}else if(data->btn == Input::D && !hidden && !hiding){
+			hide();
 		}
 	}
 
