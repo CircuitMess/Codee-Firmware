@@ -42,9 +42,14 @@ Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(par
 
 	addItem("S:/Menu/Settings.bin");
 
+	auto stats = (StatsManager*) Services.get(Service::Stats);
+	const auto lvl = stats->getLevel();
 	for(int i = 0; i < 6; i++){
-		const auto path = "S:/Menu/Game" + std::to_string(i+1) + ".bin";
-		addItem(path.c_str());
+		if(lvl >= i+1){
+			addItem(IconPaths[i].unlocked);
+		}else{
+			addItem(IconPaths[i].locked);
+		}
 	}
 
 	lv_group_focus_obj(lv_obj_get_child(container, 1));

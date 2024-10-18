@@ -22,12 +22,19 @@ std::initializer_list<std::string> GeneralCache = {
 		"/OS/One.bin",
 		"/OS/X.bin",
 
+		"/Menu/Frame.bin",
 		"/Menu/Game1.bin",
+		"/Menu/Game1L.bin",
 		"/Menu/Game2.bin",
+		"/Menu/Game2L.bin",
 		"/Menu/Game3.bin",
+		"/Menu/Game3L.bin",
 		"/Menu/Game4.bin",
+		"/Menu/Game4L.bin",
 		"/Menu/Game5.bin",
+		"/Menu/Game5L.bin",
 		"/Menu/Game6.bin",
+		"/Menu/Game6L.bin",
 		"/Menu/Settings.bin"
 };
 

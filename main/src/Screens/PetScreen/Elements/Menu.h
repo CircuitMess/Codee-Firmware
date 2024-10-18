@@ -43,6 +43,18 @@ private:
 	int32_t startPos;
 	lv_anim_t hideAnim;
 
+	struct {
+		const char* unlocked;
+		const char* locked;
+	} static constexpr IconPaths[] = {
+			{ "S:/Menu/Game1.bin", "S:/Menu/Game1L.bin" },
+			{ "S:/Menu/Game2.bin", "S:/Menu/Game2L.bin" },
+			{ "S:/Menu/Game3.bin", "S:/Menu/Game3L.bin" },
+			{ "S:/Menu/Game4.bin", "S:/Menu/Game4L.bin" },
+			{ "S:/Menu/Game5.bin", "S:/Menu/Game5L.bin" },
+			{ "S:/Menu/Game6.bin", "S:/Menu/Game6L.bin" }
+	};
+
 };
 
 
