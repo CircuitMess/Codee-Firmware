@@ -4,6 +4,8 @@
 #include "Menu.h"
 #include "Devices/Input.h"
 #include "Util/stdafx.h"
+#include "Services/StatsManager.h"
+#include "Util/Services.h"
 
 Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(parent), launch(std::move(launch)), evts(6){
 	lv_obj_set_size(*this, 128, ItemSize.y);
@@ -55,6 +57,10 @@ Menu::Menu(lv_obj_t* parent, std::function<void(uint8_t)> launch) : LVObject(par
 }
 
 Menu::~Menu(){
+	if(shaking){
+		lv_anim_delete(shakeAnim.var, nullptr);
+	}
+
 	Events::unlisten(&evts);
 	lv_timer_delete(hideTimer);
 	lv_group_delete(grp);
@@ -85,7 +91,7 @@ void Menu::loop(){
 			free(evt.data);
 			const auto target = lv_group_get_focused(grp);
 			const auto index = lv_obj_get_index(target);
-			launch(index);
+			click(index);
 			return;
 		}
 	}
@@ -96,6 +102,48 @@ void Menu::loop(){
 void Menu::stop(){
 	Events::unlisten(&evts);
 	lv_timer_pause(hideTimer);
+}
+
+void Menu::click(int index){
+	if(index == 0){
+		// Settings
+		launch(index);
+		return;
+	}
+
+	auto stats = (StatsManager*) Services.get(Service::Stats);
+	if(index > stats->getLevel()){
+		shake();
+		return;
+	}
+
+	// Game 1-6
+	launch(index);
+}
+
+void Menu::shake(){
+	lv_obj_t* selected = lv_group_get_focused(grp);
+
+	if(shaking){
+		lv_anim_delete(shakeAnim.var, nullptr);
+	}
+	shaking = true;
+
+	lv_anim_init(&shakeAnim);
+	lv_anim_set_user_data(&shakeAnim, this);
+	lv_anim_set_var(&shakeAnim, selected);
+	lv_anim_set_values(&shakeAnim, -2, 2);
+	lv_anim_set_duration(&shakeAnim, ShakeAnimDuration);
+	lv_anim_set_repeat_count(&shakeAnim, 2);
+	lv_anim_set_playback_duration(&shakeAnim, ShakeAnimDuration);
+	lv_anim_set_exec_cb(&shakeAnim, [](void* var, int32_t v){ lv_obj_set_style_translate_x((lv_obj_t*) var, v, 0); });
+	lv_anim_set_path_cb(&shakeAnim, lv_anim_path_linear);
+	lv_anim_set_deleted_cb(&shakeAnim, [](lv_anim_t* a){
+		auto menu = (Menu*) a->user_data;
+		menu->shaking = false;
+		lv_obj_set_style_translate_x((lv_obj_t*) a->var, 0, 0);
+	});
+	lv_anim_start(&shakeAnim);
 }
 
 void Menu::hideNow(){

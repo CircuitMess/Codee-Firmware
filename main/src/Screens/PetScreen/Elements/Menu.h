@@ -25,7 +25,13 @@ private:
 
 	void hide();
 
+	void click(int index);
 	std::function<void(uint8_t)> launch;
+
+	void shake();
+	bool shaking = false;
+	lv_anim_t shakeAnim;
+	static constexpr uint32_t ShakeAnimDuration = 50;
 
 	EventQueue evts;
 	lv_group_t* grp;
