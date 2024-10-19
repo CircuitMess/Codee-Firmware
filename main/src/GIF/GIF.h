@@ -48,7 +48,7 @@ public:
 	uint32_t getLoopCount() const;
 
 private:
-	gd_GIF* gif = nullptr;
+	CM_GIFDEC::gd_GIF* gif = nullptr;
 
 	std::shared_ptr<Pixel> data;
 

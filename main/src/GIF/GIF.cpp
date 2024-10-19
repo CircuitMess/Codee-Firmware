@@ -8,7 +8,7 @@ GIF::GIF(){}
 GIF::GIF(File file){
 	if(!file) return;
 	file.seek(0);
-	gif = gd_open_gif(file);
+	gif = CM_GIFDEC::gd_open_gif(file);
 
 	if(gif == nullptr){
 		ESP_LOGE(TAG, "gifdec couldn't open gif");
@@ -40,7 +40,7 @@ GIF& GIF::operator=(const GIF& other){
 
 	File file = other.gif->fd;
 	file.seek(0);
-	gif = gd_open_gif(file);
+	gif = CM_GIFDEC::gd_open_gif(file);
 
 	return *this;
 }

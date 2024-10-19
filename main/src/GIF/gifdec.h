@@ -7,6 +7,8 @@ Modified version of the excellent and lightweight gifdec library by Marcel Rodri
 
 #include "FS/File.h"
 
+namespace CM_GIFDEC{
+
 typedef struct gd_Palette {
     int size;
     uint8_t colors[0x100 * 3];
@@ -48,5 +50,6 @@ int gd_is_bgcolor(gd_GIF *gif, uint8_t color[3]);
 void gd_rewind(gd_GIF *gif);
 void gd_close_gif(gd_GIF *gif);
 
+}
 
 #endif /* BIT_FIRMWARE_GIFDEC_H */

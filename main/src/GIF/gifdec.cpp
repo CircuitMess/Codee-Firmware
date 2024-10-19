@@ -1,6 +1,7 @@
 #include "gifdec.h"
 #include <memory>
 #include <cstring>
+namespace CM_GIFDEC {
 
 #define MIN(A, B) ((A) < (B) ? (A) : (B))
 #define MAX(A, B) ((A) > (B) ? (A) : (B))
@@ -499,3 +500,4 @@ gd_close_gif(gd_GIF* gif){
 	free(gif);
 }
 
+}
