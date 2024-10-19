@@ -96,7 +96,7 @@ void Game1::onRender(Sprite& canvas){
 	canvas.setTextFont(0);
 	canvas.setTextSize(0);
 	canvas.setCursor(1, 2);
-	canvas.printf("Attempts: %d", tries);
+	// canvas.printf("Attempts: %d", tries);
 }
 
 void Game1::onStart(){
