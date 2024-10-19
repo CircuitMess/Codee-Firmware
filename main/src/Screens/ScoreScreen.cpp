@@ -112,7 +112,10 @@ void ScoreScreen::loop(){
 		oil->set(startingStats.oilLevel + statsIncrease.oilLevel, false);
 		happiness->set(startingStats.happiness + statsIncrease.happiness, false);
 		xp->set(StatsManager::getExpPercentage(startingStats.experience + statsIncrease.experience), false);
+
+		lv_timer_resume(exitTimer);
 	}else{
+		lv_timer_pause(exitTimer);
 		transition([](){ return std::make_unique<PetScreen>(); });
 	}
 }
