@@ -3,68 +3,54 @@
 #include "Util/Services.h"
 #include "UIThread.h"
 #include "HatchScreen.h"
+#include "Util/stdafx.h"
 
-DeathScreen::DeathScreen() : stats((StatsManager*) Services.get(Service::Stats)){
-	sprintf(bgPath, "S:/Bg/Level%d.bin", stats->getLevel());
-	lv_obj_set_style_bg_image_src(*this, bgPath, 0);
+DeathScreen::DeathScreen() : statsManager((StatsManager*) Services.get(Service::Stats)){
+	const auto lvl = std::clamp(statsManager->getLevel()-1, 0, 5);
+	lv_obj_set_style_bg_image_src(*this, BgPaths[lvl], 0);
 
-	duck = lv_gif_create(*this);
-	lv_gif_set_src(duck, getPath().c_str());
-	lv_gif_pause(duck); //only 1st frame of gif shown
-	lv_obj_set_pos(duck, 50, 36);
+	const auto stats = statsManager->get();
 
-
-	explosion = lv_gif_create(*this);
-	lv_gif_set_src(explosion, "S:/death.gif");
-	lv_gif_pause(explosion);
-
-
-	lv_obj_add_event_cb(explosion, [](lv_event_t* e){
-		auto screen = (DeathScreen*) lv_event_get_user_data(e);
-		screen->exit = true;
-		lv_timer_set_period(screen->timer, exitPause);
-		lv_timer_reset(screen->timer);
-		lv_timer_resume(screen->timer);
-	}, LV_EVENT_READY, this);
-
+	character = new Character(*this, statsManager->getLevel(), stats.oilLevel < RustThreshold);
+	lv_obj_add_flag(*character, LV_OBJ_FLAG_FLOATING);
+	lv_obj_align(*character, LV_ALIGN_CENTER, 0, 10);
 }
 
 void DeathScreen::onStart(){
-	timer = lv_timer_create([](lv_timer_t* t){
-		auto screen = (DeathScreen*) lv_timer_get_user_data(t);
-		if(!screen->exploded){
-			lv_gif_resume(screen->explosion);
-			lv_timer_set_period(t, duckVisibleMillis);
-			lv_timer_reset(t);
-			screen->exploded = true;
-		}else{
-			if(screen->exit){
-				auto ui = (UIThread*) Services.get(Service::UI);
-				ui->startScreen([](){ return std::make_unique<HatchScreen>(); });
-			}else{
-				lv_obj_add_flag(screen->duck, LV_OBJ_FLAG_HIDDEN);
-				lv_timer_pause(t);
+	startTime = millis();
+}
+
+void DeathScreen::loop(){
+	if(phase == Start && millis() - startTime >= 1000){
+		phase = Explo1;
+		startTime = millis();
+
+		auto gif = new LVGIF(*this, "S:/Anim/Death");
+		gif->setLooping(LVGIF::LoopType::Single);
+		gif->setLoopCallback([this, gif](){
+			if(character){
+				lv_obj_delete(*character);
+				character = nullptr;
 			}
+
+			lv_obj_add_flag(*gif, LV_OBJ_FLAG_HIDDEN);
+			phase = Stop;
+			startTime = millis();
+		});
+		lv_obj_align(*gif, LV_ALIGN_CENTER, 0, 10);
+		gif->start();
+	}else if(phase == Explo1 && millis() - startTime >= 270){
+		phase = Explo2;
+		startTime = millis();
+
+		if(character){
+			lv_obj_delete(*character);
+			character = nullptr;
 		}
-	}, explosionStart, this);
-}
-
-void DeathScreen::onStop(){
-	stats->setHatched(false);
-}
-
-DeathScreen::~DeathScreen(){
-	lv_timer_delete(timer);
-}
-
-std::string DeathScreen::getPath(){
-	std::string path = "S:/Home/rusty/0";
-	if(stats->getLevel() == 6){
-		path += "6_general.gif";
-	}else if(stats->getLevel() >= 4){
-		path += "4_general.gif";
-	}else{
-		path += "1_general.gif";
+	}else if(phase == Stop && millis() - startTime >= 2000){
+		phase = Done;
+		startTime = millis();
+		statsManager->reset();
+		transition([](){ return std::make_unique<HatchScreen>(); });
 	}
-	return path;
 }
