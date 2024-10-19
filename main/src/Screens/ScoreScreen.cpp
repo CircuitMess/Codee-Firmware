@@ -8,9 +8,10 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 	lv_obj_set_style_bg_image_src(*this, bgPath, 0);
 
 	frame = lv_image_create(*this);
-	lv_image_set_src(frame, "S:/modal.bin");
+	lv_image_set_src(frame, "S:/Modal.bin");
 	lv_obj_center(frame);
-	lv_obj_set_size(frame, 128, 96);
+	lv_obj_set_size(frame, 115, 82);
+	lv_obj_set_style_pad_all(frame, 8, 0);
 	lv_obj_set_layout(frame, LV_LAYOUT_FLEX);
 	lv_obj_set_flex_flow(frame, LV_FLEX_FLOW_COLUMN);
 	lv_obj_set_flex_align(frame, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
