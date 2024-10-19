@@ -29,7 +29,7 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 	}
 
 	startingStats = statsManager->get();
-	oil = new StatSprite(statsRows[0], StatSprite::Type::OilLevel, startingStats.oilLevel);
+	oil = new StatSprite(statsRows[0], StatSprite::Type::Oil, startingStats.oilLevel);
 	lv_obj_t* oilLabel = lv_label_create(statsRows[0]);
 	lv_label_set_text_fmt(oilLabel, "+%d", statsIncrease.oilLevel);
 	lv_obj_set_style_text_color(oilLabel, lv_color_black(), 0);
@@ -42,7 +42,7 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 	lv_obj_set_style_text_color(happinessLabel, lv_color_black(), 0);
 	lv_obj_set_size(statsRows[1], LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-	xp = new StatSprite(statsRows[2], StatSprite::Type::XPLevel, statsManager->getExpPercentage());
+	xp = new StatSprite(statsRows[2], StatSprite::Type::XP, statsManager->getExpPercentage());
 	lv_obj_t* xpLabel = lv_label_create(statsRows[2]);
 	lv_label_set_text_fmt(xpLabel, "+%d", statsIncrease.experience);
 	lv_obj_set_style_text_color(xpLabel, lv_color_black(), 0);
@@ -62,8 +62,8 @@ ScoreScreen::~ScoreScreen(){
 }
 
 void ScoreScreen::onStart(){
-	oil->setLevel(startingStats.oilLevel + statsIncrease.oilLevel);
-	happiness->setLevel(startingStats.happiness + statsIncrease.happiness);
+	oil->set(startingStats.oilLevel + statsIncrease.oilLevel);
+	happiness->set(startingStats.happiness + statsIncrease.happiness);
 
 	uint8_t levelDifference = statsManager->getLevel(startingStats.experience + statsIncrease.experience) - statsManager->getLevel() + 1;
 
@@ -76,7 +76,7 @@ void ScoreScreen::onStart(){
 		auto bar = (StatSprite*) var;
 		auto val = StatsManager::getExpPercentage(v);
 
-		bar->setLevel(val);
+		bar->set(val);
 	});
 	lv_anim_set_completed_cb(&xpAnim, [](lv_anim_t* anim){
 		auto screen = (ScoreScreen*) anim->user_data;
@@ -108,9 +108,9 @@ void ScoreScreen::loop(){
 	if(lv_anim_count_running()){
 		lv_anim_delete_all();
 
-		oil->setLevel(startingStats.oilLevel + statsIncrease.oilLevel, false);
-		happiness->setLevel(startingStats.happiness + statsIncrease.happiness, false);
-		xp->setLevel(StatsManager::getExpPercentage(startingStats.experience + statsIncrease.experience), false);
+		oil->set(startingStats.oilLevel + statsIncrease.oilLevel, false);
+		happiness->set(startingStats.happiness + statsIncrease.happiness, false);
+		xp->set(StatsManager::getExpPercentage(startingStats.experience + statsIncrease.experience), false);
 	}else{
 		auto ui = (UIThread*) Services.get(Service::UI);
 		ui->startScreen([](){ return std::make_unique<PetScreen>(); });

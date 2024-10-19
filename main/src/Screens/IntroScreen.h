@@ -9,7 +9,7 @@ public:
 	IntroScreen();
 
 private:
-	lv_obj_t* gif;
+	LVGIF* gif;
 
 	void onStart() override;
 	void onStop() override;

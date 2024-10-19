@@ -3,11 +3,11 @@
 
 #include "LV_Interface/LVScreen.h"
 #include "Util/Events.h"
+#include "LV_Interface/LVGIF.h"
 
 class HatchScreen : public LVScreen {
 public:
 	HatchScreen();
-	~HatchScreen() override;
 
 private:
 	void onStop() override;
@@ -15,12 +15,10 @@ private:
 	void onStart() override;
 
 	EventQueue queue;
-	lv_obj_t* gif;
+	LVGIF* gif;
 	lv_obj_t* modal;
 	lv_obj_t* label;
 
-	bool exit = false;
-	bool accepted = false;
 };
 
 
