@@ -2,31 +2,37 @@
 #define CODEE_FIRMWARE_DEATHSCREEN_H
 
 #include "LV_Interface/LVScreen.h"
+#include "PetScreen/Elements/Character.h"
+#include "Services/StatsManager.h"
 
 class DeathScreen : public LVScreen {
 public:
 	DeathScreen();
-	~DeathScreen() override;
 
 private:
-	std::string getPath();
-	void onStop() override;
 	void onStart() override;
+	void loop() override;
 
-	lv_obj_t* explosion;
-	lv_obj_t* duck;
+	StatsManager* statsManager;
 
-	lv_timer_t* timer;
+	Character* character = nullptr;
 
-	class StatsManager* stats;
+	enum Phase {
+		Start, Explo1, Explo2, Stop, Done
+	} phase = Start;
+	uint32_t startTime;
 
-	bool exit = false;
-	static constexpr uint32_t duckVisibleMillis = 560;
-	static constexpr uint32_t explosionStart = 1000;
-	static constexpr uint32_t exitPause = 800;
-	bool exploded = false;
+	static constexpr const char* BgPaths[6] = {
+			"S:/Bg/Level1.bin",
+			"S:/Bg/Level2.bin",
+			"S:/Bg/Level3.bin",
+			"S:/Bg/Level4.bin",
+			"S:/Bg/Level5.bin",
+			"S:/Bg/Level6.bin"
+	};
 
-	char bgPath[20] = { 0 };
+	constexpr static uint8_t RustThreshold = 25;
+
 };
 
 #endif //CODEE_FIRMWARE_DEATHSCREEN_H
