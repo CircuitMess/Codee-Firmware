@@ -50,8 +50,8 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 	lv_obj_set_size(statsRows[2], LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
 	exitTimer = lv_timer_create([](lv_timer_t* t){
-		auto ui = (UIThread*) Services.get(Service::UI);
-		ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+		auto scr = (ScoreScreen*) t->user_data;
+		scr->transition([](){ return std::make_unique<PetScreen>(); });
 	}, ExitTimeout, this);
 	lv_timer_pause(exitTimer);
 
@@ -59,6 +59,7 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 
 ScoreScreen::~ScoreScreen(){
 	lv_anim_delete(xp, nullptr);
+	lv_timer_delete(exitTimer);
 	Events::unlisten(&queue);
 }
 
@@ -91,7 +92,6 @@ void ScoreScreen::onStart(){
 
 void ScoreScreen::onStop(){
 	statsManager->update(statsIncrease);
-
 }
 
 void ScoreScreen::loop(){
@@ -113,7 +113,6 @@ void ScoreScreen::loop(){
 		happiness->set(startingStats.happiness + statsIncrease.happiness, false);
 		xp->set(StatsManager::getExpPercentage(startingStats.experience + statsIncrease.experience), false);
 	}else{
-		auto ui = (UIThread*) Services.get(Service::UI);
-		ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+		transition([](){ return std::make_unique<PetScreen>(); });
 	}
 }
