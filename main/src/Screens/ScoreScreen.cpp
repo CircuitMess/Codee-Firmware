@@ -3,7 +3,7 @@
 #include "UIThread.h"
 #include "Screens/PetScreen/PetScreen.h"
 
-ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Services.get(Service::Stats)), statsIncrease(statsIncrease), queue(1){
+ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Services.get(Service::Stats)), statsIncrease(statsIncrease){
 	sprintf(bgPath, "S:/Bg/Level%d.bin", statsManager->getLevel());
 	lv_obj_set_style_bg_image_src(*this, bgPath, 0);
 
@@ -55,12 +55,21 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 	}, ExitTimeout, this);
 	lv_timer_pause(exitTimer);
 
+	lv_obj_t* clickObj = lv_obj_create(*this);
+	lv_obj_set_size(clickObj, 0, 0);
+	lv_obj_add_flag(clickObj, LV_OBJ_FLAG_FLOATING);
+	lv_group_add_obj(inputGroup, clickObj);
+	lv_group_set_editing(inputGroup, true);
+
+	lv_obj_add_event_cb(clickObj, [](lv_event_t* e){
+		auto scr = (ScoreScreen*) lv_event_get_user_data(e);
+		scr->click();
+	}, LV_EVENT_KEY, this);
 }
 
 ScoreScreen::~ScoreScreen(){
 	lv_anim_delete(xp, nullptr);
 	lv_timer_delete(exitTimer);
-	Events::unlisten(&queue);
 }
 
 void ScoreScreen::onStart(){
@@ -86,26 +95,13 @@ void ScoreScreen::onStart(){
 	});
 	lv_anim_set_path_cb(&xpAnim, lv_anim_path_linear);
 	lv_anim_start(&xpAnim);
-
-	Events::listen(Facility::Input, &queue);
 }
 
 void ScoreScreen::onStop(){
 	statsManager->update(statsIncrease);
 }
 
-void ScoreScreen::loop(){
-	Event event{};
-	if(!queue.get(event, 0)) return;
-
-	auto data = (Input::Data*) event.data;
-	if(data->action != Input::Data::Press){
-		free(event.data);
-		return;
-	}
-
-	free(event.data);
-
+void ScoreScreen::click(){
 	if(lv_anim_count_running()){
 		lv_anim_delete_all();
 
