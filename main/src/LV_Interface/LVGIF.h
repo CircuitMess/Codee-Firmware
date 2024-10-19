@@ -22,7 +22,7 @@ public:
 	void stop();
 	void reset();
 	void setLooping(LoopType loop);
-	void setDoneCallback(std::function<void()> cb);
+	void setLoopCallback(std::function<void()> cb);
 	void setImage(size_t index);
 	[[nodiscard]] size_t getNumFrames() const;
 

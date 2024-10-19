@@ -6,21 +6,19 @@
 
 class StatsSprite : public LVObject {
 public:
-	StatsSprite(lv_obj_t* parent, uint8_t oilLevel, uint8_t happiness, uint8_t battery);
+	StatsSprite(lv_obj_t* parent, uint8_t oil, uint8_t happ, uint8_t batt, uint8_t level);
 
-	void setOilLevel(uint8_t level);
-	void setHappiness(uint8_t level);
-	void setBattery(uint8_t level);
-	void setXPLevel();
+	void setOil(uint8_t perc);
+	void setHappiness(uint8_t perc);
+	void setBattery(uint8_t perc);
+	void setLevel(uint8_t level);
 
 private:
-	StatSprite* happiness;
-	StatSprite* oilLevel;
-	StatSprite* battery;
-	StatSprite* xpLevel;
+	StatSprite* happ;
+	StatSprite* oil;
+	StatSprite* batt;
+	lv_obj_t* level;
 
-	StatsManager* statsManager = nullptr;
-	constexpr static uint8_t spacing = 33;
 };
 
 

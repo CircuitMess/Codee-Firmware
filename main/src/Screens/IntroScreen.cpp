@@ -9,34 +9,30 @@
 IntroScreen::IntroScreen(){
 	lv_obj_set_size(*this, 128, 128);
 
-	gif = lv_gif_create(*this);
-	lv_gif_set_src(gif, "S:/intro.gif");
-	lv_obj_set_pos(gif, 0, 0);
+	gif = new LVGIF(*this, "S:/Anim/Intro");
+	gif->setLooping(LVGIF::LoopType::Single);
+	lv_obj_set_pos(*gif, 0, 0);
 
-	lv_gif_pause(gif);
+	gif->setLoopCallback([this](){
+		lv_obj_add_flag(*gif, LV_OBJ_FLAG_HIDDEN);
 
-	lv_obj_add_event_cb(gif, [](lv_event_t* e){
 		auto statsMan = (StatsManager*)Services.get(Service::Stats);
-		auto ui = (UIThread*)Services.get(Service::UI);
-
 		if(statsMan->isHatched()){
 			if(statsMan->hasDied()){
-				ui->startScreen([](){ return std::make_unique<DeathScreen>(); });
+				transition([](){ return std::make_unique<DeathScreen>(); }, LV_SCR_LOAD_ANIM_FADE_IN);
 			}else{
-				ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+				transition([](){ return std::make_unique<PetScreen>(); }, LV_SCR_LOAD_ANIM_FADE_IN);
 			}
 		}else{
-			ui->startScreen([](){ return std::make_unique<HatchScreen>(); });
+			transition([](){ return std::make_unique<HatchScreen>(); }, LV_SCR_LOAD_ANIM_FADE_IN);
 		}
-	}, LV_EVENT_READY, this);
-
+	});
 }
 
 void IntroScreen::onStart(){
-	lv_gif_restart(gif);
-	lv_gif_resume(gif);
+	gif->start();
 }
 
 void IntroScreen::onStop(){
-	lv_gif_pause(gif);
+	gif->stop();
 }

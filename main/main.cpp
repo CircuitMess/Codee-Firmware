@@ -115,9 +115,11 @@ void init(){
 	auto ui = new UIThread(*lvgl, *gamer, *lvFS);
 	Services.set(Service::UI, ui);
 
-	bl->fadeIn();
-	ui->start();
 	ui->startScreen([](){ return std::make_unique<IntroScreen>(); });
+	ui->start();
+	delayMillis(LV_DEF_REFR_PERIOD);
+	bl->fadeIn();
+
 
 	// Start Battery scanning after everything else, otherwise Critical
 	// Battery event might come while initialization is still in progress

@@ -35,7 +35,7 @@ void LVGL::flush(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map){
 }
 
 void LVGL::loop(){
-	if(currentScreen){
+	if(currentScreen && currentScreen->loaded){
 		currentScreen->loop();
 	}
 	if(!currentScreen) return;
@@ -52,12 +52,17 @@ void LVGL::resume(){
 	}
 }
 
-void LVGL::startScreen(std::function<std::unique_ptr<LVScreen>()> create){
-	stopScreen();
+void LVGL::startScreen(std::function<std::unique_ptr<LVScreen>()> create, lv_screen_load_anim_t anim){
+	if(anim == LV_SCR_LOAD_ANIM_NONE){
+		stopScreen();
+	}else{
+		currentScreen->stop();
+		currentScreen.release(); // Will get auto deleted by LVGL
+	}
 
 	currentScreen = create();
 	currentScreen->start(this);
-	lv_scr_load_anim(*currentScreen, LV_SCR_LOAD_ANIM_NONE, 0, 0, true);
+	lv_screen_load_anim(*currentScreen, anim, anim == LV_SCR_LOAD_ANIM_NONE ? 0 : 500, 0, true);
 }
 
 void LVGL::stopScreen(){

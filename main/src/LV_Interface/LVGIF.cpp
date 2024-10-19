@@ -55,17 +55,19 @@ LVGIF::LVGIF(lv_obj_t* parent, const char* path) : LVObject(parent), path(path){
 		if(gif->index >= gif->durations.size()){
 			done = true;
 
-			if(gif->loopType == LoopType::Single){
-				return;
-			}else if(gif->loopType == LoopType::On){
+			if(gif->loopType == LoopType::On){
 				gif->index = 0;
+			}else{
+				lv_timer_pause(gif->timer);
 			}
 		}
 
-		lv_timer_set_period(gif->timer, gif->durations[gif->index]);
-		lv_image_cache_drop(gif->imgPath);
-		sprintf(gif->imgPath, "%s/%lu.bin", gif->path, gif->index);
-		lv_img_set_src(gif->img, gif->imgPath);
+		if(gif->loopType != LoopType::Single || !done){
+			lv_timer_set_period(gif->timer, gif->durations[gif->index]);
+			lv_image_cache_drop(gif->imgPath);
+			sprintf(gif->imgPath, "%s/%lu.bin", gif->path, gif->index);
+			lv_img_set_src(gif->img, gif->imgPath);
+		}
 
 		if(done && gif->cb){
 			gif->cb();
@@ -100,7 +102,7 @@ void LVGIF::setLooping(LVGIF::LoopType loop){
 	loopType = loop;
 }
 
-void LVGIF::setDoneCallback(std::function<void()> cb){
+void LVGIF::setLoopCallback(std::function<void()> cb){
 	this->cb = cb;
 }
 

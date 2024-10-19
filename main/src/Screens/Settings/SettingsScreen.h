@@ -35,7 +35,14 @@ private:
 
 	class Prompt* factoryResetPrompt = nullptr;
 
-	char bgPath[20] = { 0 };
+	static constexpr const char* BgPaths[6] = {
+			"S:/Bg/Level1.bin",
+			"S:/Bg/Level2.bin",
+			"S:/Bg/Level3.bin",
+			"S:/Bg/Level4.bin",
+			"S:/Bg/Level5.bin",
+			"S:/Bg/Level6.bin"
+	};
 
 	EventQueue queue;
 };
