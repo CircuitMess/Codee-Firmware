@@ -42,7 +42,7 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 	lv_obj_set_style_text_color(happinessLabel, lv_color_black(), 0);
 	lv_obj_set_size(statsRows[1], LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-	xp = new StatSprite(statsRows[2], StatSprite::Type::XP, statsManager->getExpPercentage());
+	xp = new StatSprite(statsRows[2], StatSprite::Type::XP, statsManager->getExpPercentage(), true);
 	lv_obj_t* xpLabel = lv_label_create(statsRows[2]);
 	lv_label_set_text_fmt(xpLabel, "+%d", statsIncrease.experience);
 	lv_obj_set_style_text_color(xpLabel, lv_color_black(), 0);

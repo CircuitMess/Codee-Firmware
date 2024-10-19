@@ -9,7 +9,7 @@ public:
 		Happiness, Oil, Battery, XP
 	};
 
-	StatSprite(lv_obj_t* parent, Type type, uint8_t perc);
+	StatSprite(lv_obj_t* parent, Type type, uint8_t perc, bool shortXp = false);
 	void set(uint8_t perc, bool anim = true);
 
 private:
