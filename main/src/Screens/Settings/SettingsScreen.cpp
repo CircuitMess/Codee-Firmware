@@ -69,9 +69,9 @@ void SettingsScreen::buildUI(){
 	lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
 
 	auto stats = (StatsManager*) Services.get(Service::Stats);
-	sprintf(bgPath, "S:/Bg/Level%d.bin", stats->getLevel());
+	const auto lvl = std::clamp((int) stats->getLevel()-1, 0, 5);
 
-	lv_obj_set_style_bg_image_src(bg, bgPath, 0);
+	lv_obj_set_style_bg_image_src(bg, BgPaths[lvl], 0);
 	lv_obj_set_style_bg_image_opa(bg, LV_OPA_30, 0);
 	lv_obj_set_style_bg_opa(bg, LV_OPA_COVER, 0);
 

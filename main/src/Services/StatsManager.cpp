@@ -1,4 +1,5 @@
 #include <cstring>
+#include <cmath>
 #include "StatsManager.h"
 #include "Util/Services.h"
 #include "Services/Time.h"
@@ -91,7 +92,7 @@ uint8_t StatsManager::getExpPercentage(uint16_t exp){
 		prevThreshold += LevelupThresholds[i];
 	}
 
-	return (uint8_t) ((float) (exp - prevThreshold) * 100.0 / (LevelupThresholds[getLevel(exp) - 1]));
+	return (uint8_t) std::round(((float) (exp - prevThreshold) * 100.0 / (LevelupThresholds[getLevel(exp) - 1])));
 }
 
 void StatsManager::store(){
