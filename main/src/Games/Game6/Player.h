@@ -3,7 +3,7 @@
 
 #include "GameEngine/GameObject.h"
 
-class Player{
+class Player {
 	typedef std::shared_ptr<GameObject> ObjPtr;
 
 public:
@@ -15,7 +15,7 @@ public:
 
 	float getAngle() const;
 private:
-	float angle = 0.f; //0 - 360
+	float angle = 180.f; //0 - 360
 
 	constexpr static float rotSpeed = 140.f;
 

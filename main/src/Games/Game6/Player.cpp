@@ -20,6 +20,8 @@ float Player::getAngle() const{
 
 void Player::setObj(Player::ObjPtr obj){
 	Player::obj = obj;
+	obj->setRot(angle);
+
 }
 
 const Player::ObjPtr& Player::getObj() const{

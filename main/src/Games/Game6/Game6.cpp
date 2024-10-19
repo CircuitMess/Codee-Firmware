@@ -6,25 +6,26 @@
 #include "GameEngine/Collision/CircleCC.h"
 #include "GameEngine/Collision/PolygonCC.h"
 #include "GameEngine/Rendering/SpriteRC.h"
+#include "esp_random.h"
 
 Game6::Game6(Sprite& base) : Game(base, Games::IceBlast, "/Games/6", {
-						 { "/bg.raw", {}, true },
-						 { iceIcons[0].path, {}, true },
-						 { iceIcons[1].path, {}, true },
-						 { iceIcons[2].path, {}, true },
-						 { "/player.raw", {}, true },
-						 { "/explosion.gif", {}, true },
-						 RES_HEART,
-						 RES_GOBLET}),
-							wrapWalls({ .top =  { nullptr, std::make_unique<RectCC>(glm::vec2{ wrapWallsSize.x, 100 }) },
-								  .bot =  { nullptr, std::make_unique<RectCC>(glm::vec2{ wrapWallsSize.x, 100 }) },
-								  .left =  { nullptr, std::make_unique<RectCC>(glm::vec2{ 100, wrapWallsSize.y }) },
-								  .right =  { nullptr, std::make_unique<RectCC>(glm::vec2{ 100, wrapWallsSize.y }) }
-							}){
-	wrapWalls.top.setPos(glm::vec2{ 0, -100 } - (2 * asteroidRadius[(uint8_t) AsteroidSize::Large] + 1));
-	wrapWalls.bot.setPos(glm::vec2{ -(2 * asteroidRadius[(uint8_t) AsteroidSize::Large] + 1), 128 + (2 * asteroidRadius[(uint8_t) AsteroidSize::Large] + 1) });
-	wrapWalls.left.setPos(glm::vec2{ -100, 0 } - (2 * asteroidRadius[(uint8_t) AsteroidSize::Large] + 1));
-	wrapWalls.right.setPos(glm::vec2{ 128 + (2 * asteroidRadius[(uint8_t) AsteroidSize::Large] + 1), -(2 * asteroidRadius[(uint8_t) AsteroidSize::Large] + 1) });
+		{ "/bg.raw", {}, true },
+		{ iceIcons[0].path, {}, true },
+		{ iceIcons[1].path, {}, true },
+		{ iceIcons[2].path, {}, true },
+		{ "/player.raw", {}, true },
+		{ "/explosion.gif", {}, true },
+		RES_HEART,
+		RES_GOBLET}),
+							 wrapWalls({ .top =  { nullptr, std::make_unique<RectCC>(glm::vec2{ wrapWallsSize.x, 100 }) },
+											   .bot =  { nullptr, std::make_unique<RectCC>(glm::vec2{ wrapWallsSize.x, 100 }) },
+											   .left =  { nullptr, std::make_unique<RectCC>(glm::vec2{ 100, wrapWallsSize.y }) },
+											   .right =  { nullptr, std::make_unique<RectCC>(glm::vec2{ 100, wrapWallsSize.y }) }
+									   }){
+	wrapWalls.top.setPos(glm::vec2{ 0, -100 } - WallOffset);
+	wrapWalls.bot.setPos(glm::vec2{ -WallOffset, 128 + WallOffset });
+	wrapWalls.left.setPos(glm::vec2{ -100, 0 } - WallOffset);
+	wrapWalls.right.setPos(glm::vec2{ 128 + WallOffset, -WallOffset });
 }
 
 void Game6::onLoad(){
@@ -53,10 +54,6 @@ void Game6::onLoad(){
 }
 
 void Game6::onLoop(float deltaTime){
-	ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio);
-	if(audio == nullptr){
-		return;
-	}
 
 	switch(state){
 		case Intro:{
@@ -92,7 +89,7 @@ void Game6::onLoop(float deltaTime){
 					state = Win;
 					Sound s = {{ 600, 400,  200 },
 							   { 400, 1000, 200 }};
-					audio->play(s);
+					audio.play(s);
 					return;
 				}
 
@@ -118,7 +115,7 @@ void Game6::onLoop(float deltaTime){
 
 		case Win:
 			updateBullets(deltaTime);
-			glm::vec2 direction = { cos(M_PI * (player.getAngle() - 90.f) / 180.0), sin(M_PI * (player.getAngle() - 90.f) / 180.0) };
+			glm::vec2 direction = { cos(M_PI * (player.getAngle() + 90.f) / 180.0), sin(M_PI * (player.getAngle() + 90.f) / 180.0) };
 
 			winTimer += deltaTime;
 			if(winTimer > 1.f){
@@ -135,51 +132,47 @@ void Game6::onLoop(float deltaTime){
 
 void Game6::handleInput(const Input::Data& data){
 	if(data.action == Input::Data::Press){
-		ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio);
-		if(audio == nullptr){
-			return;
-		}
 
 		switch(data.btn){
-			case Input::B: {
-				audio->play(Sound { Chirp { 400, 350, 50 }});
+			case Input::D:{
+				audio.play(Sound{ Chirp{ 400, 350, 50 }});
 				exit();
 				break;
 			}
 
-			case Input::Left: {
+			case Input::A:{
 				leftHold = true;
 				break;
 			}
 
-			case Input::Right: {
+			case Input::B:{
 				rightHold = true;
 				break;
 			}
 
-			case Input::A: {
+			case Input::C:{
 				if(state != Running) return;
 				shootBullet();
 				break;
 			}
 
-			default: {
+			default:{
 				break;
 			}
 		}
 	}else{
 		switch(data.btn){
-			case Input::Left: {
+			case Input::A:{
 				leftHold = false;
 				break;
 			}
 
-			case Input::Right: {
+			case Input::B:{
 				rightHold = false;
 				break;
 			}
 
-			default: {
+			default:{
 				break;
 			}
 		}
@@ -195,12 +188,7 @@ void Game6::updateBullets(float deltaTime){
 void Game6::shootBullet(){
 	if(bulletPool.size() >= 4) return;
 
-	ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio);
-	if(audio == nullptr){
-		return;
-	}
-
-	audio->play({{450, 300, 100}});
+	audio.play({{ 450, 300, 100 }});
 
 	auto spriteRC = std::make_unique<SpriteRC>(PixelDim{ 4, 4 });
 	spriteRC->getSprite()->clear(TFT_TRANSPARENT);
@@ -211,7 +199,7 @@ void Game6::shootBullet(){
 	addObject(bullet);
 
 	glm::vec2 center = player.getObj()->getPos() + glm::vec2{ 8, 44 / 2 };
-	glm::vec2 direction = { cos(M_PI * (player.getAngle() - 90.f) / 180.0), sin(M_PI * (player.getAngle() - 90.f) / 180.0) };
+	glm::vec2 direction = { cos(M_PI * (player.getAngle() + 90.f) / 180.0), sin(M_PI * (player.getAngle() + 90.f) / 180.0) };
 	glm::vec2 bulletPos = (direction * (float) (44 / 2)) + center;
 	glm::vec2 speed = direction * bulletSpeed;
 
@@ -238,16 +226,16 @@ void Game6::shootBullet(){
 
 void Game6::createAsteroid(Game6::AsteroidSize size, glm::vec2 pos){
 	std::shared_ptr<GameObject> asteroid = std::make_shared<GameObject>(
-		std::make_unique<StaticRC>(getFile(iceIcons[(uint8_t) size].path), iceIcons[(uint8_t) size].dim),
-		std::make_unique<CircleCC>(asteroidRadius[(uint8_t) size], glm::vec2{
-			                           asteroidRadius[(uint8_t) size], asteroidRadius[(uint8_t) size]
-		                           }));
+			std::make_unique<StaticRC>(getFile(iceIcons[(uint8_t) size].path), iceIcons[(uint8_t) size].dim),
+			std::make_unique<CircleCC>(asteroidRadius[(uint8_t) size], glm::vec2{
+					iceIcons[(uint8_t) size].dim.x / 2, iceIcons[(uint8_t) size].dim.y / 2
+			}));
 
 	addObject(asteroid);
 	asteroid->setPos(pos);
 
 	//random direction, avoid right angles since they can keep the asteroids off-screen for long durations
-	float angle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 360.0f));
+	float angle = static_cast <float> (esp_random()) / (static_cast <float> (RAND_MAX / 360.0f));
 	float rightAngleOffset = 15;
 	if(fmod(angle, 90) <= rightAngleOffset){
 		angle += rightAngleOffset;
@@ -283,13 +271,13 @@ void Game6::createAsteroid(Game6::AsteroidSize size, glm::vec2 pos){
 		asteroid->setPos({ asteroid->getPos().x, 128.0f });
 	});
 	collision.addPair(*asteroid, wrapWalls.bot, [asteroid](){
-		asteroid->setPos({ asteroid->getPos().x, -(2 * asteroidRadius[(uint8_t) AsteroidSize::Large]) });
+		asteroid->setPos({ asteroid->getPos().x, -(iceIcons[2].dim.y - 1) });
 	});
 	collision.addPair(*asteroid, wrapWalls.left, [asteroid](){
 		asteroid->setPos({ 128.0f, asteroid->getPos().y });
 	});
 	collision.addPair(*asteroid, wrapWalls.right, [asteroid](){
-		asteroid->setPos({ -(2 * asteroidRadius[(uint8_t) AsteroidSize::Large]), asteroid->getPos().y });
+		asteroid->setPos({ -(iceIcons[2].dim.x - 1), asteroid->getPos().y });
 	});
 }
 
@@ -305,13 +293,8 @@ void Game6::asteroidHit(const Game6::Asteroid& asteroid){
 		return;
 	}
 
-	ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio);
-	if(audio == nullptr){
-		return;
-	}
-
 	led->blink(LED::Green);
-	audio->play({{100, 100, 50}});
+	audio.play({{ 100, 100, 50 }});
 
 	switch(asteroid.size){
 		case AsteroidSize::Large:
@@ -332,6 +315,7 @@ void Game6::asteroidHit(const Game6::Asteroid& asteroid){
 	}
 	asteroidPool.erase(std::remove(asteroidPool.begin(), asteroidPool.end(), asteroid), asteroidPool.end());
 	removeObject(asteroid.gObj);
+
 }
 
 void Game6::updateInvincibility(float delta){
@@ -358,17 +342,12 @@ void Game6::playerHit(){
 		return;
 	}
 
-	ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio);
-	if(audio == nullptr){
-		return;
-	}
-
 	led->blink(LED::Red, 2);
 
 	life--;
 	hearts->setLives(life);
 	if(life == 0){
-		audio->play({{ 400, 300, 200 },
+		audio.play({{ 400, 300, 200 },
 					{ 0,   0,   50 },
 					{ 300, 200, 200 },
 					{ 0,   0,   50 },
@@ -377,7 +356,9 @@ void Game6::playerHit(){
 		return;
 	}
 
-	audio->play({{300, 300, 50}, {0, 0, 50}, {300, 300, 50}});
+	audio.play({{ 300, 300, 50 },
+				{ 0,   0,   50 },
+				{ 300, 300, 50 }});
 	invincible = true;
 }
 
@@ -396,15 +377,15 @@ void Game6::spawnRandomAsteroid(){
 	//y in range (-2*asteroidRadius[Large], 128), x either -2*asteroidRadius[Large] or 128
 
 	//top left corner of rectangle outside the screen, wider by 2*radius[Large] than screen
-	glm::vec2 topLeft = { -2 * asteroidRadius[(uint8_t) AsteroidSize::Large], -2 * asteroidRadius[(uint8_t) AsteroidSize::Large] };
+	glm::vec2 topLeft = { -WallOffset, -WallOffset };
 
 	//pick border for asteroid to spawn on
 	enum class Border : uint8_t {
 		Up, Down, Left, Right
-	} side = static_cast<Border>(rand() % 4);
+	} side = static_cast<Border>(esp_random() % 4);
 
 	if(side == Border::Up || side == Border::Down){
-		float xpos = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (128.0f - topLeft.x)));
+		float xpos = (float)(esp_random()) / ((float)(UINT32_MAX / (128.0f - topLeft.x)));
 
 		if(side == Border::Up){
 			pos = { topLeft.x + xpos, topLeft.y };
@@ -412,7 +393,7 @@ void Game6::spawnRandomAsteroid(){
 			pos = { topLeft.x + xpos, 128.0f };
 		}
 	}else if(side == Border::Left || side == Border::Right){
-		float ypos = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (128.0f - topLeft.y)));
+		float ypos = (float)(esp_random()) / ((float)(UINT32_MAX / (128.0f - topLeft.x)));
 
 		if(side == Border::Left){
 			pos = { topLeft.x, topLeft.y + ypos };
@@ -453,7 +434,7 @@ void Game6::gameOver(){
 	});
 }
 
-/*Stats Game6::returnStats(){
-	float success = (float)(score) / (float)(maxScore);
-	return Stats({ (uint8_t)(50.0 * success), (uint8_t)(25.0 * success), 0 });
-}*/
+Stats Game6::returnStats(){
+	float success = (float) (score) / (float) (maxScore);
+	return Stats({ (uint8_t) (50.0 * success), (uint8_t) (25.0 * success), 0 });
+}
