@@ -103,7 +103,6 @@ void GameRunner::loop(){
 	if(!currentGame) return; // in case the game exited in its loop
 
 	display.getCanvas().pushSprite(0, 0);
-	display.getLGFX().display();
 
 	const auto loopTime = (micros() - currMicros) / 1000;
 	if(loopTime > FrameTime){
