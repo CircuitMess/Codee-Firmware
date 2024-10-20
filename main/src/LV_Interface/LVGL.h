@@ -21,9 +21,6 @@ public:
 private:
 	Display& display;
 
-	static constexpr uint8_t Rows = 64;
-	uint8_t drawBuffer[2*128*Rows];
-
 	lv_disp_t* lvDisplay;
 
 	static void flush(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map);

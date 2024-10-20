@@ -11,7 +11,9 @@ LVGL::LVGL(Display& display) : display(display){
 	lv_display_set_color_format(lvDisplay, LV_COLOR_FORMAT_RGB565);
 	lv_display_set_user_data(lvDisplay, this);
 	lv_display_set_flush_cb(lvDisplay, flush);
-	lv_display_set_buffers(lvDisplay, drawBuffer, nullptr, sizeof(drawBuffer), LV_DISPLAY_RENDER_MODE_PARTIAL);
+
+	Sprite& canvas = display.getCanvas();
+	lv_display_set_buffers(lvDisplay, canvas.getBuffer(), nullptr, canvas.width()*canvas.height()*2, LV_DISPLAY_RENDER_MODE_PARTIAL);
 
 	auto theme = theme_init(lvDisplay);
 	lv_display_set_theme(lvDisplay, theme);
@@ -26,8 +28,6 @@ void LVGL::flush(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map){
 	auto w = (area->x2 - area->x1 + 1);
 	auto h = (area->y2 - area->y1 + 1);
 	auto data = (uint16_t*) px_map;
-
-	lv_draw_sw_rgb565_swap(px_map, w * h);
 
 	lgfx.pushImage(x, y, w, h, data);
 

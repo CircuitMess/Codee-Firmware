@@ -10,6 +10,7 @@ Display::Display() : canvas(&lgfx){
 	panel.setBus(&bus);
 	lgfx.setPanel(&panel);
 	lgfx.init();
+	lgfx.setSwapBytes(true);
 
 	canvas.setColorDepth(lgfx::rgb565_2Byte);
 	canvas.createSprite(128, 128);
