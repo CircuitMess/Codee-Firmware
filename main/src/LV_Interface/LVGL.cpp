@@ -27,8 +27,6 @@ void LVGL::flush(lv_display_t* disp, const lv_area_t* area, uint8_t* px_map){
 	auto h = (area->y2 - area->y1 + 1);
 	auto data = (uint16_t*) px_map;
 
-	lv_draw_sw_rgb565_swap(px_map, w * h);
-
 	lgfx.pushImage(x, y, w, h, data);
 
 	lv_display_flush_ready(disp);
