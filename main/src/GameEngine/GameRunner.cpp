@@ -1,6 +1,7 @@
 #include "GameRunner.h"
 #include "Util/stdafx.h"
 #include "Devices/Battery.h"
+#include "LV_Interface/LVGL.h"
 #include "Games/Game1/Game1.h"
 #include "Games/Game2/Game2.h"
 #include "Games/Game5.h"
@@ -26,6 +27,8 @@ void GameRunner::startGame(Games game){
 
 	if(!Launcher.contains(game)) return;
 
+	LVGL::drawImage(SplashImages[(int) game].splash);
+
 	const auto startTime = millis();
 
 	auto launcher = Launcher.at(game);
@@ -36,6 +39,29 @@ void GameRunner::startGame(Games game){
 	while(!inst->isLoaded() || (millis() - startTime) < 2000){
 		delayMillis(100);
 	}
+
+	LVGL::drawImage(SplashImages[(int) game].instr);
+
+	EventQueue evts(6);
+	Events::listen(Facility::Input, &evts);
+	for(;;){
+		Event evt{};
+		if(!evts.get(evt, portMAX_DELAY)) continue;
+		if(evt.facility != Facility::Input){
+			free(evt.data);
+			continue;
+		}
+
+		auto data = (Input::Data*) evt.data;
+		if(data->action != Input::Data::Press){
+			free(evt.data);
+			continue;
+		}
+
+		free(evt.data);
+		break;
+	}
+	Events::unlisten(&evts);
 
 	currentGameEnum = game;
 	currentGame = std::move(inst);
