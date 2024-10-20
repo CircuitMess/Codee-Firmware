@@ -10,7 +10,7 @@
 static const std::unordered_map<Games, std::function<std::unique_ptr<Game>(Sprite& canvas)>> Launcher{
 		{ Games::Oily, [](Sprite& canvas){ return std::make_unique<Game1>(canvas); }},
 		{ Games::PolarSwim, [](Sprite& canvas){ return std::make_unique<Game2>(canvas); }},
-		{Games::PingoSnack, [](Sprite& canvas) { return std::make_unique<Game3::Game3>(canvas); }},
+		{ Games::PingoSnack, [](Sprite& canvas){ return std::make_unique<Game3::Game3>(canvas); }},
 		{ Games::Dance, [](Sprite& canvas){ return std::make_unique<Game5>(canvas); }},
 		{ Games::IceBlast, [](Sprite& canvas) { return std::make_unique<Game6>(canvas); }}
 };
