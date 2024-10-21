@@ -7,7 +7,6 @@
 #include "Devices/Battery.h"
 #include "LV_Interface/InputLVGL.h"
 #include "Screens/LevelUpScreen.h"
-#include "Screens/SplashScreen.h"
 #include "Screens/Settings/SettingsScreen.h"
 
 PetScreen::PetScreen() : evts(6), statsManager((StatsManager*) Services.get(Service::Stats)), battery((Battery*) Services.get(Service::Battery)){
@@ -87,8 +86,8 @@ void PetScreen::launch(uint8_t i){
 	Events::unlisten(&evts);
 	stopped = true;
 
-	const auto game = (Games) (i-1);
-	transition([game](){ return std::make_unique<SplashScreen>(game); });
+	auto ui = (UIThread*) Services.get(Service::UI);
+	ui->startGame((Games) (i-1));
 }
 
 void PetScreen::processEvents(){

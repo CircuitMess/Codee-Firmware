@@ -1,6 +1,12 @@
 #include "LVGL.h"
 #include "InputLVGL.h"
 #include "Theme/theme.h"
+#include <esp_log.h>
+#include <core/lv_global.h>
+#include <draw/lv_image_decoder.h>
+#include <draw/lv_image_decoder_private.h>
+#include <draw/sw/blend/lv_draw_sw_blend_to_rgb565.h>
+#include <draw/sw/blend/lv_draw_sw_blend_private.h>
 
 LVGL::LVGL(Display& display) : display(display){
 	lv_init();
@@ -77,4 +83,51 @@ void LVGL::stopScreen(){
 	}
 
 	currentScreen.reset();
+}
+
+void LVGL::drawImage(const char* src){
+	const auto lvDisplay = LV_GLOBAL_DEFAULT()->disp_default;
+	const auto lvgl = (LVGL*) lv_display_get_user_data(lvDisplay);
+	const Sprite& canvas = lvgl->display.getCanvas();
+
+	lv_image_decoder_dsc_t decoder;
+	const lv_image_decoder_args_t args = { .no_cache = true };
+	lv_result_t res = lv_image_decoder_open(&decoder, src, &args);
+	if(res != LV_RESULT_OK){
+		ESP_LOGE("LVGL::drawImage", "Failed opening image file %s", src);
+		return;
+	}
+
+	const auto render = [&decoder, &canvas](const lv_area_t& area){
+		lv_draw_sw_blend_image_dsc_t dsc = {
+				.dest_buf = (uint8_t*) canvas.getBuffer() + canvas.width() * 2 * area.y1,
+				.dest_w = area.x2 - area.x1 + 1,
+				.dest_h = area.y2 - area.y1 + 1,
+				.dest_stride = canvas.width() * 2,
+				.src_buf = decoder.decoded->data,
+				.src_stride = (int32_t) decoder.decoded->header.stride,
+				.src_color_format = (lv_color_format_t) decoder.decoded->header.cf,
+				.opa = LV_OPA_COVER,
+				.blend_mode = LV_BLEND_MODE_NORMAL
+		};
+		lv_draw_sw_blend_image_to_rgb565(&dsc);
+	};
+
+	const lv_area_t area_full = { 0, 0, canvas.width() - 1, canvas.height() - 1 };
+
+	if(decoder.decoded){
+		render(area_full);
+	}else{
+		lv_area_t area_decoded = { LV_COORD_MIN, LV_COORD_MIN, LV_COORD_MIN, LV_COORD_MIN };
+		while(res == LV_RESULT_OK){
+			res = lv_image_decoder_get_area(&decoder, &area_full, &area_decoded);
+			if(res == LV_RESULT_OK){
+				render(area_decoded);
+			}
+		}
+	}
+
+	lv_image_decoder_close(&decoder);
+
+	lvgl->flush(lvDisplay, &area_full, (uint8_t*) canvas.getBuffer());
 }

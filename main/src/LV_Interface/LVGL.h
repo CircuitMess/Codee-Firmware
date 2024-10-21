@@ -18,6 +18,9 @@ public:
 	void loop();
 	void resume();
 
+	/** Draw .bin image to display */
+	static void drawImage(const char* src);
+
 private:
 	Display& display;
 
