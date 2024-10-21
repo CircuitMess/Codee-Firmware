@@ -2,6 +2,7 @@
 #include "Util/Services.h"
 #include "UIThread.h"
 #include "Screens/PetScreen/PetScreen.h"
+#include "Screens/LevelUpScreen.h"
 
 ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Services.get(Service::Stats)), statsIncrease(statsIncrease){
 	sprintf(bgPath, "S:/Bg/Level%d.bin", statsManager->getLevel());
@@ -30,12 +31,13 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 	}
 
 	startingStats = statsManager->get();
+	startLevel = statsManager->getLevel();
+
 	oil = new StatSprite(statsRows[0], StatSprite::Type::Oil, startingStats.oilLevel);
 	lv_obj_t* oilLabel = lv_label_create(statsRows[0]);
 	lv_label_set_text_fmt(oilLabel, "+%d", statsIncrease.oilLevel);
 	lv_obj_set_style_text_color(oilLabel, lv_color_black(), 0);
 	lv_obj_set_size(statsRows[0], LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-
 
 	happiness = new StatSprite(statsRows[1], StatSprite::Type::Happiness, startingStats.happiness);
 	lv_obj_t* happinessLabel = lv_label_create(statsRows[1]);
@@ -51,7 +53,7 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 
 	exitTimer = lv_timer_create([](lv_timer_t* t){
 		auto scr = (ScoreScreen*) t->user_data;
-		scr->transition([](){ return std::make_unique<PetScreen>(); });
+		scr->done();
 	}, ExitTimeout, this);
 	lv_timer_pause(exitTimer);
 
@@ -97,10 +99,6 @@ void ScoreScreen::onStart(){
 	lv_anim_start(&xpAnim);
 }
 
-void ScoreScreen::onStop(){
-	statsManager->update(statsIncrease);
-}
-
 void ScoreScreen::click(){
 	if(lv_anim_count_running()){
 		lv_anim_delete_all();
@@ -111,7 +109,19 @@ void ScoreScreen::click(){
 
 		lv_timer_resume(exitTimer);
 	}else{
-		lv_timer_pause(exitTimer);
+		done();
+	}
+}
+
+void ScoreScreen::done(){
+	lv_timer_pause(exitTimer);
+
+	statsManager->update(statsIncrease);
+	const uint8_t currentLevel = statsManager->getLevel();
+
+	if(currentLevel == startLevel){
 		transition([](){ return std::make_unique<PetScreen>(); });
+	}else{
+		transition([currentLevel](){ return std::make_unique<LevelUpScreen>(currentLevel); }, LV_SCR_LOAD_ANIM_FADE_IN);
 	}
 }
