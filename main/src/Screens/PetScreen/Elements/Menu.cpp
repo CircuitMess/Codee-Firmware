@@ -105,6 +105,10 @@ Menu::~Menu(){
 		lv_anim_delete(shakeAnim.var, nullptr);
 	}
 
+	if(hiding){
+		lv_anim_delete(hideAnim.var, nullptr);
+	}
+
 	lv_timer_delete(hideTimer);
 	lv_group_delete(hideGrp);
 }
