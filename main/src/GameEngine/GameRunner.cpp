@@ -6,7 +6,7 @@
 #include "Games/Game2/Game2.h"
 #include "Games/Game3/Game3.h"
 #include "Games/Game4/Game4.h"
-#include "Games/Game5.h"
+#include "Games/Game5/Game5.h"
 #include "Games/Game6/Game6.h"
 
 static const std::unordered_map<Games, std::function<std::unique_ptr<Game>(Sprite& canvas)>> Launcher{

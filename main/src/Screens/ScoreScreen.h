@@ -14,11 +14,11 @@ public:
 
 private:
 	void onStart() override;
-	void onStop() override;
 
 	StatsManager* statsManager;
 	const Stats statsIncrease;
 	Stats startingStats;
+	uint8_t startLevel;
 
 	StatSprite* oil = nullptr;
 	StatSprite* happiness = nullptr;
@@ -36,6 +36,7 @@ private:
 	static constexpr const uint32_t ExitTimeout = 4000; //[ms]
 
 	void click();
+	void done();
 };
 
 

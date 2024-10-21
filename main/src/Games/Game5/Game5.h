@@ -3,7 +3,7 @@
 
 #include "GameEngine/Game.h"
 #include "GameEngine/Rendering/AnimRC.h"
-#include "Common/Hearts.h"
+#include "Games/Common/Hearts.h"
 #include <deque>
 
 class Game5 : public Game {
