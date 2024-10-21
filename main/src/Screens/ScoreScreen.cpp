@@ -3,14 +3,15 @@
 #include "UIThread.h"
 #include "Screens/PetScreen/PetScreen.h"
 
-ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Services.get(Service::Stats)), statsIncrease(statsIncrease), queue(1){
+ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Services.get(Service::Stats)), statsIncrease(statsIncrease){
 	sprintf(bgPath, "S:/Bg/Level%d.bin", statsManager->getLevel());
 	lv_obj_set_style_bg_image_src(*this, bgPath, 0);
 
 	frame = lv_image_create(*this);
-	lv_image_set_src(frame, "S:/modal.bin");
+	lv_image_set_src(frame, "S:/Modal.bin");
 	lv_obj_center(frame);
-	lv_obj_set_size(frame, 128, 96);
+	lv_obj_set_size(frame, 115, 82);
+	lv_obj_set_style_pad_all(frame, 8, 0);
 	lv_obj_set_layout(frame, LV_LAYOUT_FLEX);
 	lv_obj_set_flex_flow(frame, LV_FLEX_FLOW_COLUMN);
 	lv_obj_set_flex_align(frame, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
@@ -42,23 +43,33 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 	lv_obj_set_style_text_color(happinessLabel, lv_color_black(), 0);
 	lv_obj_set_size(statsRows[1], LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-	xp = new StatSprite(statsRows[2], StatSprite::Type::XP, statsManager->getExpPercentage());
+	xp = new StatSprite(statsRows[2], StatSprite::Type::XP, statsManager->getExpPercentage(), true);
 	lv_obj_t* xpLabel = lv_label_create(statsRows[2]);
 	lv_label_set_text_fmt(xpLabel, "+%d", statsIncrease.experience);
 	lv_obj_set_style_text_color(xpLabel, lv_color_black(), 0);
 	lv_obj_set_size(statsRows[2], LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
 	exitTimer = lv_timer_create([](lv_timer_t* t){
-		auto ui = (UIThread*) Services.get(Service::UI);
-		ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+		auto scr = (ScoreScreen*) t->user_data;
+		scr->transition([](){ return std::make_unique<PetScreen>(); });
 	}, ExitTimeout, this);
 	lv_timer_pause(exitTimer);
 
+	lv_obj_t* clickObj = lv_obj_create(*this);
+	lv_obj_set_size(clickObj, 0, 0);
+	lv_obj_add_flag(clickObj, LV_OBJ_FLAG_FLOATING);
+	lv_group_add_obj(inputGroup, clickObj);
+	lv_group_set_editing(inputGroup, true);
+
+	lv_obj_add_event_cb(clickObj, [](lv_event_t* e){
+		auto scr = (ScoreScreen*) lv_event_get_user_data(e);
+		scr->click();
+	}, LV_EVENT_KEY, this);
 }
 
 ScoreScreen::~ScoreScreen(){
 	lv_anim_delete(xp, nullptr);
-	Events::unlisten(&queue);
+	lv_timer_delete(exitTimer);
 }
 
 void ScoreScreen::onStart(){
@@ -84,35 +95,23 @@ void ScoreScreen::onStart(){
 	});
 	lv_anim_set_path_cb(&xpAnim, lv_anim_path_linear);
 	lv_anim_start(&xpAnim);
-
-	Events::listen(Facility::Input, &queue);
 }
 
 void ScoreScreen::onStop(){
 	statsManager->update(statsIncrease);
-
 }
 
-void ScoreScreen::loop(){
-	Event event{};
-	if(!queue.get(event, 0)) return;
-
-	auto data = (Input::Data*) event.data;
-	if(data->action != Input::Data::Press){
-		free(event.data);
-		return;
-	}
-
-	free(event.data);
-
+void ScoreScreen::click(){
 	if(lv_anim_count_running()){
 		lv_anim_delete_all();
 
 		oil->set(startingStats.oilLevel + statsIncrease.oilLevel, false);
 		happiness->set(startingStats.happiness + statsIncrease.happiness, false);
 		xp->set(StatsManager::getExpPercentage(startingStats.experience + statsIncrease.experience), false);
+
+		lv_timer_resume(exitTimer);
 	}else{
-		auto ui = (UIThread*) Services.get(Service::UI);
-		ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+		lv_timer_pause(exitTimer);
+		transition([](){ return std::make_unique<PetScreen>(); });
 	}
 }

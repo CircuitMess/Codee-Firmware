@@ -14,7 +14,6 @@ public:
 
 private:
 	void onStart() override;
-	void loop() override;
 	void onStop() override;
 
 	StatsManager* statsManager;
@@ -36,7 +35,7 @@ private:
 	lv_timer_t* exitTimer;
 	static constexpr const uint32_t ExitTimeout = 4000; //[ms]
 
-	EventQueue queue;
+	void click();
 };
 
 
