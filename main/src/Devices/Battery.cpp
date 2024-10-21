@@ -7,11 +7,15 @@
 #include <driver/gpio.h>
 
 //TODO - adjust after voltage divider HW revision
-#define MAX_READ 4095 // 3.2V
-#define MIN_READ 3890 // 2.75V
+//For reference voltage 1.1V without attenuation.
+#define MAX_READ 2975 // 3.2V
+#define MIN_READ 2695 // 2.9V
 
 Battery::Battery() : SleepyThreaded(MeasureIntverval, "Battery", 3 * 1024, 5, 1), adc((gpio_num_t) PIN_BATT, 0.05, MIN_READ, MAX_READ, getVoltOffset()),
 					 hysteresis({ 0, 4, 15, 30, 50, 70, 90, 100 }, 3){
+
+	gpio_set_direction((gpio_num_t)PIN_VREF, GPIO_MODE_OUTPUT);
+	gpio_set_level((gpio_num_t)PIN_VREF, 0);
 
 	sample(true);
 }

@@ -14,7 +14,7 @@ ADC::ADC(gpio_num_t pin, float ema_a, int min, int max, int readingOffset) : pin
 
 	if(pin == TargetPin){
 		adc1_config_width(ADC_WIDTH_BIT_12);
-		adc1_config_channel_atten(ADC1_CHANNEL_0, ADC_ATTEN_DB_12);
+		adc1_config_channel_atten(ADC1_CHANNEL_5, ADC_ATTEN_DB_0);
 	}
 
 	sample();
@@ -35,8 +35,8 @@ float ADC::sample(){
 	}
 
 	float reading = 0;
-	if(pin == GPIO_NUM_1){
-		reading = adc1_get_raw(ADC1_CHANNEL_0);
+	if(pin == TargetPin){
+		reading = adc1_get_raw(ADC1_CHANNEL_5);
 	}
 
 	if(val == -1 || ema_a == 1){
