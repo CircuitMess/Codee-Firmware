@@ -48,7 +48,7 @@ private:
 	const float speedMax = 100.0f;
 	const float speedIncrement = (speedMax - speed) / scoreMax;
 	bool isDone = false;
-	int score = 38;
+	int score = 0;
 	uint8_t life = 3;
 
 	enum EndState {
