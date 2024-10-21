@@ -56,7 +56,7 @@ private:
 	} endPauseState = Running;
 	float endPauseCounter = 0;
 	static constexpr float DeathPause = 2.5;
-	static constexpr float WinPause = 2000.6;
+	static constexpr float WinPause = 2.6;
 
 	std::unique_ptr<TileManager> tileManager;
 	std::shared_ptr<TextRC> scoreTextRC;
