@@ -15,7 +15,7 @@ void IRAM_ATTR ResourceManager::load(const std::vector<ResDescriptor>& descripto
 
 		std::string path;
 
-		if(descriptor.path[0] == 'c'){
+		if(descriptor.path.starts_with("c/")){
 			descriptor.path = descriptor.path.substr(1);
 			path = "/Games/Common" + descriptor.path;
 		}else{
