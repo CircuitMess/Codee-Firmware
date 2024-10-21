@@ -74,7 +74,9 @@ void init(){
 	bl = new BacklightBrightness(blPwm);
 	Services.set(Service::Backlight, bl);
 
-	auto battery = new Battery();
+	auto adc1 = new ADC(ADC_UNIT_1);
+
+	auto battery = new Battery(*adc1);
 	if(battery->isShutdown()){
 		shutdown();
 		return;
@@ -123,7 +125,7 @@ void init(){
 
 	// Start Battery scanning after everything else, otherwise Critical
 	// Battery event might come while initialization is still in progress
-	 battery->begin();
+	battery->begin();
 
 	auto sleep = new Sleep();
 }
