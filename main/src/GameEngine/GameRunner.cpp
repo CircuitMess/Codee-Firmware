@@ -5,6 +5,7 @@
 #include "Games/Game1/Game1.h"
 #include "Games/Game2/Game2.h"
 #include "Games/Game3/Game3.h"
+#include "Games/Game4/Game4.h"
 #include "Games/Game5/Game5.h"
 #include "Games/Game6/Game6.h"
 
@@ -12,6 +13,7 @@ static const std::unordered_map<Games, std::function<std::unique_ptr<Game>(Sprit
 		{ Games::Oily, [](Sprite& canvas){ return std::make_unique<Game1>(canvas); }},
 		{ Games::PolarSwim, [](Sprite& canvas){ return std::make_unique<Game2>(canvas); }},
 		{ Games::PingoSnack, [](Sprite& canvas){ return std::make_unique<Game3::Game3>(canvas); }},
+		{ Games::PolarJump, [](Sprite& canvas){ return std::make_unique<Game4::Game4>(canvas); }},
 		{ Games::Dance, [](Sprite& canvas){ return std::make_unique<Game5>(canvas); }},
 		{ Games::IceBlast, [](Sprite& canvas) { return std::make_unique<Game6>(canvas); }}
 };
