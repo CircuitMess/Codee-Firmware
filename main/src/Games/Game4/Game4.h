@@ -25,6 +25,7 @@ protected:
 private:
 	std::unique_ptr<Player> player;
 	std::unique_ptr<Hearts> hearts;
+	GameObjPtr goblet;
 
 	struct Obstacle {
 		File file;
@@ -43,9 +44,9 @@ private:
 	float spawnRate = 2.0f;
 	const float spawnIncrement = 0.02f;
 	const int scoreMax = 40;
-	float speed = 70.0f;
+	float speed = 75.0f;
 //	static constexpr float TilesSpeedMultiplier = 0.45;
-	const float speedMax = 100.0f;
+	const float speedMax = 105.0f;
 	const float speedIncrement = (speedMax - speed) / scoreMax;
 	bool isDone = false;
 	int score = 0;

@@ -30,7 +30,8 @@ Game4::Game4::Game4(Sprite& canvas) : Game(canvas, Games::PolarJump, "/Games/4/"
 		{ "walkDead.gif", {}, false },
 		{ "win.gif", {}, false },
 		{ "walk.gif", {}, true },
-		RES_HEART}){
+		RES_HEART,
+		RES_GOBLET}){
 }
 
 void Game4::Game4::onLoad(){
@@ -106,11 +107,17 @@ void Game4::Game4::onLoad(){
 					 getFile("unducking.gif"),
 					 getFile("win.gif"));
 	///Score
-	std::string scoreText = "Score:" + std::to_string(score) + "/" + std::to_string(scoreMax);
-	auto scoreObj = std::make_shared<GameObject>(
-			std::make_unique<TextRC>(scoreText, TextStyle{ &Font0, TFT_WHITE, 1, TR_DATUM }),
+	goblet = std::make_shared<GameObject>(
+			std::make_unique<StaticRC>(getFile(FILE_GOBLET), PixelDim{ 7, 7 }),
 			nullptr);
-	scoreObj->setPos({ 128 - 2, 2 });
+	goblet->setPos({ 87, 2 });
+	addObject(goblet);
+
+	std::string scoreText = std::to_string(score) + "/" + std::to_string(scoreMax);
+	auto scoreObj = std::make_shared<GameObject>(
+			std::make_unique<TextRC>(scoreText, TextStyle{ &Font0, TFT_WHITE, 1, TL_DATUM }),
+			nullptr);
+	scoreObj->setPos({ 96, 2 });
 	scoreTextRC = std::static_pointer_cast<TextRC>(scoreObj->getRenderComponent());
 	addObject(scoreObj);
 	///Hearts
@@ -281,7 +288,7 @@ void Game4::Game4::scoreUp(){
 
 	score++;
 
-	std::string scoreText = "Score:" + std::to_string(score) + "/" + std::to_string(scoreMax);
+	std::string scoreText = std::to_string(score) + "/" + std::to_string(scoreMax);
 	scoreTextRC->setText(scoreText);
 }
 
@@ -289,14 +296,14 @@ void Game4::Game4::handleInput(const Input::Data& data){
 	if(isDone || endPauseState != Running) return;
 
 	if(data.action == Input::Data::Press){
-		if(data.btn == Input::B){
+		if(data.btn == Input::A){
 			player->duckPressed();
 		}
-		if(data.btn == Input::A){
+		if(data.btn == Input::B){
 			player->jumpPressed();
 		}
 	}else if(data.action == Input::Data::Release){
-		if(data.btn == Input::B){
+		if(data.btn == Input::A){
 			player->duckReleased();
 		}
 	}
