@@ -31,9 +31,9 @@ JigHWTest::JigHWTest(){
 	tests.push_back({ JigHWTest::RTCTest, "RTC", [](){} });
 	tests.push_back({ JigHWTest::Time1, "RTC crystal", [](){} });
 	tests.push_back({ JigHWTest::Time2, "RTC crystal", [](){} });
-	// tests.push_back({ JigHWTest::SPIFFSTest, "SPIFFS", [](){} });
+	tests.push_back({ JigHWTest::SPIFFSTest, "SPIFFS", [](){} });
 	tests.push_back({ JigHWTest::BatteryRef, "Battery reference", [](){}});
-	// tests.push_back({ JigHWTest::HWVersion, "Hardware version", [](){ esp_efuse_batch_write_cancel(); } });
+	tests.push_back({ JigHWTest::HWVersion, "Hardware version", [](){ esp_efuse_batch_write_cancel(); } });
 }
 
 bool JigHWTest::checkJig(){
