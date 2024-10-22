@@ -7,6 +7,7 @@
 #include "Services/StatsManager.h"
 #include "Util/Services.h"
 #include "LV_Interface/InputLVGL.h"
+#include "Services/ChirpSystem.h"
 
 Menu::Menu(lv_obj_t* parent, lv_group_t* grp, std::function<void(uint8_t)> launch) : LVObject(parent), launch(std::move(launch)), grp(grp){
 	lv_obj_set_size(*this, 128, FrameSize.y);
@@ -62,7 +63,7 @@ Menu::Menu(lv_obj_t* parent, lv_group_t* grp, std::function<void(uint8_t)> launc
 	auto stats = (StatsManager*) Services.get(Service::Stats);
 	const auto lvl = stats->getLevel();
 	for(int i = 0; i < 6; i++){
-		if(lvl >= i+1){
+		if(lvl >= i + 1){
 			addItem(IconPaths[i].unlocked);
 		}else{
 			addItem(IconPaths[i].locked);
@@ -98,6 +99,18 @@ Menu::Menu(lv_obj_t* parent, lv_group_t* grp, std::function<void(uint8_t)> launc
 	lv_obj_t* first = lv_obj_get_child(container, 1);
 	lv_group_focus_obj(first);
 	lv_obj_scroll_to_view(first, LV_ANIM_OFF);
+
+	for(int i = 0; i < lv_obj_get_child_count(container); i++){
+		lv_obj_t* child = lv_obj_get_child(container, i);
+		lv_obj_add_event_cb(child, [](lv_event_t* e){
+			const auto code = lv_event_get_code(e);
+			if(code != LV_EVENT_FOCUSED) return;
+
+			if(ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio)){
+				audio->play({{ 500, 500, 50 }});
+			}
+		}, LV_EVENT_FOCUSED, this);
+	}
 }
 
 Menu::~Menu(){
@@ -119,6 +132,9 @@ void Menu::stop(){
 
 void Menu::click(int index){
 	if(index == 0){
+		if(ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio)){
+			audio->play({{ 500, 700, 50 }});
+		}
 		// Settings
 		launch(index);
 		return;
@@ -130,11 +146,20 @@ void Menu::click(int index){
 		return;
 	}
 
+	if(ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio)){
+		audio->play({{ 500, 700, 50 }});
+	}
 	// Game 1-6
 	launch(index);
 }
 
 void Menu::shake(){
+	if(ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio)){
+		audio->play({{ 200, 200, 50 },
+					 { 0,   0,   50 },
+					 { 200, 200, 50 }});
+	}
+
 	lv_obj_t* selected = lv_group_get_focused(grp);
 
 	if(shaking){
@@ -169,7 +194,7 @@ void Menu::hideNow(){
 	lv_indev_set_group(InputLVGL::getInstance()->getIndev(), hideGrp);
 
 	startPos = lv_obj_get_y(*this);
-	lv_obj_set_style_translate_y(*this, 128-startPos, 0);
+	lv_obj_set_style_translate_y(*this, 128 - startPos, 0);
 }
 
 void Menu::hide(){
@@ -190,7 +215,7 @@ void Menu::hide(){
 	});
 	lv_anim_set_var(&hideAnim, this);
 	lv_anim_set_duration(&hideAnim, 500);
-	lv_anim_set_values(&hideAnim, 0, 128-startPos);
+	lv_anim_set_values(&hideAnim, 0, 128 - startPos);
 	lv_anim_set_path_cb(&hideAnim, lv_anim_path_ease_in);
 	lv_anim_set_completed_cb(&hideAnim, [](lv_anim_t* anim){
 		auto menu = (Menu*) anim->var;
@@ -223,7 +248,7 @@ void Menu::show(){
 	});
 	lv_anim_set_var(&hideAnim, this);
 	lv_anim_set_duration(&hideAnim, duration);
-	lv_anim_set_values(&hideAnim, pos-startPos, 0);
+	lv_anim_set_values(&hideAnim, pos - startPos, 0);
 	lv_anim_set_path_cb(&hideAnim, lv_anim_path_ease_out);
 	lv_anim_set_completed_cb(&hideAnim, [](lv_anim_t* anim){
 		auto menu = (Menu*) anim->var;

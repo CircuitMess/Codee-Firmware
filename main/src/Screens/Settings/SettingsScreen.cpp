@@ -27,6 +27,10 @@ void SettingsScreen::loop(){
 			auto eventData = (Input::Data*) evt.data;
 			if(eventData->btn == Input::D && eventData->action == Input::Data::Press && lv_indev_get_group(InputLVGL::getInstance()->getIndev()) == inputGroup){
 				free(evt.data);
+
+				if(ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio)){
+					audio->play({{ 400, 350, 50 }});
+				}
 				transition([](){ return std::make_unique<PetScreen>(); });
 				return;
 			}
@@ -70,7 +74,7 @@ void SettingsScreen::buildUI(){
 	lv_obj_set_style_bg_color(bg, lv_color_black(), 0);
 
 	auto stats = (StatsManager*) Services.get(Service::Stats);
-	const auto lvl = std::clamp((int) stats->getLevel()-1, 0, 5);
+	const auto lvl = std::clamp((int) stats->getLevel() - 1, 0, 5);
 
 	lv_obj_set_style_bg_image_src(bg, BgPaths[lvl], 0);
 	lv_obj_set_style_bg_image_opa(bg, LV_OPA_30, 0);
@@ -85,7 +89,6 @@ void SettingsScreen::buildUI(){
 	auto startingSettings = settings.get();
 
 	auto values = std::vector<const char*>(Settings::SleepText, Settings::SleepText + Settings::SleepSteps);
-	printf("settings screen values: %d\n", values.size());
 
 	sleepSlider = new DiscreteSliderElement(*this, "Sleep time", [this](uint8_t value){
 		if(value >= Settings::SleepSteps) return;
@@ -100,7 +103,11 @@ void SettingsScreen::buildUI(){
 	}, startingSettings.screenBrightness);
 	lv_group_add_obj(inputGroup, *brightnessSlider);
 
-	audioSwitch = new BoolElement(*this, "Sound", [](bool value){
+	audioSwitch = new BoolElement(*this, "Sound", [this](bool value){
+		auto setts = settings.get();
+		setts.sound = value;
+		settings.set(setts);
+
 		if(value){
 			auto chirp = (ChirpSystem*) Services.get(Service::Audio);
 			chirp->play({{ .startFreq = 600, .endFreq = 600, .duration = 50 },
@@ -133,6 +140,18 @@ void SettingsScreen::buildUI(){
 
 	for(int i = 0; i < lv_obj_get_child_count(*this); ++i){
 		lv_obj_add_flag(lv_obj_get_child(*this, i), LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+
+		lv_obj_add_event_cb(lv_obj_get_child(*this, i), [](lv_event_t* e){
+			if(ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio)){
+				audio->play({{ 400, 400, 50 }});
+			}
+		}, LV_EVENT_FOCUSED, this);
+
+		lv_obj_add_event_cb(lv_obj_get_child(*this, i), [](lv_event_t* e){
+			if(ChirpSystem* audio = (ChirpSystem*) Services.get(Service::Audio)){
+				audio->play({{ 400, 500, 50 }});
+			}
+		}, LV_EVENT_CLICKED, this);
 	}
 
 	lv_obj_add_flag(*this, LV_OBJ_FLAG_SCROLLABLE);
@@ -141,8 +160,8 @@ void SettingsScreen::buildUI(){
 void SettingsScreen::performFactoryReset(){
 	nvs_flash_erase();
 	backlight.fadeOut();
-	gpio_set_direction((gpio_num_t)PIN_BL, GPIO_MODE_OUTPUT);
-	gpio_set_level((gpio_num_t)PIN_BL, 0);
+	gpio_set_direction((gpio_num_t) PIN_BL, GPIO_MODE_OUTPUT);
+	gpio_set_level((gpio_num_t) PIN_BL, 0);
 	audio.stop();
 	esp_restart();
 }

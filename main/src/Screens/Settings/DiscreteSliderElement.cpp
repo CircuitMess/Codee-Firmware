@@ -5,8 +5,6 @@
 DiscreteSliderElement::DiscreteSliderElement(lv_obj_t* parent, const char* name, std::function<void(uint8_t)> cb, const std::vector<const char*>& displayValues,
 											 uint8_t value) : LVSelectable(parent), value(value), cb(std::move(cb)), displayValues(displayValues){
 
-	printf("num of values: %d\n", displayValues.size());
-
 	Settings* settings = (Settings*) Services.get(Service::Settings);
 	if(settings == nullptr){
 		return;
