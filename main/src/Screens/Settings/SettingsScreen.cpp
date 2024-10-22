@@ -13,6 +13,7 @@
 #include "Modals/Prompt.h"
 #include "nvs_flash.h"
 #include "Util/stdafx.h"
+#include "Pins.hpp"
 
 SettingsScreen::SettingsScreen() : settings(*(Settings*) Services.get(Service::Settings)), backlight(*(BacklightBrightness*) Services.get(Service::Backlight)),
 								   audio(*(ChirpSystem*) Services.get(Service::Audio)), queue(4){

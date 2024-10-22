@@ -40,8 +40,7 @@ private:
 	void log(const char* property, int32_t value);
 	void log(const char* property, const std::string& value);
 
-	static bool BatteryCalib();
-	static bool BatteryCheck();
+	static bool BatteryRef();
 	static bool SPIFFSTest();
 	static uint32_t calcChecksum(FILE* file);
 	static bool RTCTest();
@@ -52,15 +51,9 @@ private:
 	void AudioVisualTest();
 	void rgb();
 
-	static const int16_t referenceVoltage = 4050; // 50mV for backlight voltage drop compensation
-	static int16_t voltOffset;
+	static const int16_t VoltRef = 2600;
 
 	static constexpr uint32_t CheckTimeout = 500;
-
-	static constexpr esp_efuse_desc_t adc1_low = { EFUSE_BLK3, 0, 8 };
-	static constexpr const esp_efuse_desc_t* efuse_adc1_low[] = { &adc1_low, nullptr };
-	static constexpr esp_efuse_desc_t adc1_high = { EFUSE_BLK3, 8, 8 };
-	static constexpr const esp_efuse_desc_t* efuse_adc1_high[] = { &adc1_high, nullptr };
 
 	static constexpr esp_vfs_spiffs_conf_t spiffsConfig = {
 			.base_path = "/spiffs",

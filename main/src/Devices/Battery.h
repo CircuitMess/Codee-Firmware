@@ -1,5 +1,5 @@
-#ifndef BIT_LIBRARY_BATTERY_H
-#define BIT_LIBRARY_BATTERY_H
+#ifndef CODEE_BATTERY_H
+#define CODEE_BATTERY_H
 
 #include <hal/gpio_types.h>
 #include <atomic>
@@ -7,51 +7,59 @@
 #include "Periph/ADC.h"
 #include "Util/Hysteresis.h"
 #include "Periph/Timer.h"
+#include "Services/ADCReader.h"
+#include "Periph/PinOut.h"
 #include <mutex>
 #include <esp_efuse.h>
+#include <memory>
 
 class Battery : private SleepyThreaded {
 public:
-	Battery();
-	void begin();
+	Battery(ADC& adc);
 
 	enum Level { Critical = 0, VeryLow, Low, Mid, High, VeryHigh, Full, COUNT };
+
+	struct Event {
+		enum { LevelChange } action;
+		union { Level level; };
+	};
+
+	void begin();
+
+	bool isShutdown() const;
 
 	uint8_t getPerc() const;
 	Level getLevel() const;
 
-	struct Event {
-		enum {
-			LevelChange
-		} action;
-		union {
-			Level level;
-		};
-	};
-
-	static int16_t getVoltOffset();
-	static uint16_t mapRawReading(uint16_t reading);
-
-	bool isShutdown() const;
-
 private:
 	static constexpr uint32_t MeasureIntverval = 100;
 
-	ADC adc;
+	static constexpr float VoltEmpty = 2900;
+	static constexpr float VoltFull = 3200;
+	static constexpr float Factor = 4.0f;
+	static constexpr float Offset = 100;
+	static constexpr float EmaA = 0.05f;
+
+	static constexpr int CalReads = 10;
+	static constexpr float CalExpected = 2600;
+
+	ADC& adc;
+	PinOut refSwitch;
 	Hysteresis hysteresis;
 
-	void sleepyLoop() override;
+	std::unique_ptr<ADCReader> readerBatt;
+	adc_cali_handle_t caliBatt;
+
+	std::unique_ptr<ADCReader> readerRef;
+	adc_cali_handle_t caliRef;
+
+	void calibrate();
 
 	void sample(bool fresh = false);
 	bool shutdown = false;
 
-	void off();
-
-	static constexpr esp_efuse_desc_t adc1_low = { EFUSE_BLK3, 0, 8 };
-	static constexpr const esp_efuse_desc_t* efuse_adc1_low[] = { &adc1_low, nullptr };
-	static constexpr esp_efuse_desc_t adc1_high = { EFUSE_BLK3, 8, 8 };
-	static constexpr const esp_efuse_desc_t* efuse_adc1_high[] = { &adc1_high, nullptr };
+	void sleepyLoop() override;
 
 };
 
-#endif //BIT_LIBRARY_BATTERY_H
+#endif //CODEE_BATTERY_H
