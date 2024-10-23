@@ -6,17 +6,13 @@
 
 static const char* tag = "StatsManager";
 
-StatsManager::StatsManager() : Threaded("Stats", 4 * 1024, 5), nvs(*(NVSFlash*) Services.get(Service::NVS)), timeService((Time*) Services.get(Service::Time)),
-							   queue(6){
+StatsManager::StatsManager() : Threaded("Stats", 4 * 1024, 5, 1), nvs(*(NVSFlash*) Services.get(Service::NVS)),
+							   timeService((Time*) Services.get(Service::Time)), queue(6){
 	load();
 
-	//load saved time
-	time_t savedTime;
-	if(nvs.get(TimeSaveBlobName, savedTime)){
-		lastUpdate = *localtime(&savedTime);
-	}else{
-		lastUpdate = timeService->getTime();
-	}
+	syncTime();
+
+	start();
 }
 
 void StatsManager::reset(){
@@ -48,10 +44,34 @@ void StatsManager::update(Stats delta){
 	store();
 }
 
+void StatsManager::syncTime(){
+	//load saved time
+	time_t savedTime;
+	if(nvs.get(TimeSaveBlobName, savedTime)){
+
+		lastUpdate = *localtime(&savedTime);
+		auto currentTime = timeService->getTime();
+
+		//invalid saved time - when powercycled and RTC loses progress
+		if(difftime(mktime(&currentTime), mktime(&lastUpdate)) < 0){
+			lastUpdate = currentTime;
+		}else{
+			//valid saved time, apply stats decrease accordingly
+			auto diff = difftime(mktime(&currentTime), mktime(&lastUpdate));
+			for(int i = 0; i < diff / UpdateInterval; i++){
+				timedUpdate();
+				lastUpdate = currentTime;
+			}
+		}
+
+	}else{
+		lastUpdate = timeService->getTime();
+	}
+}
+
 bool StatsManager::hasDied() const{
 	return hoursOnZeroStats > GameOverHours; //dies after 24hrs of zero happiness
 }
-
 
 const Stats& StatsManager::get() const{
 	return stats;
@@ -61,7 +81,7 @@ uint8_t StatsManager::getLevel() const{
 	return getLevel(stats.experience);
 }
 
-uint8_t StatsManager::getLevel(uint16_t exp) {
+uint8_t StatsManager::getLevel(uint16_t exp){
 	const uint8_t levelupsNum = sizeof(LevelupThresholds) / sizeof(uint16_t);
 	uint16_t requiredXP = 0;
 	for(uint8_t i = 0; i < levelupsNum; i++){
@@ -155,7 +175,7 @@ void StatsManager::loop(){
 	std::tm currentTime{};
 
 	//hourly updated or after RTC update occurs
-	if(queue.get(event, 3600000 / portTICK_PERIOD_MS)){
+	if(queue.get(event, (UpdateInterval * 1000) / portTICK_PERIOD_MS)){
 		auto timeEvent = (Time::Event*) event.data;
 		if(timeEvent->action == Time::Event::Updated){
 			currentTime = timeEvent->updated.time;
@@ -165,15 +185,14 @@ void StatsManager::loop(){
 		currentTime = timeService->getTime();
 	}
 
-	//if time diff is greater than 1 hour, call timedUpdate
-	if(difftime(mktime(&currentTime), mktime(&lastUpdate)) >= 3600){
+	if(difftime(mktime(&currentTime), mktime(&lastUpdate)) >= UpdateInterval){
 		timedUpdate();
 		lastUpdate = currentTime;
 	}
 
 	//save currentTime in case of shutdown/sleep, so it can be resumed
 	auto unixtime = mktime(&currentTime);
-	if(!nvs.set(TimeSaveBlobName, &unixtime)){
+	if(!nvs.set(TimeSaveBlobName, unixtime)){
 		ESP_LOGW(tag, "Error saving time to NVS");
 	}
 }

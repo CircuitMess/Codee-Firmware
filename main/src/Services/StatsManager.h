@@ -34,6 +34,8 @@ public:
 	uint8_t getExpPercentage() const;
 	static uint8_t getExpPercentage(uint16_t exp);
 
+	void syncTime();
+
 private:
 	void store();
 	void load();

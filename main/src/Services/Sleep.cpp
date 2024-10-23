@@ -8,6 +8,7 @@
 #include "Pins.hpp"
 #include "Devices/Battery.h"
 #include "BacklightBrightness.h"
+#include "StatsManager.h"
 
 Sleep::Sleep() : Threaded("Sleep", 3 * 1024, 5, 1), evts(6){
 	Events::listen(Facility::Input, &evts);
@@ -98,6 +99,9 @@ void Sleep::goSleep(){
 	if(cause == ESP_SLEEP_WAKEUP_TIMER){
 		off();
 	}
+
+	auto stats = (StatsManager*)Services.get(Service::Stats);
+	stats->syncTime();
 
 	bl->fadeIn();
 }
