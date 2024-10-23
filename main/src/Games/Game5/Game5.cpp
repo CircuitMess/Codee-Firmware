@@ -213,7 +213,6 @@ void Game5::noteHit(uint8_t track){
 
 	if(diff <= noteTolerance){
 		audio->play({{400, 600, 50}});
-		led->blink(LED::Green, 2);
 
 		score += notePoints + (int)(diff * perfectBonus / noteTolerance);
 

@@ -19,9 +19,6 @@
 #define TFT_DC 41
 #define TFT_RST 42
 
-#define LED_G 35
-#define LED_Y 36
-#define LED_O 37
 #define LED_R 38
 
 #endif //CLOCKSTAR_LIBRARY_PINS_HPP

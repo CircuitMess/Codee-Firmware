@@ -11,7 +11,7 @@
 #include "Util/Queue.h"
 
 enum class LED : uint8_t {
-	Green, Yellow, Orange, Red, COUNT
+	Red, COUNT
 };
 
 class LEDService : private Threaded {

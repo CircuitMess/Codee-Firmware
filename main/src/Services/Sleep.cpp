@@ -77,22 +77,26 @@ void Sleep::goSleep(){
 	auto bl = (BacklightBrightness*)Services.get(Service::Backlight);
 	bl->fadeOut();
 
-	static const uint8_t HeldPins[] = { LED_G, LED_Y, LED_O, LED_R, PIN_BUZZ };
+	static const uint8_t HeldPinsLow[] = { LED_R };
+	static const uint8_t HeldPinsHigh[] = { PIN_BUZZ, PIN_BL };
 
-	for(const auto& pin:HeldPins){
+	for(const auto& pin: HeldPinsLow){
 		gpio_set_level((gpio_num_t) pin, 0);
 		gpio_hold_en((gpio_num_t) pin);
 	}
-	gpio_set_level((gpio_num_t) PIN_BL, 1);
-	gpio_hold_en((gpio_num_t) PIN_BL);
+	for(const auto& pin: HeldPinsHigh){
+		gpio_set_level((gpio_num_t) pin, 1);
+		gpio_hold_en((gpio_num_t) pin);
+	}
 
 	esp_light_sleep_start();
 
-	for(const auto& pin:HeldPins){
+	for(const auto& pin: HeldPinsLow){
 		gpio_hold_dis((gpio_num_t) pin);
 	}
-	gpio_hold_dis((gpio_num_t) PIN_BL);
-
+	for(const auto& pin: HeldPinsHigh){
+		gpio_hold_dis((gpio_num_t) pin);
+	}
 
 	auto cause = esp_sleep_get_wakeup_cause();
 	if(cause == ESP_SLEEP_WAKEUP_TIMER){

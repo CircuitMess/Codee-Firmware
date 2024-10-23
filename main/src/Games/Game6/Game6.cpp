@@ -293,7 +293,6 @@ void Game6::asteroidHit(const Game6::Asteroid& asteroid){
 		return;
 	}
 
-	led->blink(LED::Green);
 	audio.play({{ 100, 100, 50 }});
 
 	switch(asteroid.size){

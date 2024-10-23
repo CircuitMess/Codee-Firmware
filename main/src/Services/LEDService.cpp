@@ -9,10 +9,7 @@
 static const char* TAG = "LEDService";
 
 const std::map<LED, LEDService::PwnMappingInfo> LEDService::PwmMappings = {
-		{ LED::Green, { (gpio_num_t) LED_G, LEDC_CHANNEL_2, 100 }},
-		{ LED::Yellow, { (gpio_num_t) LED_Y, LEDC_CHANNEL_3, 100 }},
-		{ LED::Orange, { (gpio_num_t) LED_O, LEDC_CHANNEL_4, 100 }},
-		{ LED::Red, { (gpio_num_t) LED_R, LEDC_CHANNEL_5, 100 }},
+		{ LED::Red, { (gpio_num_t) LED_R, LEDC_CHANNEL_2, 100 }},
 };
 
 

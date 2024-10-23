@@ -33,12 +33,16 @@ BacklightBrightness* bl;
 void shutdown(){
 	bl->fadeOut();
 
-	static const uint8_t HeldPins[] = {LED_G, LED_Y,LED_O,LED_R,PIN_BL,PIN_BUZZ};
+	static const uint8_t HeldPinsLow[] = { LED_R };
+	static const uint8_t HeldPinsHigh[] = { PIN_BUZZ, PIN_BL };
 
-	for(const auto& pin:HeldPins){
+	for(const auto& pin: HeldPinsLow){
 		gpio_set_level((gpio_num_t) pin, 0);
-		gpio_deep_sleep_hold_en();
 	}
+	for(const auto& pin: HeldPinsHigh){
+		gpio_set_level((gpio_num_t) pin, 1);
+	}
+	gpio_deep_sleep_hold_en();
 
 	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_AUTO);
 	esp_sleep_pd_config(ESP_PD_DOMAIN_RC_FAST, ESP_PD_OPTION_AUTO);
@@ -96,7 +100,7 @@ void init(){
 	auto disp = new Display();
 	Services.set(Service::Display, disp);
 
-	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0);
+	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0, true);
 	auto audio = new ChirpSystem(*buzzPwm);
 	Services.set(Service::Audio, audio);
 
