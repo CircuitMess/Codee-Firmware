@@ -21,6 +21,8 @@ public:
 	/** Draw .bin image to display */
 	static void drawImage(const char* src);
 
+	void resetDisplayRefreshTimer();
+
 private:
 	Display& display;
 

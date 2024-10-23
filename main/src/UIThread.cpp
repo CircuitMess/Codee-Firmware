@@ -33,6 +33,7 @@ void UIThread::startGame(Games game){
 	fs.unloadCache();
 	gamer.startGame(game);
 	active = Src::Game;
+	lvgl.resetDisplayRefreshTimer();
 }
 
 void UIThread::startScreen(std::function<std::unique_ptr<LVScreen>()> create){

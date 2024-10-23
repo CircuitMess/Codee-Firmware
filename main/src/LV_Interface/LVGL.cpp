@@ -131,3 +131,8 @@ void LVGL::drawImage(const char* src){
 
 	lvgl->flush(lvDisplay, &area_full, (uint8_t*) canvas.getBuffer());
 }
+
+void LVGL::resetDisplayRefreshTimer(){
+	auto timer = lv_display_get_refr_timer(lvDisplay);
+	lv_timer_reset(timer);
+}
