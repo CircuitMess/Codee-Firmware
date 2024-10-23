@@ -26,7 +26,7 @@ void Game4::Player::update(float deltaTime){
 		if(x >= WinStopDistance){
 			walk();
 			winFlag = false;
-			gameObjectRc->setPos({ WinStopDistance + 12, startPosY - 25 });
+			gameObjectRc->setPos({ WinStopDistance + 12, startPosY - 26 });
 			animRc->setAnim(winAnim);
 			animRc->setLoopMode(GIF::Single);
 			animRc->setLoopDoneCallback([this](uint32_t){

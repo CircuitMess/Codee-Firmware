@@ -312,5 +312,5 @@ void Game4::Game4::handleInput(const Input::Data& data){
 
 Stats Game4::Game4::returnStats(){
 	float success = (float) (score) / (float) (scoreMax);
-	return Stats({ (uint8_t) (35.0 * success), (uint8_t) (20.0 * success), (uint16_t) (1000.0 * success) });
+	return Stats({ (uint8_t) (35.0 * success), (uint8_t) (20.0 * success), (uint16_t) (1750.0 * success) });
 }

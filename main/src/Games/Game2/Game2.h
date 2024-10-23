@@ -25,7 +25,7 @@ private:
 	static constexpr float playerPosX = 15;
 	static constexpr float StartingPlayerPosY = 50;
 	static constexpr float obstacleSpacing = 125;
-	static constexpr uint8_t MinimumGap = 60;
+	static constexpr uint8_t MinimumGap = 65;
 
 	static constexpr uint8_t ScoreCutoff = 60;
 
