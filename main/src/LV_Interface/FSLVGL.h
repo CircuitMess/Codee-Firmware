@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <memory>
 #include "FS/RawCache.h"
+#include "FS/FileArchive.h"
 
 class FSLVGL {
 public:
@@ -20,14 +21,11 @@ private:
 	lv_fs_drv_t drv;
 	const std::string Root = "/spiffs";
 
-	RawCache cache;
-
-	std::vector<std::string> getCacheFiles() const;
-	bool cacheLoaded = false;
-
 	static FSLVGL* instance;
 
 	static constexpr File* getFile(void* fp){ return (File*) fp; }
+
+	FileArchive* archive = nullptr;
 
 	void* lvOpen(const char* path, lv_fs_mode_t mode);
 	lv_fs_res_t lvClose(void* file);

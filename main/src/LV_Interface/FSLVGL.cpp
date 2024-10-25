@@ -7,37 +7,6 @@
 #include <unordered_map>
 #include <cstring>
 
-std::initializer_list<std::string> GeneralCache = {
-		"/Stats/Bar.bin",
-		"/Stats/BarLong.bin",
-		"/Stats/Batt.bin",
-		"/Stats/Happ.bin",
-		"/Stats/Oil.bin",
-		"/Stats/Xp.bin",
-
-		"/OS/1_0.bin",
-		"/OS/10.bin",
-		"/OS/9000.bin",
-		"/OS/9001.bin",
-		"/OS/One.bin",
-		"/OS/X.bin",
-
-		"/Menu/Frame.bin",
-		"/Menu/Game1.bin",
-		"/Menu/Game1L.bin",
-		"/Menu/Game2.bin",
-		"/Menu/Game2L.bin",
-		"/Menu/Game3.bin",
-		"/Menu/Game3L.bin",
-		"/Menu/Game4.bin",
-		"/Menu/Game4L.bin",
-		"/Menu/Game5.bin",
-		"/Menu/Game5L.bin",
-		"/Menu/Game6.bin",
-		"/Menu/Game6L.bin",
-		"/Menu/Settings.bin"
-};
-
 const char* TAG = "FSLVGL";
 
 FSLVGL* FSLVGL::instance = nullptr;
@@ -70,29 +39,12 @@ FSLVGL::~FSLVGL(){
 }
 
 void FSLVGL::loadCache(){
-	if(cacheLoaded) return;
-	cacheLoaded = true;
+	if(archive) return;
 
-	cache.setPaths(getCacheFiles());
-	cache.load();
+	archive = new FileArchive(SPIFFS::open("/main.sz"));
 }
 
 void FSLVGL::unloadCache(){
-	if(!cacheLoaded) return;
-	cacheLoaded = false;
-
-	cache.unload();
-}
-
-std::vector<std::string> FSLVGL::getCacheFiles() const{
-	std::vector<std::string> paths;
-	paths.reserve(GeneralCache.size());
-
-	for(const auto& file : GeneralCache){
-		paths.emplace_back(file);
-	}
-
-	return paths;
 }
 
 void* FSLVGL::lvOpen(const char* path, lv_fs_mode_t mode){
@@ -105,8 +57,11 @@ void* FSLVGL::lvOpen(const char* path, lv_fs_mode_t mode){
 		return filePtr;
 	};
 
-	file = cache.open(path);
-	if(file) return mkPtr(file);
+	if(archive && (std::string(path).starts_with("/Bg") || std::string(path).starts_with("/Menu") || std::string(path).starts_with("/OS") ||
+				   std::string(path).starts_with("/Pingo") || std::string(path).starts_with("/Stats"))){
+		file = archive->get(path);
+		if(file) return mkPtr(file);
+	}
 
 	static const std::unordered_map<lv_fs_mode_t, const char*> Map = {
 			{ LV_FS_MODE_WR, "w" },
