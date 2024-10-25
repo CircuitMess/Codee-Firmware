@@ -9,7 +9,7 @@ ScoreScreen::ScoreScreen(Stats statsIncrease) : statsManager((StatsManager*) Ser
 	lv_obj_set_style_bg_image_src(*this, bgPath, 0);
 
 	frame = lv_image_create(*this);
-	lv_image_set_src(frame, "S:/Modal.bin");
+	lv_image_set_src(frame, "S:/Bg/Modal.bin");
 	lv_obj_center(frame);
 	lv_obj_set_size(frame, 115, 82);
 	lv_obj_set_style_pad_all(frame, 8, 0);

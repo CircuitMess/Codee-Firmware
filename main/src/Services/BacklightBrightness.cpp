@@ -21,7 +21,7 @@ constexpr uint8_t BacklightBrightness::mapDuty(uint8_t level){
 	fVal = std::pow(fVal, 2);
 	fVal = std::round(fVal * 100.0f);
 
-	fVal = map(fVal, 0, 100, MinDuty, 100);
+	fVal = map(fVal, 0, 100, MinDuty, MaxDuty);
 
 	return (uint8_t)fVal;
 }

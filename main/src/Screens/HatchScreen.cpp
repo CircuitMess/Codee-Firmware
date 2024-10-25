@@ -20,7 +20,7 @@ HatchScreen::HatchScreen() : queue(4){
 	lv_obj_add_flag(*gif, LV_OBJ_FLAG_HIDDEN);
 
 	modal = lv_image_create(*this);
-	lv_image_set_src(modal, "S:/Modal.bin");
+	lv_image_set_src(modal, "S:/Bg/Modal.bin");
 	lv_obj_center(modal);
 
 	label = lv_label_create(modal);
