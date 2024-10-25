@@ -7,7 +7,7 @@
 #include "Util/Threaded.h"
 #include "Util/Events.h"
 
-class StatsManager : public Threaded {
+class StatsManager : public SleepyThreaded {
 public:
 	StatsManager();
 
@@ -15,6 +15,8 @@ public:
 		enum { Updated } action;
 		bool levelup;
 	};
+
+	void syncTime();
 
 	/**
 	 * Resets the stats to starting numbers, used when pet dies or when factory reset occurs.
@@ -26,7 +28,7 @@ public:
 	bool hasDied() const;
 
 	bool isHatched() const;
-	void setHatched(bool hatched);
+	void hatch();
 
 	const Stats& get() const;
 	uint8_t getLevel() const;
@@ -38,7 +40,8 @@ private:
 	void store();
 	void load();
 
-	void loop() override;
+	static constexpr uint64_t SleepTime = 5 * 60 * 1000; // 5 min
+	void sleepyLoop() override;
 	void timedUpdate();
 
 
@@ -57,9 +60,7 @@ private:
 
 	static constexpr const char* TimeSaveBlobName = "StatsTime";
 
-	class Time* timeService;
-	std::tm lastUpdate;
-	EventQueue queue;
+	std::mutex updateMut;
 };
 
 #endif //CIRCUITPET_FIRMWARE_STATSMANAGER_H
