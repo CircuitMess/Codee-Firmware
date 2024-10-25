@@ -6,16 +6,63 @@
 
 static const char* tag = "StatsManager";
 
-StatsManager::StatsManager() : Threaded("Stats", 4 * 1024, 5, 1), nvs(*(NVSFlash*) Services.get(Service::NVS)),
-							   timeService((Time*) Services.get(Service::Time)), queue(6){
+StatsManager::StatsManager() : SleepyThreaded(SleepTime, "Stats", 4 * 1024, 5, 1), nvs(*(NVSFlash*) Services.get(Service::NVS)){
 	load();
-
 	syncTime();
-
 	start();
 }
 
+void StatsManager::syncTime(){
+	std::lock_guard lock(updateMut);
+
+	const auto time = (Time*) Services.get(Service::Time);
+
+	time_t lastUpdate;
+	if(nvs.get(TimeSaveBlobName, lastUpdate)){
+		const auto currentTime = time->getUnixTime();
+		const auto timeDiff = currentTime - lastUpdate;
+
+		if(timeDiff < 0){
+			lastUpdate = currentTime;
+		}else{
+			for(int i = 0; i < timeDiff / UpdateInterval; i++){
+				timedUpdate();
+				lastUpdate += UpdateInterval;
+			}
+		}
+	}else{
+		lastUpdate = time->getUnixTime();
+	}
+
+	if(!nvs.set(TimeSaveBlobName, lastUpdate)){
+		ESP_LOGW(tag, "Error saving time to NVS");
+	}
+}
+
+void StatsManager::sleepyLoop(){
+	syncTime();
+}
+
+void StatsManager::timedUpdate(){
+	if(hasDied() || !hatched) return;
+
+	stats -= HourlyDecrement;
+
+	if(stats.oilLevel == 0 && hoursOnZeroStats <= GameOverHours){
+		hoursOnZeroStats++;
+	}else if(stats.oilLevel > 0){
+		hoursOnZeroStats = 0;
+	}
+
+	Event e{ Event::Updated, false };
+	Events::post(Facility::Stats, e);
+
+	store();
+}
+
 void StatsManager::reset(){
+	std::lock_guard lock(updateMut);
+
 	stats.happiness = 100;
 	stats.oilLevel = 100;
 	stats.experience = 0;
@@ -25,6 +72,8 @@ void StatsManager::reset(){
 }
 
 void StatsManager::update(Stats delta){
+	std::lock_guard lock(updateMut);
+
 	if(!hatched) return;
 
 	uint8_t oldLevel = getLevel();
@@ -44,37 +93,23 @@ void StatsManager::update(Stats delta){
 	store();
 }
 
-void StatsManager::syncTime(){
-	//load saved time
-	time_t savedTime;
-	if(nvs.get(TimeSaveBlobName, savedTime)){
+void StatsManager::hatch(){
+	std::lock_guard lock(updateMut);
+	if(hatched || hasDied()) return;
+	StatsManager::hatched = true;
+	store();
+}
 
-		lastUpdate = *localtime(&savedTime);
-		auto currentTime = timeService->getTime();
-
-		//invalid saved time - when powercycled and RTC loses progress
-		if(difftime(mktime(&currentTime), mktime(&lastUpdate)) < 0){
-			lastUpdate = currentTime;
-		}else{
-			//valid saved time, apply stats decrease accordingly
-			auto diff = difftime(mktime(&currentTime), mktime(&lastUpdate));
-			for(int i = 0; i < diff / UpdateInterval; i++){
-				timedUpdate();
-				lastUpdate = currentTime;
-			}
-		}
-
-	}else{
-		lastUpdate = timeService->getTime();
-	}
+const Stats& StatsManager::get() const{
+	return stats;
 }
 
 bool StatsManager::hasDied() const{
 	return hoursOnZeroStats > GameOverHours; //dies after 24hrs of zero happiness
 }
 
-const Stats& StatsManager::get() const{
-	return stats;
+bool StatsManager::isHatched() const{
+	return hatched;
 }
 
 uint8_t StatsManager::getLevel() const{
@@ -142,16 +177,6 @@ void StatsManager::load(){
 		return;
 	}
 
-/*	if(!data || !size || size != sizeof(Stats) + sizeof(hoursOnZeroStats) + sizeof(hatched)){
-		ESP_LOGW(tag, "Clock data read failed - data invalid");
-		ESP_LOGW(tag, "Stats data not found or corrupt! Setting defaults.");
-		stats.happiness = 100;
-		stats.oilLevel = 100;
-		stats.experience = 0;
-		hoursOnZeroStats = 0;
-		hatched = false;
-		return;
-	}*/
 	memcpy(&stats, data, sizeof(Stats));
 
 	if(stats.happiness > 100 || stats.oilLevel > 100){
@@ -164,61 +189,7 @@ void StatsManager::load(){
 		hatched = false;
 		return;
 	}
+
 	memcpy(&hoursOnZeroStats, data + sizeof(Stats), 1);
 	memcpy(&hatched, data + sizeof(Stats) + sizeof(hoursOnZeroStats), 1);
-
-
-}
-
-void StatsManager::loop(){
-	::Event event{};
-	std::tm currentTime{};
-
-	//hourly updated or after RTC update occurs
-	if(queue.get(event, (UpdateInterval * 1000) / portTICK_PERIOD_MS)){
-		auto timeEvent = (Time::Event*) event.data;
-		if(timeEvent->action == Time::Event::Updated){
-			currentTime = timeEvent->updated.time;
-		}
-		free(event.data);
-	}else{
-		currentTime = timeService->getTime();
-	}
-
-	if(difftime(mktime(&currentTime), mktime(&lastUpdate)) >= UpdateInterval){
-		timedUpdate();
-		lastUpdate = currentTime;
-	}
-
-	//save currentTime in case of shutdown/sleep, so it can be resumed
-	auto unixtime = mktime(&currentTime);
-	if(!nvs.set(TimeSaveBlobName, unixtime)){
-		ESP_LOGW(tag, "Error saving time to NVS");
-	}
-}
-
-void StatsManager::timedUpdate(){
-	if(hasDied() || !hatched) return;
-
-	stats -= HourlyDecrement;
-
-	if(stats.oilLevel == 0 && hoursOnZeroStats <= GameOverHours){
-		hoursOnZeroStats++;
-	}else if(stats.oilLevel > 0){
-		hoursOnZeroStats = 0;
-	}
-
-	Event e{ Event::Updated, false };
-	Events::post(Facility::Stats, e);
-
-	store();
-}
-
-bool StatsManager::isHatched() const{
-	return hatched;
-}
-
-void StatsManager::setHatched(bool hatched){
-	StatsManager::hatched = hatched;
-	store();
 }

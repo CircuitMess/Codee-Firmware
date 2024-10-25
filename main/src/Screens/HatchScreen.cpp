@@ -13,7 +13,7 @@ HatchScreen::HatchScreen() : queue(4){
 	gif->setLoopCallback([this](){
 		auto stats = (StatsManager*) Services.get(Service::Stats);
 		stats->reset();
-		stats->setHatched(true);
+		stats->hatch();
 
 		transition([](){ return std::make_unique<PetScreen>(); });
 	});
