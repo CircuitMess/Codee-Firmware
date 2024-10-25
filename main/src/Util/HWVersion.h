@@ -17,7 +17,7 @@ public:
 private:
 	static inline uint16_t CachedVersion = 0;
 
-	static inline constexpr const uint16_t Version = 0x0005;
+	static inline constexpr const uint16_t Version = 0x0006;
 
 	static constexpr esp_efuse_desc_t Ver = { EFUSE_BLK3, 16, 16 };
 	static constexpr const esp_efuse_desc_t* Efuse_ver[] = { &Ver, nullptr };

@@ -8,7 +8,7 @@
 #include <unordered_set>
 #include <mutex>
 
-enum class Facility { Input, Battery, Time, Stats };
+enum class Facility { Input, Battery, Stats };
 
 struct Event {
 	Facility facility;

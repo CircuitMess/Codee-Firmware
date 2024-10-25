@@ -83,7 +83,7 @@ public:
 	}
 
 private:
-	static constexpr const char* NVSNamespace = "Bit";
+	static constexpr const char* NVSNamespace = "Codee";
 	static constexpr const char* TAG = "NVS";
 	nvs_handle_t handle{};
 };

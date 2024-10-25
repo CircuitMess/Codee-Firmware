@@ -4,38 +4,20 @@
 #include "Util/Threaded.h"
 #include "Devices/RTC.h"
 
-class Time : public SleepyThreaded {
+class Time {
 public:
 	Time(RTC& rtc);
-	~Time();
 
-	struct Event {
-		enum { Updated } action;
-		union {
-			struct {
-				tm time;
-			} updated;
-		};
-	};
+	void updateFromRTC();
 
+	time_t getUnixTime() const;
 	tm getTime() const;
-	void setTime(tm time_tm);
-	void setTime(time_t time);
 
 private:
 	RTC& rtc;
 
-	static constexpr uint32_t SyncInterval = 5000; // [ms], interval when RTC is polled for accurate time
 	uint64_t updateTime = 0;
-
 	time_t time;
-
-	void sleepyLoop() override;
-	tm updateFromRTC();
-
-	// Hide public functions
-	using Threaded::start;
-	using Threaded::stop;
 
 };
 
