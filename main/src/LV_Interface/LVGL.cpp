@@ -19,7 +19,7 @@ LVGL::LVGL(Display& display) : display(display){
 	lv_display_set_flush_cb(lvDisplay, flush);
 
 	Sprite& canvas = display.getCanvas();
-	lv_display_set_buffers(lvDisplay, canvas.getBuffer(), nullptr, canvas.width()*canvas.height()*2, LV_DISPLAY_RENDER_MODE_PARTIAL);
+	lv_display_set_buffers(lvDisplay, canvas.getBuffer(), nullptr, canvas.width()*canvas.height()*2, LV_DISPLAY_RENDER_MODE_FULL);
 
 	auto theme = theme_init(lvDisplay);
 	lv_display_set_theme(lvDisplay, theme);
