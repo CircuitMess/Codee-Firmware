@@ -29,7 +29,7 @@ LVModal::LVModal(LVScreen* parent) : LVObject((lv_obj_t*) *parent), parentScreen
 	lv_obj_set_style_pad_all(container, 8, 0);
 	lv_obj_set_style_pad_left(container, 5, 0);
 	lv_obj_set_style_pad_bottom(container, 5, 0);
-	lv_obj_set_style_bg_image_src(container, "S:/Modal.bin", 0);
+	lv_obj_set_style_bg_image_src(container, "S:/Bg/Modal.bin", 0);
 	lv_obj_set_style_bg_image_opa(container, LV_OPA_COVER, 0);
 
 	lv_obj_set_size(*this, 86, 76);
