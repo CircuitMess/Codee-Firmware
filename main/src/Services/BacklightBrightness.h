@@ -19,6 +19,7 @@ private:
 	static constexpr uint8_t mapDuty(uint8_t level);
 	static constexpr uint8_t FadeDelay = 2;
 	static constexpr uint8_t MinDuty = 10;
+	static constexpr uint8_t MaxDuty = 80;
 
 	bool state = false;
 };
