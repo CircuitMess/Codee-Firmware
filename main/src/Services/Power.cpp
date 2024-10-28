@@ -146,7 +146,7 @@ void Power::sleepLight(){
 	freePins();
 
 	setupWake();
-	esp_sleep_enable_timer_wakeup(1000 * 1000 * 60 * 5);
+	esp_sleep_enable_timer_wakeup(LightSleepTimeout);
 	esp_light_sleep_start();
 
 	auto time = (Time*) Services.get(Service::Time);
@@ -166,7 +166,7 @@ void Power::sleepLight(){
 
 void Power::sleepDeep(){
 	setupWake();
-	esp_sleep_enable_timer_wakeup(1000ULL * 1000ULL * 60ULL * 65ULL);
+	esp_sleep_enable_timer_wakeup(DeepSleepWakeInterval);
 	powerOff();
 }
 
