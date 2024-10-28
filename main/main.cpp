@@ -6,7 +6,6 @@
 #include "Pins.hpp"
 #include "Services/BacklightBrightness.h"
 #include "Services/ChirpSystem.h"
-//#include "Services/Sleep.h"
 #include "Periph/I2C.h"
 #include "Devices/Display.h"
 #include "Devices/Input.h"
@@ -23,36 +22,13 @@
 #include "Periph/NVSFlash.h"
 #include "Services/LEDService.h"
 #include "Services/Time.h"
-#include "Services/Sleep.h"
 #include "Screens/IntroScreen.h"
 #include "Screens/HatchScreen.h"
 #include "Services/StatsManager.h"
 #include "Util/HWVersion.h"
+#include "Services/Power.h"
 
 BacklightBrightness* bl;
-
-void shutdown(){
-	bl->fadeOut();
-
-	static const uint8_t HeldPinsLow[] = { LED_R };
-	static const uint8_t HeldPinsHigh[] = { PIN_BUZZ, PIN_BL };
-
-	for(const auto& pin: HeldPinsLow){
-		gpio_set_level((gpio_num_t) pin, 0);
-	}
-	for(const auto& pin: HeldPinsHigh){
-		gpio_set_level((gpio_num_t) pin, 1);
-	}
-	gpio_deep_sleep_hold_en();
-
-	esp_sleep_pd_config(ESP_PD_DOMAIN_RTC_PERIPH, ESP_PD_OPTION_AUTO);
-	esp_sleep_pd_config(ESP_PD_DOMAIN_RC_FAST, ESP_PD_OPTION_AUTO);
-	esp_sleep_pd_config(ESP_PD_DOMAIN_CPU, ESP_PD_OPTION_AUTO);
-	esp_sleep_pd_config(ESP_PD_DOMAIN_XTAL, ESP_PD_OPTION_AUTO);
-	esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
-
-	esp_deep_sleep_start();
-}
 
 void init(){
 
@@ -90,7 +66,7 @@ void init(){
 
 	auto battery = new Battery(*adc1);
 	if(battery->isShutdown()){
-		shutdown();
+		Power::powerOff();
 		return;
 	}
 	Services.set(Service::Battery, battery);
@@ -99,6 +75,11 @@ void init(){
 	auto rtc = new RTC(*i2c);
 	auto time = new Time(*rtc);
 	Services.set(Service::Time, time);
+
+	auto stats = new StatsManager();
+	Services.set(Service::Stats, stats);
+
+	auto power = new Power();
 
 	auto led = new LEDService();
 	Services.set(Service::LED, led);
@@ -119,14 +100,11 @@ void init(){
 	auto lvInput = new InputLVGL();
 	auto lvFS = new FSLVGL('S');
 
-	auto stats = new StatsManager();
-	Services.set(Service::Stats, stats);
-
 	auto gamer = new GameRunner(*disp);
 
 	lvFS->loadCache();
 
-	auto ui = new UIThread(*lvgl, *gamer, *lvFS);
+	auto ui = new UIThread(*lvgl, *gamer, *lvFS, *power);
 	Services.set(Service::UI, ui);
 
 	ui->startScreen([](){ return std::make_unique<IntroScreen>(); });

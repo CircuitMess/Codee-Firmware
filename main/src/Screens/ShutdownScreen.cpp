@@ -2,6 +2,7 @@
 #include "Util/stdafx.h"
 #include "Settings/Settings.h"
 #include "Util/Services.h"
+#include "Services/Power.h"
 
 ShutdownScreen::ShutdownScreen(){
 	const Settings* settings = (Settings*) Services.get(Service::Settings);
@@ -35,6 +36,5 @@ void ShutdownScreen::loop(){
 }
 
 void ShutdownScreen::off(){
-	extern void shutdown();
-	shutdown();
+	Power::powerOff();
 }
