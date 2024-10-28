@@ -10,6 +10,7 @@
 #define PIN_BUZZ 43
 #define PIN_BATT 6
 #define PIN_VREF 7
+#define PIN_LED 38
 
 #define I2C_SDA 33
 #define I2C_SCL 34
@@ -18,7 +19,5 @@
 #define TFT_MOSI 40
 #define TFT_DC 41
 #define TFT_RST 42
-
-#define LED_R 38
 
 #endif //CLOCKSTAR_LIBRARY_PINS_HPP
