@@ -10,6 +10,11 @@ BacklightBrightness::BacklightBrightness(PWM* pwm) : pwm(*pwm){
 
 }
 
+BacklightBrightness::~BacklightBrightness(){
+	pwm.setDuty(0);
+	pwm.detach();
+}
+
 void BacklightBrightness::setBrightness(uint8_t level){
 	pwm.setDuty(mapDuty(level));
 }
