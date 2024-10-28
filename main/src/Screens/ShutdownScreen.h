@@ -15,13 +15,19 @@ private:
 
 	void off();
 
-	lv_obj_t* label;
-	lv_obj_t* img;
-
-	static constexpr uint32_t ShutdownTime = 6000;
+	static constexpr uint32_t ShutdownTime = 4000;
 	static constexpr uint32_t BlinkPeriod = 500;
-	uint32_t blinkTime = 0;
 	uint32_t startTime = 0;
+
+	static constexpr const char* BgPaths[6] = {
+			"S:/Bg/Level1.bin",
+			"S:/Bg/Level2.bin",
+			"S:/Bg/Level3.bin",
+			"S:/Bg/Level4.bin",
+			"S:/Bg/Level5.bin",
+			"S:/Bg/Level6.bin"
+	};
+
 };
 
 
