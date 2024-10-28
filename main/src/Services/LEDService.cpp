@@ -20,14 +20,32 @@ LEDService::LEDService() : Threaded("LEDService"), instructionQueue(25){
 		ledDevices[led] = ledDevice;
 	}
 
-	start();
+	begin();
 }
 
 LEDService::~LEDService(){
+	stop();
+
 	ledFunctions.clear();
 
 	for(auto led: ledDevices){
 		delete led.second;
+	}
+}
+
+void LEDService::begin(){
+	for(auto led: ledDevices){
+		led.second->setValue(0);
+	}
+
+	start();
+}
+
+void LEDService::end(){
+	stop();
+
+	for(auto led: ledDevices){
+		led.second->setValue(0);
 	}
 }
 

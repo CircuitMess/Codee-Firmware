@@ -20,6 +20,9 @@ public:
 
 	virtual ~LEDService();
 
+	void begin();
+	void end();
+
 	void on(LED led);
 
 	void off(LED led);
