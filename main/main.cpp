@@ -139,7 +139,7 @@ void init(){
 	// Battery event might come while initialization is still in progress
 	battery->begin();
 
-	auto sleep = new Sleep();
+	input->begin();
 }
 
 extern "C" void app_main(void){
