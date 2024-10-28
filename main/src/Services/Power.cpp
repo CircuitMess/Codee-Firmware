@@ -199,3 +199,11 @@ void Power::powerOff(){
 	// By default, esp_deep_sleep_start() powers down all RTC power domains which are not needed by the enabled wakeup sources.
 	esp_deep_sleep_start();
 }
+
+void Power::resetPins(){
+	static constexpr int OnPins[] = { PIN_VREF, PIN_LED, TFT_SCK, TFT_MOSI, TFT_RST, TFT_DC, PIN_BL, PIN_BUZZ, I2C_SDA, I2C_SCL };
+	for(const auto& pin : OnPins){
+		gpio_hold_dis((gpio_num_t) pin);
+		rtc_gpio_deinit((gpio_num_t) pin);
+	}
+}

@@ -10,6 +10,7 @@ public:
 
 	void loop();
 
+	static void resetPins();
 	static void powerOff();
 
 private:

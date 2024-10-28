@@ -57,6 +57,8 @@ void init(){
 		}
 	}
 
+	Power::resetPins();
+
 	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, true);
 	blPwm->detach();
 	bl = new BacklightBrightness(blPwm);
