@@ -119,7 +119,6 @@ void Power::returnPins(){
 	static constexpr int OffPins[] = { PIN_VREF, PIN_LED };
 	for(const auto& pin : OffPins){
 		gpio_hold_dis((gpio_num_t) pin);
-		rtc_gpio_deinit((gpio_num_t) pin);
 		PinOut out(pin);
 		out.off();
 	}
@@ -127,13 +126,12 @@ void Power::returnPins(){
 	static constexpr int OnPins[] = { PIN_BL, PIN_BUZZ };
 	for(const auto& pin : OnPins){
 		gpio_hold_dis((gpio_num_t) pin);
-		rtc_gpio_deinit((gpio_num_t) pin);
 		PinOut out(pin);
 		out.on();
 	}
 
 	for(const auto& pin : WakePins){
-		gpio_hold_dis((gpio_num_t) pin);
+		rtc_gpio_hold_dis((gpio_num_t) pin);
 		rtc_gpio_deinit((gpio_num_t) pin);
 	}
 
@@ -206,6 +204,10 @@ void Power::resetPins(){
 	static constexpr int OnPins[] = { PIN_VREF, PIN_LED, TFT_SCK, TFT_MOSI, TFT_RST, TFT_DC, PIN_BL, PIN_BUZZ, I2C_SDA, I2C_SCL };
 	for(const auto& pin : OnPins){
 		gpio_hold_dis((gpio_num_t) pin);
+	}
+
+	for(const auto& pin : WakePins){
+		rtc_gpio_hold_dis((gpio_num_t) pin);
 		rtc_gpio_deinit((gpio_num_t) pin);
 	}
 }
