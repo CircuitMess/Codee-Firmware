@@ -9,6 +9,8 @@
 #include "Time.h"
 #include "UIThread.h"
 #include "Screens/PetScreen/PetScreen.h"
+#include "Screens/HatchScreen.h"
+#include "Screens/DeathScreen.h"
 #include <esp_sleep.h>
 #include <driver/rtc_io.h>
 #include <core/lv_global.h>
@@ -71,7 +73,16 @@ void Power::checkSleep(){
 	lv_anim_refr_now();
 
 	auto ui = (UIThread*) Services.get(Service::UI);
-	ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+	auto statsMan = (StatsManager*)Services.get(Service::Stats);
+	if(statsMan->isHatched()){
+		if(statsMan->hasDied()){
+			ui->startScreen([](){ return std::make_unique<DeathScreen>(); });
+		}else{
+			ui->startScreen([](){ return std::make_unique<PetScreen>(); });
+		}
+	}else{
+		ui->startScreen([](){ return std::make_unique<HatchScreen>(); });
+	}
 
 	lv_refr_now(LV_GLOBAL_DEFAULT()->disp_default);
 
