@@ -33,7 +33,7 @@ void GameRunner::startGame(Games game){
 
 	LVGL::drawImage(SplashImages[(int) game].splash);
 
-	const auto startTime = millis();
+	auto startTime = millis();
 
 	auto launcher = Launcher.at(game);
 
@@ -48,9 +48,17 @@ void GameRunner::startGame(Games game){
 
 	EventQueue evts(6);
 	Events::listen(Facility::Input, &evts);
+	startTime = millis();
 	for(;;){
 		Event evt{};
-		if(!evts.get(evt, portMAX_DELAY)) continue;
+		if(!evts.get(evt, 100)){
+			if(millis() - startTime >= 4000){
+				break;
+			}else{
+				continue;
+			}
+		}
+
 		if(evt.facility != Facility::Input){
 			free(evt.data);
 			continue;
