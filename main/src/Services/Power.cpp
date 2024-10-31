@@ -69,8 +69,11 @@ void Power::checkSleep(){
 	sleepLight();
 	activityTime = millis();
 
-	lv_timer_reset(lv_display_get_refr_timer(LV_GLOBAL_DEFAULT()->disp_default));
-	lv_anim_refr_now();
+	auto disp = (Display*) Services.get(Service::Display);
+	disp->getCanvas().clear(0);
+	disp->getCanvas().pushSprite(0, 0);
+
+	delayMillis(LV_DEF_REFR_PERIOD);
 
 	auto ui = (UIThread*) Services.get(Service::UI);
 	auto statsMan = (StatsManager*)Services.get(Service::Stats);
@@ -84,7 +87,12 @@ void Power::checkSleep(){
 		ui->startScreen([](){ return std::make_unique<HatchScreen>(); });
 	}
 
+	lv_timer_reset(lv_display_get_refr_timer(LV_GLOBAL_DEFAULT()->disp_default));
+	lv_anim_refr_now();
 	lv_refr_now(LV_GLOBAL_DEFAULT()->disp_default);
+
+	delayMillis(LV_DEF_REFR_PERIOD);
+	delayMillis(LV_DEF_REFR_PERIOD);
 
 	bl->fadeIn();
 }

@@ -35,7 +35,7 @@ void BacklightBrightness::fadeIn(){
 	if(state) return;
 	state = true;
 
-	pwm.attach();
+	pwm.setDuty(0);
 	Settings& settings = *(Settings*) Services.get(Service::Settings);
 
 	for(uint8_t i = 0; i < 100; i++){
