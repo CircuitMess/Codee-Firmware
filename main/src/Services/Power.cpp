@@ -83,8 +83,11 @@ void Power::setupWake(){
 	for(const auto& pin : WakePins){
 		pinMask |= 1ULL << pin;
 
-		rtc_gpio_isolate((gpio_num_t) pin);
+		rtc_gpio_init((gpio_num_t) pin);
+		rtc_gpio_set_direction((gpio_num_t) pin, RTC_GPIO_MODE_INPUT_ONLY);
 		rtc_gpio_pullup_en((gpio_num_t) pin);
+		rtc_gpio_pulldown_dis((gpio_num_t) pin);
+		rtc_gpio_hold_en((gpio_num_t) pin);
 	}
 
 	esp_sleep_disable_wakeup_source(ESP_SLEEP_WAKEUP_ALL);
