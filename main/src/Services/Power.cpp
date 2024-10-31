@@ -92,11 +92,13 @@ void Power::setupWake(){
 }
 
 void Power::freePins(){
-	auto input = (Input*) Services.get(Service::Input);
-	input->end();
+	if(auto input = (Input*) Services.get(Service::Input)){
+		input->end();
+	}
 
-	auto led = (LEDService*) Services.get(Service::LED);
-	led->end();
+	if(auto led = (LEDService*) Services.get(Service::LED)){
+		led->end();
+	}
 
 	static constexpr int OffPins[] = { PIN_VREF, PIN_LED };
 	for(const auto& pin : OffPins){
