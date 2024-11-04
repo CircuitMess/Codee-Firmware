@@ -41,6 +41,9 @@ private:
 	uint64_t lastAlt = 0;
 	uint64_t altCooldown = 0;
 
+	uint64_t backPress = 0;
+	void powerOff();
+
 	static constexpr const char* BgPaths[6] = {
 			"S:/Bg/Level1.bin",
 			"S:/Bg/Level2.bin",

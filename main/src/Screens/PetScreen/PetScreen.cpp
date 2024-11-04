@@ -40,6 +40,7 @@ void PetScreen::onStart(){
 	altCooldown = (esp_random()%8000) + 4000;
 
 	Events::listen(Facility::Stats, &evts);
+	Events::listen(Facility::Input, &evts);
 }
 
 void PetScreen::onStop(){
@@ -63,6 +64,15 @@ void PetScreen::loop(){
 		lastAlt = millis();
 		altCooldown = (esp_random()%8000) + 4000;
 		characterSprite->playIdle();
+	}
+
+	if(backPress && millis() - backPress >= 4000){
+		menu->stop();
+		Events::unlisten(&evts);
+		stopped = true;
+
+		powerOff();
+		return;
 	}
 
 	// Here transitions happen, so should be last
@@ -93,6 +103,23 @@ void PetScreen::launch(uint8_t i){
 void PetScreen::processEvents(){
 	Event evt{};
 	if(!evts.get(evt, 0)) return;
+
+	if(evt.facility == Facility::Input){
+		const auto data = (Input::Data*) evt.data;
+		if(data->btn != Input::D){
+			free(evt.data);
+			return;
+		}
+
+		if(data->action == Input::Data::Press){
+			backPress = millis();
+		}else{
+			backPress = 0;
+		}
+
+		free(evt.data);
+		return;
+	}
 
 	if(evt.facility != Facility::Stats){
 		free(evt.data);
@@ -136,4 +163,46 @@ void PetScreen::statsChanged(const Stats& stats, bool leveledUp){
 	statsSprite->setOil(stats.oilLevel);
 
 	xpSprite->set(statsManager->getExpPercentage());
+}
+
+void PetScreen::powerOff(){
+	auto bl = (BacklightBrightness*) Services.get(Service::Backlight);
+	bl->fadeOut();
+
+	auto input = (Input*) Services.get(Service::Input);
+	const auto state = input->getState();
+
+	uint8_t pressed = 0;
+	for(const auto& pair : state){
+		if(pair.second){
+			pressed |= 1 << pair.first;
+		}
+	}
+
+	Events::unlisten(&evts);
+	evts.reset();
+	Events::listen(Facility::Input, &evts);
+
+	while(pressed){
+		Event evt{};
+		if(!evts.get(evt, portMAX_DELAY)) continue;
+
+		if(evt.facility != Facility::Input){
+			free(evt.data);
+			continue;
+		}
+
+		const auto data = (Input::Data*) evt.data;
+		if(data->action == Input::Data::Press){
+			pressed |= 1 << data->btn;
+		}else{
+			pressed &= ~(1 << data->btn);
+		}
+
+		free(evt.data);
+	}
+
+	Events::unlisten(&evts);
+
+	Power::sleepDeep();
 }
