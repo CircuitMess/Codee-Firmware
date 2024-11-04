@@ -83,13 +83,18 @@ void init(){
 
 	auto power = new Power();
 
-	auto led = new LEDService();
-	Services.set(Service::LED, led);
-
 	if(!SPIFFS::init()) return;
 
 	auto disp = new Display();
 	Services.set(Service::Display, disp);
+
+	auto& canvas = disp->getCanvas();
+	Display::drawFile(canvas, SPIFFS::open("/Splash.raw"), 0, 0, 128, 128);
+	canvas.pushSprite(0, 0);
+	bl->fadeIn();
+
+	auto led = new LEDService();
+	Services.set(Service::LED, led);
 
 	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0, true);
 	auto audio = new ChirpSystem(*buzzPwm);
@@ -111,9 +116,6 @@ void init(){
 
 	ui->startScreen([](){ return std::make_unique<IntroScreen>(); });
 	ui->start();
-	delayMillis(LV_DEF_REFR_PERIOD);
-	bl->fadeIn();
-
 
 	// Start Battery scanning after everything else, otherwise Critical
 	// Battery event might come while initialization is still in progress
