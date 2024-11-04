@@ -8,6 +8,7 @@ SinglePwmLED::SinglePwmLED(uint8_t pin, ledc_channel_t channel, uint8_t limit) :
 
 SinglePwmLED::~SinglePwmLED(){
 	pwm.setDuty(0);
+	pwm.detach();
 }
 
 void SinglePwmLED::write(uint8_t val){

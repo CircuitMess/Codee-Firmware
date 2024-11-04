@@ -9,7 +9,7 @@
 static const char* TAG = "LEDService";
 
 const std::map<LED, LEDService::PwnMappingInfo> LEDService::PwmMappings = {
-		{ LED::Red, { (gpio_num_t) LED_R, LEDC_CHANNEL_2, 100 }},
+		{ LED::Red, { (gpio_num_t) PIN_LED, LEDC_CHANNEL_2, 100 }},
 };
 
 
@@ -20,14 +20,32 @@ LEDService::LEDService() : Threaded("LEDService"), instructionQueue(25){
 		ledDevices[led] = ledDevice;
 	}
 
-	start();
+	begin();
 }
 
 LEDService::~LEDService(){
+	stop();
+
 	ledFunctions.clear();
 
 	for(auto led: ledDevices){
 		delete led.second;
+	}
+}
+
+void LEDService::begin(){
+	for(auto led: ledDevices){
+		led.second->setValue(0);
+	}
+
+	start();
+}
+
+void LEDService::end(){
+	stop();
+
+	for(auto led: ledDevices){
+		led.second->setValue(0);
 	}
 }
 

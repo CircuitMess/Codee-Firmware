@@ -15,6 +15,9 @@ public:
 	Input(bool invertLogic = false);
 	virtual ~Input();
 
+	void begin();
+	void end();
+
 	enum Button { A, B, C, D };
 	static const std::unordered_map<Button, const char*> PinLabels;
 
@@ -24,6 +27,8 @@ public:
 	};
 
 private:
+	void setupPins();
+
 	void scan();
 	void pressed(Button btn);
 	void released(Button btn);

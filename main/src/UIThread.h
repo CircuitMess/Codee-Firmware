@@ -7,10 +7,11 @@
 #include "Util/Threaded.h"
 #include "GameEngine/Game.h"
 #include "Devices/Display.h"
+#include "Services/Power.h"
 
 class UIThread : public Threaded {
 public:
-	UIThread(LVGL& lvgl, GameRunner& gameRunner, FSLVGL& fs);
+	UIThread(LVGL& lvgl, GameRunner& gameRunner, FSLVGL& fs, Power& pwr);
 	~UIThread() override;
 
 	void startGame(Games game);
@@ -24,6 +25,7 @@ private:
 	LVGL& lvgl;
 	GameRunner& gamer;
 	FSLVGL& fs;
+	Power& pwr;
 
 	EventQueue evts;
 

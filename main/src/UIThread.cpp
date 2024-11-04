@@ -7,7 +7,7 @@
 #include "Screens/ShutdownScreen.h"
 #include "LV_Interface/FSLVGL.h"
 
-UIThread::UIThread(LVGL& lvgl, GameRunner& gameRunner, FSLVGL& fs) : Threaded("UI", 6 * 1024, 5, 0), lvgl(lvgl), gamer(gameRunner), fs(fs), evts(6){
+UIThread::UIThread(LVGL& lvgl, GameRunner& gameRunner, FSLVGL& fs, Power& pwr) : Threaded("UI", 6 * 1024, 5, 0), lvgl(lvgl), gamer(gameRunner), fs(fs), pwr(pwr), evts(6){
 	Events::listen(Facility::Battery, &evts);
 }
 
@@ -17,6 +17,7 @@ UIThread::~UIThread(){
 
 void UIThread::loop(){
 	checkShutdown();
+	pwr.loop();
 
 	if(active == Src::LVGL){
 		lvgl.loop();

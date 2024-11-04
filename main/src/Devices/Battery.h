@@ -34,8 +34,8 @@ public:
 private:
 	static constexpr uint32_t MeasureIntverval = 100;
 
-	static constexpr float VoltEmpty = 2900;
-	static constexpr float VoltFull = 3200;
+	static constexpr float VoltEmpty = 3250;
+	static constexpr float VoltFull = 3350;
 	static constexpr float Factor = 4.0f;
 	static constexpr float Offset = 100;
 	static constexpr float EmaA = 0.05f;

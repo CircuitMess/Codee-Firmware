@@ -20,6 +20,23 @@ const std::unordered_map<Input::Button, const char*> Input::PinLabels{
 };
 
 Input::Input(bool invertLogic) : SleepyThreaded(SleepTime, "Input", 2048, 6, 0), invertLogic(invertLogic){
+	setupPins();
+}
+
+Input::~Input(){
+	stop();
+}
+
+void Input::begin(){
+	setupPins();
+	start();
+}
+
+void Input::end(){
+	stop();
+}
+
+void Input::setupPins(){
 	auto mask = 0ULL;
 	for(const auto& pair: PinMap){
 		const auto port = pair.first;
@@ -39,12 +56,6 @@ Input::Input(bool invertLogic) : SleepyThreaded(SleepTime, "Input", 2048, 6, 0),
 			.intr_type = GPIO_INTR_DISABLE
 	};
 	gpio_config(&io_conf);
-
-	start();
-}
-
-Input::~Input(){
-	stop();
 }
 
 void Input::sleepyLoop(){

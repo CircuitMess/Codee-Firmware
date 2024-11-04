@@ -24,7 +24,6 @@ void Game::load(){
 }
 
 void Game::loadFunc(){
-	heapRep();
 	resMan.load(resources);
 	onLoad();
 	loaded = true;

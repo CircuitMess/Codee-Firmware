@@ -7,6 +7,8 @@
 class BacklightBrightness {
 public:
 	explicit BacklightBrightness(PWM* pwm);
+	virtual ~BacklightBrightness();
+
 	void setBrightness(uint8_t level); //0 - 100%
 
 	void fadeIn();

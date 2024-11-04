@@ -19,6 +19,7 @@ StatsSprite::StatsSprite(lv_obj_t* parent, uint8_t oil, uint8_t happ, uint8_t ba
 	this->oil = new StatSprite(*this, StatSprite::Oil, oil);
 	this->happ = new StatSprite(*this, StatSprite::Happiness, happ);
 	this->batt = new StatSprite(*this, StatSprite::Battery, batt);
+	lv_obj_add_flag(*this->batt, LV_OBJ_FLAG_HIDDEN);
 
 	this->level = lv_image_create(*this);
 	lv_obj_add_flag(this->level, LV_OBJ_FLAG_IGNORE_LAYOUT);

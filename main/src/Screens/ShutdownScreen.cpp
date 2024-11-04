@@ -2,6 +2,9 @@
 #include "Util/stdafx.h"
 #include "Settings/Settings.h"
 #include "Util/Services.h"
+#include "Services/Power.h"
+#include "Services/StatsManager.h"
+#include "Services/BacklightBrightness.h"
 
 ShutdownScreen::ShutdownScreen(){
 	const Settings* settings = (Settings*) Services.get(Service::Settings);
@@ -9,22 +12,26 @@ ShutdownScreen::ShutdownScreen(){
 		return;
 	}
 
-	auto img = lv_img_create(*this);
-	lv_img_set_src(img, "S:/bg.bin");
-	lv_obj_add_flag(img, LV_OBJ_FLAG_FLOATING);
+	auto stats = (StatsManager*) Services.get(Service::Stats);
+	const auto lvl = std::clamp((int) stats->getLevel() - 1, 0, 5);
+	lv_obj_set_style_bg_image_src(*this, BgPaths[lvl], 0);
+	lv_obj_set_style_bg_image_opa(*this, LV_OPA_COVER, 0);
 
-	img = lv_img_create(*this);
-	lv_img_set_src(img, "S:/Battery/EmptyBig.bin");
-	lv_obj_align(img, LV_ALIGN_CENTER, 0, -10);
+	auto modal = lv_image_create(*this);
+	lv_image_set_src(modal, "S:/Modal.bin");
+	lv_obj_add_flag(modal, LV_OBJ_FLAG_FLOATING);
+	lv_obj_center(modal);
 
-	label = lv_label_create(*this);
-	lv_label_set_text(label, "Battery critical,\nshutting down");
+	auto label = lv_label_create(*this);
+	lv_obj_set_style_text_color(label, lv_color_black(), 0);
+	lv_obj_set_style_text_line_space(label, 8, 0);
+	lv_label_set_text(label, "Battery critical,\nshutting down.");
 	lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0);
-	lv_obj_align(label, LV_ALIGN_CENTER, 0, 20);
+	lv_obj_add_flag(label, LV_OBJ_FLAG_FLOATING);
+	lv_obj_center(label);
 }
 
 void ShutdownScreen::onStart(){
-	blinkTime = millis();
 	startTime = millis();
 }
 
@@ -35,6 +42,7 @@ void ShutdownScreen::loop(){
 }
 
 void ShutdownScreen::off(){
-	extern void shutdown();
-	shutdown();
+	auto bl = (BacklightBrightness*) Services.get(Service::Backlight);
+	bl->fadeOut();
+	Power::powerOff();
 }
