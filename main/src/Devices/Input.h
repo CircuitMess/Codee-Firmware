@@ -26,6 +26,8 @@ public:
 		enum Action { Release, Press } action;
 	};
 
+	std::unordered_map<Button, bool> getState();
+
 private:
 	void setupPins();
 

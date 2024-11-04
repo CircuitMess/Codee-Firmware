@@ -58,6 +58,10 @@ void Input::setupPins(){
 	gpio_config(&io_conf);
 }
 
+std::unordered_map<Input::Button, bool> Input::getState(){
+	return btnState;
+}
+
 void Input::sleepyLoop(){
 	scan();
 }
