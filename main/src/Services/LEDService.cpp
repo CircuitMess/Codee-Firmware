@@ -13,7 +13,7 @@ const std::map<LED, LEDService::PwnMappingInfo> LEDService::PwmMappings = {
 };
 
 
-LEDService::LEDService() : Threaded("LEDService"), instructionQueue(25){
+LEDService::LEDService() : Threaded("LEDService", 8 * 1024, 7, 1), instructionQueue(25){
 	for(LED led = (LED) 0; (uint8_t) led < (uint8_t) LED::COUNT; led = (LED) ((uint8_t) led + 1)){
 		PwnMappingInfo ledData = PwmMappings.at(led);
 		SingleLED* ledDevice = new SinglePwmLED(ledData.pin, ledData.channel, ledData.limit);
