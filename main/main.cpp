@@ -59,9 +59,6 @@ void init(){
 
 	Power::resetPins();
 
-	PinOut redLed(PIN_LED);
-	redLed.on();
-
 	auto blPwm = new PWM(PIN_BL, LEDC_CHANNEL_1, true);
 	blPwm->detach();
 	bl = new BacklightBrightness(blPwm);
@@ -85,6 +82,9 @@ void init(){
 	Services.set(Service::Stats, stats);
 
 	auto power = new Power();
+
+	PinOut redLed(PIN_LED);
+	redLed.on();
 
 	if(!SPIFFS::init()) return;
 
