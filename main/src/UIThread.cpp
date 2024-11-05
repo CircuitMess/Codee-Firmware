@@ -1,11 +1,11 @@
 #include "UIThread.h"
 #include "Util/stdafx.h"
 #include "GameEngine/Game.h"
-#include "Devices/Display.h"
-//#include "Screens/PauseScreen.h"
 #include "Devices/Battery.h"
 #include "Screens/ShutdownScreen.h"
 #include "LV_Interface/FSLVGL.h"
+#include "Util/Services.h"
+#include "Services/LEDService.h"
 
 UIThread::UIThread(LVGL& lvgl, GameRunner& gameRunner, FSLVGL& fs, Power& pwr) : Threaded("UI", 6 * 1024, 5, 0), lvgl(lvgl), gamer(gameRunner), fs(fs), pwr(pwr), evts(6){
 	Events::listen(Facility::Battery, &evts);
@@ -65,8 +65,17 @@ void UIThread::checkShutdown(){
 	if(!evts.get(evt, 0)) return;
 
 	auto data = (Battery::Event*) evt.data;
+	if(data->action != Battery::Event::LevelChange){
+		free(evt.data);
+		return;
+	}
 
-	if(data->action == Battery::Event::LevelChange && data->level == Battery::Critical){
+	auto led = (LEDService*) Services.get(Service::LED);
+	static bool blinking = false;
+
+	if(data->level == Battery::Critical){
+		led->blink(LED::Red, -1, 200);
+
 		Events::unlisten(&evts);
 		evts.reset();
 
@@ -74,6 +83,14 @@ void UIThread::checkShutdown(){
 		gamer.endGame();
 		lvgl.startScreen([](){ return std::make_unique<ShutdownScreen>(); });
 		active = Src::LVGL;
+	}else if(data->level == Battery::Full){
+		led->off(LED::Red);
+		blinking = false;
+	}else{
+		if(!blinking){
+			led->blink(LED::Red, -1, 500);
+			blinking = true;
+		}
 	}
 
 	free(evt.data);
