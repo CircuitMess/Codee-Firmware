@@ -48,8 +48,6 @@ void SettingsScreen::onStop(){
 	settings.set(savedSettings);
 	settings.store();
 
-	backlight.setBrightness(brightnessSlider->getValue());
-
 	Events::unlisten(&queue);
 }
 
