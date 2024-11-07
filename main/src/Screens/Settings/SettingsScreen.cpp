@@ -98,6 +98,9 @@ void SettingsScreen::buildUI(){
 
 	brightnessSlider = new SliderElement(*this, "Brightness", [this](uint8_t value){
 		backlight.setBrightness(value);
+		auto s = settings.get();
+		s.screenBrightness = value;
+		settings.set(s);
 	}, startingSettings.screenBrightness);
 	lv_group_add_obj(inputGroup, *brightnessSlider);
 
