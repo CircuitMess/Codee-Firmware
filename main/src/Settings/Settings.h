@@ -4,7 +4,7 @@
 #include <nvs.h>
 
 struct SettingsStruct {
-	uint8_t screenBrightness = 100;
+	uint8_t screenBrightness = 80;
 	uint8_t sleepTime = 1;
 	bool sound = true;
 };
