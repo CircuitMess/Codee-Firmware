@@ -6,8 +6,8 @@
 #define BTN_B 3
 #define BTN_A 2
 
-#define PIN_BL 44
-#define PIN_BUZZ 43
+#define PIN_BL 45
+#define PIN_BUZZ 44
 #define PIN_BATT 6
 #define PIN_VREF 7
 #define PIN_LED 38
