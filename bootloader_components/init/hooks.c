@@ -4,13 +4,11 @@
 /** Function used to tell the linker to include this file with all its symbols. */
 void bootloader_hooks_include(void){}
 
-void IRAM_ATTR bootloader_before_init(void){
-	//TODO - turn off LEDs
+static const gpio_num_t BL = GPIO_NUM_45;
 
-	/* Keep in my mind that a lot of functions cannot be called from here
-	 * as system initialization has not been performed yet, including
-	 * BSS, SPI flash, or memory protection. */
-	// ESP_LOGI("HOOK", "This hook is called BEFORE bootloader initialization");
+void IRAM_ATTR bootloader_before_init(void){
+	gpio_ll_output_enable(&GPIO, BL);
+	gpio_ll_set_level(&GPIO, BL, 1);
 
 }
 
