@@ -223,7 +223,7 @@ void Power::powerOff(){
 }
 
 void Power::resetPins(){
-	static constexpr int OnPins[] = { PIN_VREF, PIN_LED, TFT_SCK, TFT_MOSI, TFT_RST, TFT_DC, PIN_BL, PIN_BUZZ, I2C_SDA, I2C_SCL };
+	static constexpr int OnPins[] = { PIN_VREF, PIN_LED, TFT_SCK, TFT_MOSI, TFT_RST, TFT_DC, PIN_BUZZ, I2C_SDA, I2C_SCL };
 	for(const auto& pin : OnPins){
 		gpio_hold_dis((gpio_num_t) pin);
 	}

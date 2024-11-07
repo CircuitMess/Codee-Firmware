@@ -3,8 +3,10 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <cmath>
+#include <driver/rtc_io.h>
 #include "Util/Services.h"
 #include "Util/stdafx.h"
+#include "Pins.hpp"
 
 BacklightBrightness::BacklightBrightness(PWM* pwm) : pwm(*pwm){
 
@@ -35,6 +37,7 @@ void BacklightBrightness::fadeIn(){
 	if(state) return;
 	state = true;
 
+	gpio_hold_dis((gpio_num_t) PIN_BL);
 	pwm.setDuty(0);
 	Settings& settings = *(Settings*) Services.get(Service::Settings);
 
