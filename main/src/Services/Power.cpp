@@ -66,7 +66,9 @@ void Power::checkSleep(){
 	auto bl = (BacklightBrightness*) Services.get(Service::Backlight);
 	bl->fadeOut();
 
-	sleepLight();
+//	sleepLight();
+	sleepDeep();
+
 	activityTime = millis();
 
 	auto disp = (Display*) Services.get(Service::Display);
