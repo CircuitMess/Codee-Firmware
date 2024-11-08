@@ -47,7 +47,9 @@ private:
 	static bool Time1();
 	static bool Time2();
 	static bool HWVersion();
+	static bool Buttons();
 
+	void instr(const char* msg);
 	void AudioVisualTest();
 	void rgb();
 

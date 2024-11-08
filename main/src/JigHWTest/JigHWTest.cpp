@@ -10,6 +10,9 @@
 #include <driver/ledc.h>
 #include "Devices/Input.h"
 #include "Util/HWVersion.h"
+#include "Periph/PWM.h"
+#include "Services/ChirpSystem.h"
+#include "Util/Events.h"
 
 
 JigHWTest* JigHWTest::test = nullptr;
@@ -33,6 +36,7 @@ JigHWTest::JigHWTest(){
 	tests.push_back({ JigHWTest::Time2, "RTC crystal", [](){} });
 	tests.push_back({ JigHWTest::SPIFFSTest, "SPIFFS", [](){} });
 	tests.push_back({ JigHWTest::BatteryRef, "Battery reference", [](){}});
+	tests.push_back({ JigHWTest::Buttons, "Buttons", [](){}});
 	tests.push_back({ JigHWTest::HWVersion, "Hardware version", [](){ esp_efuse_batch_write_cancel(); } });
 }
 
@@ -94,7 +98,7 @@ void JigHWTest::start(){
 	canvas->setTextSize(1);
 	canvas->setCursor(0, 6);
 
-	canvas->print("Artemis test");
+	canvas->print("Codee test");
 	canvas->setCursor(canvas->width() / 2, 16);
 	canvas->println();
 
@@ -375,4 +379,68 @@ bool JigHWTest::HWVersion(){
 	}
 
 	return HWVersion::write();
+}
+
+bool JigHWTest::Buttons(){
+	PWM buzzPwm(PIN_BUZZ, LEDC_CHANNEL_0, true);
+	ChirpSystem audio(buzzPwm);
+	const auto buzz = [&audio](){
+		audio.play({ Chirp{ 200, 200, 100 }});
+	};
+
+	EventQueue evts(12);
+	Input input(true);
+	input.begin();
+	vTaskDelay(200);
+	Events::listen(Facility::Input, &evts);
+
+	std::unordered_set<Input::Button> pressed;
+	std::unordered_set<Input::Button> released;
+
+	test->instr("Pritisni sve\ngumbe redom.");
+	audio.play({
+					   Chirp{ 200, 200, 100 },
+					   Chirp{ 0, 0, 50 },
+					   Chirp{ 200, 200, 100 },
+					   Chirp{ 0, 0, 50 },
+					   Chirp{ 200, 200, 100 }
+			   });
+
+	for(;;){
+		Event evt{};
+		if(!evts.get(evt, portMAX_DELAY)) continue;
+
+		auto data = (Input::Data*) evt.data;
+		if(data->action == Input::Data::Press){
+			printf("press\n");
+			pressed.insert(data->btn);
+			buzz();
+		}else{
+			printf("release\n");
+			released.insert(data->btn);
+		}
+
+		free(evt.data);
+		if(pressed.size() == 4 && released.size() == 4) break;
+	}
+
+	Events::unlisten(&evts);
+
+	input.end();
+
+	vTaskDelay(300);
+	audio.play({
+					   Chirp{ 200, 200, 100 },
+					   Chirp{ 0, 0, 50 },
+					   Chirp{ 200, 200, 100 }
+			   });
+	vTaskDelay(500);
+
+	return true;
+}
+
+void JigHWTest::instr(const char* msg){
+	canvas->setTextColor(TFT_GOLD);
+	canvas->print(msg);
+	canvas->print(" ");
 }
