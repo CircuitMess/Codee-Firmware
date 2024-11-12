@@ -235,7 +235,7 @@ bool JigHWTest::BatteryRef(){
 	test->log("reading", reading);
 	test->log("offset", (int32_t) offset);
 
-	if(std::abs(offset) > 50){
+	if(std::abs(offset) > VoltOffsetTolerance){
 		test->log("error", "offset too big");
 		return false;
 	}
