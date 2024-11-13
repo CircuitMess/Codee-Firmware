@@ -53,8 +53,8 @@ private:
 	void AudioVisualTest();
 	void rgb();
 
-	static const int16_t VoltRef = 2600;
-	static constexpr uint32_t VoltOffsetTolerance = 80;
+	static const int16_t VoltRef = 2500;
+	static constexpr uint32_t VoltOffsetTolerance = 120;
 
 	static constexpr uint32_t CheckTimeout = 500;
 

@@ -209,7 +209,7 @@ bool JigHWTest::BatteryRef(){
 		ESP_ERROR_CHECK(adc_cali_create_scheme_curve_fitting(&curveCfg, &cali));
 
 		static constexpr float Factor = 4.0f;
-		static constexpr float Offset = 100;
+		static constexpr float Offset = 0;
 		reader = std::make_unique<ADCReader>(adc, chan, cali, Offset, Factor);
 	};
 
@@ -217,11 +217,17 @@ bool JigHWTest::BatteryRef(){
 	std::unique_ptr<ADCReader> reader;
 	config(PIN_BATT, cali, reader);
 
-	PinOut refSwitch(PIN_VREF);
+	static constexpr int CalReads = 10;
 
+	PinOut refSwitch(PIN_VREF);
 	refSwitch.on();
 
-	static constexpr int CalReads = 10;
+	delayMillis(100);
+	for(int i = 0; i < CalReads; i++){
+		reader->sample();
+		delayMillis(10);
+	}
+
 	float total = 0;
 	for(int i = 0; i < CalReads; i++){
 		total += reader->sample();

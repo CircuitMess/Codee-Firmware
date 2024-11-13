@@ -39,6 +39,7 @@ Battery::Battery(ADC& adc) : SleepyThreaded(MeasureIntverval, "Battery", 3 * 102
 	calibrate();
 
 	sample(true);
+	sample(true);
 }
 
 void Battery::begin(){
@@ -59,6 +60,12 @@ bool Battery::isShutdown() const{
 
 void Battery::calibrate(){
 	refSwitch.on();
+
+	delayMillis(100);
+	for(int i = 0; i < CalReads; i++){
+		readerRef->sample();
+		delayMillis(10);
+	}
 
 	float total = 0;
 	for(int i = 0; i < CalReads; i++){
@@ -82,7 +89,7 @@ void Battery::sample(bool fresh){
 
 	if(fresh){
 		readerBatt->resetEma();
-		hysteresis.reset(readerBatt->sample());
+		hysteresis.reset(readerBatt->getValue());
 	}else{
 		hysteresis.update(readerBatt->sample());
 	}
