@@ -7,7 +7,7 @@
 #include <driver/gpio.h>
 
 Battery::Battery(ADC& adc) : SleepyThreaded(MeasureIntverval, "Battery", 3 * 1024, 5, 1), adc(adc), refSwitch(PIN_VREF), hysteresis({ 0, 4, 15, 30, 50, 70, 90, 100 }, 3){
-	const auto config = [this, &adc](int pin, adc_cali_handle_t& cali, std::unique_ptr<ADCReader>& reader, bool emaAndMap){
+	const auto config = [&adc](int pin, adc_cali_handle_t& cali, std::unique_ptr<ADCReader>& reader, bool emaAndMap){
 		adc_unit_t unit;
 		adc_channel_t chan;
 		ESP_ERROR_CHECK(adc_oneshot_io_to_channel(pin, &unit, &chan));
@@ -27,9 +27,9 @@ Battery::Battery(ADC& adc) : SleepyThreaded(MeasureIntverval, "Battery", 3 * 102
 		ESP_ERROR_CHECK(adc_cali_create_scheme_curve_fitting(&curveCfg, &cali));
 
 		if(emaAndMap){
-			reader = std::make_unique<ADCReader>(adc, chan, caliBatt, Offset, Factor, EmaA, VoltEmpty, VoltFull);
+			reader = std::make_unique<ADCReader>(adc, chan, cali, Offset, Factor, EmaA, VoltEmpty, VoltFull);
 		}else{
-			reader = std::make_unique<ADCReader>(adc, chan, caliBatt, Offset, Factor);
+			reader = std::make_unique<ADCReader>(adc, chan, cali, Offset, Factor);
 		}
 	};
 
