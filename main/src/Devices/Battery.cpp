@@ -5,6 +5,7 @@
 #include <Util/stdafx.h>
 #include <cmath>
 #include <driver/gpio.h>
+#include <Util/EfuseMeta.h>
 
 Battery::Battery(ADC& adc) : SleepyThreaded(MeasureIntverval, "Battery", 3 * 1024, 5, 1), adc(adc), refSwitch(PIN_VREF), hysteresis({ 0, 4, 15, 30, 50, 70, 90, 100 }, 3){
 	const auto config = [&adc](int pin, adc_cali_handle_t& cali, std::unique_ptr<ADCReader>& reader, bool emaAndMap){
@@ -13,21 +14,25 @@ Battery::Battery(ADC& adc) : SleepyThreaded(MeasureIntverval, "Battery", 3 * 102
 		ESP_ERROR_CHECK(adc_oneshot_io_to_channel(pin, &unit, &chan));
 		assert(unit == adc.getUnit());
 
+		uint8_t rev = 0;
+		EfuseMeta::readRev(rev);
+		const auto atten = rev == 1 ? ADC_ATTEN_DB_2_5 : ADC_ATTEN_DB_0;
+
 		adc.config(chan, {
-				.atten = ADC_ATTEN_DB_0,
+				.atten = atten,
 				.bitwidth = ADC_BITWIDTH_12
 		});
 
 		const adc_cali_curve_fitting_config_t curveCfg = {
 				.unit_id = unit,
 				.chan = chan,
-				.atten = ADC_ATTEN_DB_0,
+				.atten = atten,
 				.bitwidth = ADC_BITWIDTH_12
 		};
 		ESP_ERROR_CHECK(adc_cali_create_scheme_curve_fitting(&curveCfg, &cali));
 
 		if(emaAndMap){
-			reader = std::make_unique<ADCReader>(adc, chan, cali, Offset, Factor, EmaA, VoltEmpty, VoltFull);
+			reader = std::make_unique<ADCReader>(adc, chan, cali, Offset, Factor, EmaA, Battery::getRange().min, Battery::getRange().max);
 		}else{
 			reader = std::make_unique<ADCReader>(adc, chan, cali, Offset, Factor);
 		}
@@ -44,6 +49,19 @@ Battery::Battery(ADC& adc) : SleepyThreaded(MeasureIntverval, "Battery", 3 * 102
 
 void Battery::begin(){
 	start();
+}
+
+const Battery::BattRange& Battery::getRange(){
+	uint8_t rev = 0;
+	if(!EfuseMeta::readRev(rev)){
+		rev = 0;
+	}
+
+	if(rev == 1){
+		return RangeRev2;
+	}else{
+		return RangeRev1;
+	}
 }
 
 uint8_t Battery::getPerc() const{
