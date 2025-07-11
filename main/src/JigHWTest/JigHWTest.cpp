@@ -9,7 +9,7 @@
 #include "Util/Services.h"
 #include <driver/ledc.h>
 #include "Devices/Input.h"
-#include "Util/HWVersion.h"
+#include "Util/EfuseMeta.h"
 #include "Periph/PWM.h"
 #include "Services/ChirpSystem.h"
 #include "Util/Events.h"
@@ -365,26 +365,26 @@ bool JigHWTest::Time2(){
 }
 
 bool JigHWTest::HWVersion(){
-	uint16_t version = 1;
-	bool result = HWVersion::readVersion(version);
+	uint16_t pid = 1;
+	bool result = EfuseMeta::readPID(pid);
 
 	if(!result){
 		test->log("HW version", "couldn't read from efuse");
 		return false;
 	}
 
-	if(version != 0){
-		test->log("Existing HW version", (uint32_t) version);
-		if(version == HWVersion::getHardcodedVersion()){
-			test->log("Already fused.", (uint32_t) version);
+	if(pid != 0){
+		test->log("Existing HW version", (uint32_t) pid);
+		if(pid == EfuseMeta::getHardcodedPID()){
+			test->log("Already fused.", (uint32_t) pid);
 			return true;
 		}else{
-			test->log("Wrong binary already fused!", (uint32_t) version);
+			test->log("Wrong binary already fused!", (uint32_t) pid);
 			return false;
 		}
 	}
 
-	return HWVersion::write();
+	return EfuseMeta::write();
 }
 
 bool JigHWTest::Buttons(){
