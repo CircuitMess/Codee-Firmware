@@ -24,5 +24,14 @@ void Time::updateFromRTC(){
 	tm time_tm = rtc.getTime();
 	time = mktime(&time_tm);
 
+	if(time < 0 || time >= 31536000 * 10){ // Max 10 years // TODO: this code is only for Codee, where actual time is irrelevant
+		tm timeZero = {
+				.tm_mday = 1,
+				.tm_year = 70
+		};
+		rtc.setTime(timeZero);
+		time = 0;
+	}
+
 	updateTime = millis();
 }
