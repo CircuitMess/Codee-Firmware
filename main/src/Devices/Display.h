@@ -39,7 +39,8 @@ private:
 	Sprite canvas;
 
 	void setupBus();
-	void setupPanel();
+	void setupPanel1();
+	void setupPanel2();
 
 };
 
