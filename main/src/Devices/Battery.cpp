@@ -96,6 +96,7 @@ void Battery::calibrate(){
 	readerBatt->setMoreOffset(offset);
 
 	refSwitch.off();
+	delayMillis(100);
 
 	printf("Calibration: Read %.02f mV, expected %.02f mV. Applying %.02f mV offset.\n", reading, CalExpected, offset);
 }
