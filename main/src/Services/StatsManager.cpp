@@ -96,8 +96,13 @@ void StatsManager::update(Stats delta){
 void StatsManager::hatch(){
 	std::lock_guard lock(updateMut);
 	if(hatched || hasDied()) return;
-	StatsManager::hatched = true;
+
+	hatched = true;
 	store();
+
+	const auto time = (Time*) Services.get(Service::Time);
+	const auto now = time->getUnixTime();
+	nvs.set(TimeSaveBlobName, now);
 }
 
 const Stats& StatsManager::get() const{
