@@ -13,11 +13,18 @@ public:
 	void setBattery(uint8_t perc);
 	void setLevel(uint8_t level);
 
+	void setCharging(bool chrg);
+	void loop(uint64_t micros);
+
 private:
 	StatSprite* happ;
 	StatSprite* oil;
 	StatSprite* batt;
 	lv_obj_t* level;
+
+	bool chrg = false;
+	float chrgPerc;
+	static constexpr float ChrgSpeed = 100; // Perc per second
 
 };
 

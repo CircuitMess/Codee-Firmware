@@ -30,13 +30,14 @@ public:
 
 	uint8_t getPerc() const;
 	Level getLevel() const;
+	bool isCharging();
 
 private:
 	static constexpr uint32_t MeasureIntverval = 100;
 
 	struct BattRange { float min, max; };
 	static constexpr BattRange RangeRev1 = { .min = 3150, .max = 3250 };
-	static constexpr BattRange RangeRev2 = { .min = 3600, .max = 4100 };
+	static constexpr BattRange RangeRev2 = { .min = 3600, .max = 4050 };
 	static const BattRange& getRange();
 
 	static constexpr float Factor = 4.0f;
@@ -45,6 +46,8 @@ private:
 
 	static constexpr int CalReads = 10;
 	static constexpr float CalExpected = 2500;
+
+	static constexpr float ChrgThresh = 4300;
 
 	ADC& adc;
 	PinOut refSwitch;

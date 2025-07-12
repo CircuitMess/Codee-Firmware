@@ -27,6 +27,9 @@ public:
 	/** Return current value without sampling. */
 	float getValue() const;
 
+	/** Return current value before mapping, without sampling. */
+	float getRaw() const;
+
 	/** Reset EMA and take a fresh sample. */
 	void resetEma();
 

@@ -65,6 +65,11 @@ Battery::Level Battery::getLevel() const{
 	return (Level) hysteresis.get();
 }
 
+bool Battery::isCharging(){
+	if(EfuseMeta::getRev() == 0) return false;
+	return readerBatt->getRaw() >= ChrgThresh;
+}
+
 bool Battery::isShutdown() const{
 	return shutdown;
 }

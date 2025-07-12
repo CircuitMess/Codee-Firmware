@@ -1,5 +1,7 @@
+#include <cmath>
 #include "StatsSprite.h"
 #include "Util/Services.h"
+#include "Util/EfuseMeta.h"
 
 static constexpr const char* LevelPaths[] = {
 		"S:/OS/1_0.bin",
@@ -19,7 +21,10 @@ StatsSprite::StatsSprite(lv_obj_t* parent, uint8_t oil, uint8_t happ, uint8_t ba
 	this->oil = new StatSprite(*this, StatSprite::Oil, oil);
 	this->happ = new StatSprite(*this, StatSprite::Happiness, happ);
 	this->batt = new StatSprite(*this, StatSprite::Battery, batt);
-	lv_obj_add_flag(*this->batt, LV_OBJ_FLAG_HIDDEN);
+
+	if(EfuseMeta::getRev() == 0){
+		lv_obj_add_flag(*this->batt, LV_OBJ_FLAG_HIDDEN);
+	}
 
 	this->level = lv_image_create(*this);
 	lv_obj_add_flag(this->level, LV_OBJ_FLAG_IGNORE_LAYOUT);
@@ -42,4 +47,24 @@ void StatsSprite::setBattery(uint8_t perc){
 void StatsSprite::setLevel(uint8_t level){
 	level = std::clamp((int) level, 1, 6) - 1;
 	lv_image_set_src(this->level, LevelPaths[level]);
+}
+
+void StatsSprite::setCharging(bool chrg){
+	if(this->chrg == chrg) return;
+	this->chrg = chrg;
+	if(chrg){
+		chrgPerc = 0;
+		setBattery(0);
+	}
+}
+
+void StatsSprite::loop(uint64_t micros){
+	if(!chrg) return;
+
+	chrgPerc += ChrgSpeed * (float) micros / 1000000.0f;
+	if(chrgPerc > 150){
+		chrgPerc = 5;
+	}
+
+	setBattery((uint8_t) std::round(chrgPerc));
 }

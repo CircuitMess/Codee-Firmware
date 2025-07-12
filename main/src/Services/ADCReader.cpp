@@ -46,6 +46,11 @@ float ADCReader::getValue() const{
 	return val;
 }
 
+float ADCReader::getRaw() const{
+	const float adjusted = value * factor + offset + moreOffset;
+	return adjusted;
+}
+
 void ADCReader::resetEma(){
 	value = -1;
 	sample();

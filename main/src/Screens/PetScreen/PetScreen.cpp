@@ -58,7 +58,16 @@ void PetScreen::loop(){
 		menu->show();
 	}
 
-	statsSprite->setBattery(battery->getPerc());
+	const bool chrg = battery->isCharging();
+	statsSprite->setCharging(chrg);
+	if(chrg){
+		const auto now = micros();
+		static uint64_t lastMicros = 0;
+		statsSprite->loop(now - lastMicros);
+		lastMicros = now;
+	}else{
+		statsSprite->setBattery(battery->getPerc());
+	}
 
 	if(millis() - lastAlt >= altCooldown){
 		lastAlt = millis();
