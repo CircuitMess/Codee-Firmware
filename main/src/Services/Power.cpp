@@ -217,12 +217,15 @@ void Power::powerOff(){
 		gpio_hold_en((gpio_num_t) pin);
 	}
 
-	const int OnPins[] = { PIN_BL, PIN_BUZZ, I2C_SDA, I2C_SCL };
+	const int OnPins[] = { PIN_BL, I2C_SDA, I2C_SCL };
 	for(const auto& pin : OnPins){
 		PinOut out(pin);
 		out.on();
 		gpio_hold_en((gpio_num_t) pin);
 	}
+
+	PinOut buzzPin(PIN_BUZZ, EfuseMeta::getRev() == 0);
+	buzzPin.off();
 
 	gpio_deep_sleep_hold_en();
 

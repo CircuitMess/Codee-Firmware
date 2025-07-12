@@ -100,7 +100,7 @@ void init(){
 	auto led = new LEDService();
 	Services.set(Service::LED, led);
 
-	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0, true);
+	auto buzzPwm = new PWM(PIN_BUZZ, LEDC_CHANNEL_0, EfuseMeta::getRev() == 0);
 	auto audio = new ChirpSystem(*buzzPwm);
 	Services.set(Service::Audio, audio);
 
