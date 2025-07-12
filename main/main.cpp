@@ -67,7 +67,7 @@ void init(){
 
 	auto adc1 = new ADC(ADC_UNIT_1);
 	auto battery = new Battery(*adc1);
-	if(battery->isShutdown()){
+	if(battery->isShutdown() && !battery->isCharging()){
 		redLed.on();
 		delayMillis(500);
 		redLed.off();
