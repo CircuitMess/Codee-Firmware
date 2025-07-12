@@ -71,7 +71,6 @@ void UIThread::checkShutdown(){
 	}
 
 	auto led = (LEDService*) Services.get(Service::LED);
-	static bool blinking = false;
 
 	if(data->level == Battery::Critical){
 		led->blink(LED::Red, -1, 200);
@@ -83,14 +82,10 @@ void UIThread::checkShutdown(){
 		gamer.endGame();
 		lvgl.startScreen([](){ return std::make_unique<ShutdownScreen>(); });
 		active = Src::LVGL;
-	}else if(data->level == Battery::Full){
-		led->off(LED::Red);
-		blinking = false;
+	}else if(data->level == Battery::VeryLow){
+		led->blink(LED::Red, -1, 1000);
 	}else{
-		if(!blinking){
-			led->blink(LED::Red, -1, 500);
-			blinking = true;
-		}
+		led->off(LED::Red);
 	}
 
 	free(evt.data);

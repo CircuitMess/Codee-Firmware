@@ -31,7 +31,6 @@
 BacklightBrightness* bl;
 
 void init(){
-
 	auto nvs = new NVSFlash();
 	Services.set(Service::NVS, nvs);
 
@@ -64,10 +63,15 @@ void init(){
 	bl = new BacklightBrightness(blPwm);
 	Services.set(Service::Backlight, bl);
 
-	auto adc1 = new ADC(ADC_UNIT_1);
+	PinOut redLed(PIN_LED);
 
+	auto adc1 = new ADC(ADC_UNIT_1);
 	auto battery = new Battery(*adc1);
 	if(battery->isShutdown()){
+		redLed.on();
+		delayMillis(500);
+		redLed.off();
+
 		Power::powerOff();
 		return;
 	}
@@ -82,9 +86,6 @@ void init(){
 	Services.set(Service::Stats, stats);
 
 	auto power = new Power();
-
-	PinOut redLed(PIN_LED);
-	redLed.on();
 
 	if(!SPIFFS::init()) return;
 

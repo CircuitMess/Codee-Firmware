@@ -29,6 +29,7 @@ LEDService::~LEDService(){
 	ledFunctions.clear();
 
 	for(auto led: ledDevices){
+		led.second->setValue(0);
 		delete led.second;
 	}
 }
