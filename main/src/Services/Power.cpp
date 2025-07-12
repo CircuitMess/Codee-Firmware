@@ -5,6 +5,7 @@
 #include "Services/LEDService.h"
 #include "Devices/Input.h"
 #include "Util/stdafx.h"
+#include "Util/EfuseMeta.h"
 #include "StatsManager.h"
 #include "Time.h"
 #include "UIThread.h"
@@ -193,7 +194,9 @@ void Power::sleepLight(){
 
 void Power::sleepDeep(){
 	setupWake();
-	esp_sleep_enable_timer_wakeup(DeepSleepWakeInterval);
+	if(EfuseMeta::getRev() == 0){
+		esp_sleep_enable_timer_wakeup(DeepSleepWakeInterval);
+	}
 	powerOff();
 }
 
