@@ -1,23 +1,25 @@
 #ifndef CLOCKSTAR_LIBRARY_PINS_HPP
 #define CLOCKSTAR_LIBRARY_PINS_HPP
 
-#define BTN_D 5
-#define BTN_C 4
-#define BTN_B 3
-#define BTN_A 2
+#include "Util/Pins.h"
 
-#define PIN_BL 45
-#define PIN_BUZZ 44
-#define PIN_BATT 6
-#define PIN_VREF 7
-#define PIN_LED 38
+#define BTN_A Pins::get(Pin::BtnA)
+#define BTN_B Pins::get(Pin::BtnB)
+#define BTN_C Pins::get(Pin::BtnC)
+#define BTN_D Pins::get(Pin::BtnD)
 
-#define I2C_SDA 33
-#define I2C_SCL 34
+#define PIN_BL Pins::get(Pin::LedBl)
+#define PIN_LED Pins::get(Pin::LedRed)
+#define PIN_BUZZ Pins::get(Pin::Buzz)
+#define PIN_BATT Pins::get(Pin::BattRead)
+#define PIN_VREF Pins::get(Pin::VrefEn)
 
-#define TFT_SCK 39
-#define TFT_MOSI 40
-#define TFT_DC 41
-#define TFT_RST 42
+#define I2C_SDA Pins::get(Pin::I2cSda)
+#define I2C_SCL Pins::get(Pin::I2cScl)
+
+#define TFT_SCK Pins::get(Pin::TftSck)
+#define TFT_MOSI Pins::get(Pin::TftMosi)
+#define TFT_DC Pins::get(Pin::TftDc)
+#define TFT_RST Pins::get(Pin::TftRst)
 
 #endif //CLOCKSTAR_LIBRARY_PINS_HPP

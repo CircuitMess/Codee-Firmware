@@ -1,10 +1,18 @@
 #include "Display.h"
 #include <Pins.hpp>
 #include "Color.h"
+#include "Util/EfuseMeta.h"
 
 Display::Display() : canvas(&lgfx){
 	setupBus();
-	setupPanel();
+
+	uint8_t rev = 0;
+	EfuseMeta::readRev(rev);
+	if(rev == 1){
+		setupPanel2();
+	}else{
+		setupPanel1();
+	}
 
 	// LGFX init -> panel init -> bus init
 	panel.setBus(&bus);
@@ -37,7 +45,7 @@ void Display::setupBus(){
 	bus.config(cfg);
 }
 
-void Display::setupPanel(){
+void Display::setupPanel1(){
 	lgfx::Panel_Device::config_t cfg = {
 			.pin_cs = -1,
 			.pin_rst = TFT_RST,
@@ -49,6 +57,27 @@ void Display::setupPanel(){
 			.offset_x = 2,
 			.offset_y = 1,
 			.offset_rotation = 3,
+			.readable = false,
+			.invert = false,
+			.rgb_order = false,
+			.dlen_16bit = false,
+			.bus_shared = false
+	};
+	panel.config(cfg);
+}
+
+void Display::setupPanel2(){
+	lgfx::Panel_Device::config_t cfg = {
+			.pin_cs = -1,
+			.pin_rst = TFT_RST,
+			.pin_busy = -1,
+			.memory_width = 132,
+			.memory_height = 132,
+			.panel_width = 128,
+			.panel_height = 128,
+			.offset_x = 2,
+			.offset_y = 1,
+			.offset_rotation = 1,
 			.readable = false,
 			.invert = false,
 			.rgb_order = false,

@@ -25,7 +25,7 @@
 #include "Screens/IntroScreen.h"
 #include "Screens/HatchScreen.h"
 #include "Services/StatsManager.h"
-#include "Util/HWVersion.h"
+#include "Util/EfuseMeta.h"
 #include "Services/Power.h"
 
 BacklightBrightness* bl;
@@ -50,10 +50,10 @@ void init(){
 		vTaskDelete(nullptr);
 	}
 
-	if(!HWVersion::check()){
+	if(!EfuseMeta::check()){
 		while(true){
 			vTaskDelay(1000);
-			HWVersion::log();
+			EfuseMeta::log();
 		}
 	}
 

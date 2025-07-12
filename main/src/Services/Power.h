@@ -23,7 +23,6 @@ private:
 	void checkSleep();
 	uint64_t activityTime = 0;
 
-	static constexpr int WakePins[] = { BTN_A, BTN_B, BTN_C, BTN_D };
 	static void setupWake();
 
 	void freePins();

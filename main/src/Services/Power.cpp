@@ -101,6 +101,8 @@ void Power::checkSleep(){
 
 void Power::setupWake(){
 	uint64_t pinMask = 0;
+
+	const int WakePins[] = { BTN_A, BTN_B, BTN_C, BTN_D };
 	for(const auto& pin : WakePins){
 		pinMask |= 1ULL << pin;
 
@@ -124,14 +126,14 @@ void Power::freePins(){
 		led->end();
 	}
 
-	static constexpr int OffPins[] = { PIN_VREF, PIN_LED };
+	const int OffPins[] = { PIN_VREF, PIN_LED };
 	for(const auto& pin : OffPins){
 		PinOut out(pin);
 		out.off();
 		gpio_hold_en((gpio_num_t) pin);
 	}
 
-	static constexpr int OnPins[] = { PIN_BL, PIN_BUZZ };
+	const int OnPins[] = { PIN_BL, PIN_BUZZ };
 	for(const auto& pin : OnPins){
 		PinOut out(pin);
 		out.on();
@@ -140,20 +142,21 @@ void Power::freePins(){
 }
 
 void Power::returnPins(){
-	static constexpr int OffPins[] = { PIN_VREF, PIN_LED };
+	const int OffPins[] = { PIN_VREF, PIN_LED };
 	for(const auto& pin : OffPins){
 		gpio_hold_dis((gpio_num_t) pin);
 		PinOut out(pin);
 		out.off();
 	}
 
-	static constexpr int OnPins[] = { PIN_BL, PIN_BUZZ };
+	const int OnPins[] = { PIN_BL, PIN_BUZZ };
 	for(const auto& pin : OnPins){
 		gpio_hold_dis((gpio_num_t) pin);
 		PinOut out(pin);
 		out.on();
 	}
 
+	const int WakePins[] = { BTN_A, BTN_B, BTN_C, BTN_D };
 	for(const auto& pin : WakePins){
 		rtc_gpio_hold_dis((gpio_num_t) pin);
 		rtc_gpio_deinit((gpio_num_t) pin);
@@ -204,14 +207,14 @@ void Power::powerOff(){
 	auto input = (Input*) Services.get(Service::Input);
 	delete input;
 
-	static constexpr int OffPins[] = { PIN_VREF, PIN_LED, TFT_SCK, TFT_MOSI, TFT_RST, TFT_DC };
+	const int OffPins[] = { PIN_VREF, PIN_LED, TFT_SCK, TFT_MOSI, TFT_RST, TFT_DC };
 	for(const auto& pin : OffPins){
 		PinOut out(pin);
 		out.off();
 		gpio_hold_en((gpio_num_t) pin);
 	}
 
-	static constexpr int OnPins[] = { PIN_BL, PIN_BUZZ, I2C_SDA, I2C_SCL };
+	const int OnPins[] = { PIN_BL, PIN_BUZZ, I2C_SDA, I2C_SCL };
 	for(const auto& pin : OnPins){
 		PinOut out(pin);
 		out.on();
@@ -225,11 +228,12 @@ void Power::powerOff(){
 }
 
 void Power::resetPins(){
-	static constexpr int OnPins[] = { PIN_VREF, PIN_LED, TFT_SCK, TFT_MOSI, TFT_RST, TFT_DC, PIN_BUZZ, I2C_SDA, I2C_SCL };
+	const int OnPins[] = { PIN_VREF, PIN_LED, TFT_SCK, TFT_MOSI, TFT_RST, TFT_DC, PIN_BUZZ, I2C_SDA, I2C_SCL };
 	for(const auto& pin : OnPins){
 		gpio_hold_dis((gpio_num_t) pin);
 	}
 
+	const int WakePins[] = { BTN_A, BTN_B, BTN_C, BTN_D };
 	for(const auto& pin : WakePins){
 		rtc_gpio_hold_dis((gpio_num_t) pin);
 		rtc_gpio_deinit((gpio_num_t) pin);

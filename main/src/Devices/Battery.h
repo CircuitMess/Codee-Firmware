@@ -34,8 +34,11 @@ public:
 private:
 	static constexpr uint32_t MeasureIntverval = 100;
 
-	static constexpr float VoltEmpty = 3150;
-	static constexpr float VoltFull = 3250;
+	struct BattRange { float min, max; };
+	static constexpr BattRange RangeRev1 = { .min = 3150, .max = 3250 };
+	static constexpr BattRange RangeRev2 = { .min = 3600, .max = 4100 };
+	static const BattRange& getRange();
+
 	static constexpr float Factor = 4.0f;
 	static constexpr float Offset = 0;
 	static constexpr float EmaA = 0.05f;
