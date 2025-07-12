@@ -1,8 +1,12 @@
 #include "EfuseMeta.h"
+#include "stdafx.h"
 
 bool EfuseMeta::check(){
 	readPID(CachedPID);
 	readRev(CachedRevision);
+
+	printf("Cached PID: %d, rev: %d\n", CachedPID, CachedRevision);
+	delayMillis(1000);
 
 	//Make an exception for this product a having blank PID!
 	if(CachedPID == PID || CachedPID == 0){
@@ -59,6 +63,14 @@ bool EfuseMeta::readRev(uint8_t& Revision){
 	}
 
 	return true;
+}
+
+uint16_t EfuseMeta::getPID(){
+	return CachedPID;
+}
+
+uint8_t EfuseMeta::getRev(){
+	return CachedRevision;
 }
 
 uint16_t EfuseMeta::getHardcodedPID(){

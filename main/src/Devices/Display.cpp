@@ -6,9 +6,7 @@
 Display::Display() : canvas(&lgfx){
 	setupBus();
 
-	uint8_t rev = 0;
-	EfuseMeta::readRev(rev);
-	if(rev == 1){
+	if(EfuseMeta::getRev() == 1){
 		setupPanel2();
 	}else{
 		setupPanel1();

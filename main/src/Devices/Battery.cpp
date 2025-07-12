@@ -14,9 +14,7 @@ Battery::Battery(ADC& adc) : SleepyThreaded(MeasureIntverval, "Battery", 3 * 102
 		ESP_ERROR_CHECK(adc_oneshot_io_to_channel(pin, &unit, &chan));
 		assert(unit == adc.getUnit());
 
-		uint8_t rev = 0;
-		EfuseMeta::readRev(rev);
-		const auto atten = rev == 1 ? ADC_ATTEN_DB_2_5 : ADC_ATTEN_DB_0;
+		const auto atten = EfuseMeta::getRev() == 1 ? ADC_ATTEN_DB_2_5 : ADC_ATTEN_DB_0;
 
 		adc.config(chan, {
 				.atten = atten,
@@ -52,12 +50,7 @@ void Battery::begin(){
 }
 
 const Battery::BattRange& Battery::getRange(){
-	uint8_t rev = 0;
-	if(!EfuseMeta::readRev(rev)){
-		rev = 0;
-	}
-
-	if(rev == 1){
+	if(EfuseMeta::getRev() == 1){
 		return RangeRev2;
 	}else{
 		return RangeRev1;

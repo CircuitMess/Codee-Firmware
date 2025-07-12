@@ -17,6 +17,9 @@ public:
 	static bool readPID(uint16_t& pid);
 	static bool readRev(uint8_t& Rev);
 
+	static uint16_t getPID();
+	static uint8_t getRev();
+
 	static uint16_t getHardcodedPID();
 	static uint16_t getHardcodedRev();
 
