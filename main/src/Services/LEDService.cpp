@@ -4,14 +4,8 @@
 #include "Util/LEDBlinkFunction.h"
 #include "Util/LEDBreatheFunction.h"
 #include "Util/LEDBreatheToFunction.h"
-#include "Pins.hpp"
 
 static const char* TAG = "LEDService";
-
-const std::map<LED, LEDService::PwnMappingInfo> LEDService::PwmMappings = {
-		{ LED::Red, { (gpio_num_t) PIN_LED, LEDC_CHANNEL_2, 10 }},
-};
-
 
 LEDService::LEDService() : Threaded("LEDService", 8 * 1024, 7, 1), instructionQueue(25){
 	for(LED led = (LED) 0; (uint8_t) led < (uint8_t) LED::COUNT; led = (LED) ((uint8_t) led + 1)){

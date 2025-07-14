@@ -9,6 +9,7 @@
 #include <mutex>
 #include "Util/Threaded.h"
 #include "Util/Queue.h"
+#include "Pins.hpp"
 
 enum class LED : uint8_t {
 	Red, COUNT
@@ -45,7 +46,9 @@ private:
 		uint8_t limit = 100;
 	};
 
-	static const std::map<LED, PwnMappingInfo> PwmMappings;
+	const std::map<LED, LEDService::PwnMappingInfo> PwmMappings = {
+			{ LED::Red, { (gpio_num_t) PIN_LED, LEDC_CHANNEL_2, 10 }},
+	};
 
 private:
 	enum LEDInstruction {
