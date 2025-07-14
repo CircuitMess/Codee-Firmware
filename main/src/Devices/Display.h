@@ -8,7 +8,13 @@ typedef lgfx::LGFX_Sprite Sprite;
 
 class Display {
 public:
-	Display(uint8_t revision);
+
+	/**
+	 * Initialize display according to revision in efuse
+	 *
+	 * @param overrideLatestRev - choose to override existing eFuse revision with latest, useful for first-time JigHWTest
+	 */
+	Display(bool overrideLatestRev = false);
 	virtual ~Display();
 
 	LGFX_Device& getLGFX();
@@ -41,8 +47,6 @@ private:
 	void setupBus();
 	void setupPanel1();
 	void setupPanel2();
-
-	const uint8_t revision;
 };
 
 

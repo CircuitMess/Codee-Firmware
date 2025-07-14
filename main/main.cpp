@@ -92,7 +92,7 @@ void init(){
 
 	if(!SPIFFS::init()) return;
 
-	auto disp = new Display(EfuseMeta::getRev());
+	auto disp = new Display();
 	Services.set(Service::Display, disp);
 
 	auto& canvas = disp->getCanvas();

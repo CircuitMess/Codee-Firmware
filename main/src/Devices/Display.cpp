@@ -3,7 +3,12 @@
 #include "Color.h"
 #include "Util/EfuseMeta.h"
 
-Display::Display(uint8_t revision) : canvas(&lgfx), revision(revision){
+Display::Display(bool overrideLatestRev) : canvas(&lgfx){
+	uint8_t revision = EfuseMeta::getRev();
+	if(overrideLatestRev){
+		revision = EfuseMeta::getHardcodedRev();
+	}
+
 	setupBus();
 	if(revision == 1){
 		setupPanel2();
