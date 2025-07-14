@@ -25,7 +25,7 @@ public:
 
 private:
 	static Display* display;
-	static LGFX_Device* canvas;
+	static Sprite* canvas;
 	static I2C* i2c;
 	static RTC* rtc;
 	static JigHWTest* test;
@@ -40,21 +40,18 @@ private:
 	void log(const char* property, int32_t value);
 	void log(const char* property, const std::string& value);
 
-	static bool BatteryRef();
 	static bool SPIFFSTest();
 	static uint32_t calcChecksum(FILE* file);
 	static bool RTCTest();
 	static bool Time1();
 	static bool Time2();
+	static bool BatteryCheck();
+	static bool VoltReferenceCheck();
 	static bool HWVersion();
-	static bool Buttons();
 
-	void instr(const char* msg);
-	void AudioVisualTest();
-	void rgb();
-
-	static const int16_t VoltRef = 2500;
-	static constexpr uint32_t VoltOffsetTolerance = 120;
+	static constexpr int16_t USBVoltageMinimum = 3300;
+	static constexpr float VoltReference = 2500;
+	static constexpr float VoltReferenceTolerance = 100;
 
 	static constexpr uint32_t CheckTimeout = 500;
 
