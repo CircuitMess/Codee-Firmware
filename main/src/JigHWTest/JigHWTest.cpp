@@ -345,6 +345,9 @@ bool JigHWTest::SPIFFSTest(){
 		return false;
 	}
 
+	uint32_t timer = millis();
+	const uint32_t wdtRefreshPeriod = 1000; //[ms]
+
 	for(const auto& f : SPIFFSChecksums){
 		auto file = fopen(f.name, "rb");
 		if(file == nullptr){
@@ -361,6 +364,11 @@ bool JigHWTest::SPIFFSTest(){
 			test->log("got", (uint32_t) sum);
 
 			return false;
+		}
+
+		if(millis() - timer >= wdtRefreshPeriod){
+			vTaskDelay(1);
+			timer += wdtRefreshPeriod;
 		}
 	}
 
