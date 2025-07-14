@@ -6,10 +6,8 @@ bool EfuseMeta::check(){
 	readRev(CachedRevision);
 
 	printf("Cached PID: %d, rev: %d\n", CachedPID, CachedRevision);
-	delayMillis(1000);
 
-	//Make an exception for this product a having blank PID!
-	if(CachedPID == PID || CachedPID == 0){
+	if(CachedPID == PID){
 		return true;
 	}
 

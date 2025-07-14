@@ -8,7 +8,7 @@ typedef lgfx::LGFX_Sprite Sprite;
 
 class Display {
 public:
-	Display();
+	Display(uint8_t revision);
 	virtual ~Display();
 
 	LGFX_Device& getLGFX();
@@ -42,6 +42,7 @@ private:
 	void setupPanel1();
 	void setupPanel2();
 
+	const uint8_t revision;
 };
 
 

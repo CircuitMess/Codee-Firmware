@@ -40,6 +40,7 @@ void init(){
 	if(JigHWTest::checkJig()){
 		printf("Jig\n");
 
+		Pins::setLatest();
 		auto set = settings->get();
 		set.sound = true;
 		settings->set(set);
@@ -47,6 +48,8 @@ void init(){
 		auto test = new JigHWTest();
 		test->start();
 		vTaskDelete(nullptr);
+	}else{
+		printf("Hello\n");
 	}
 
 	if(!EfuseMeta::check()){
@@ -89,7 +92,7 @@ void init(){
 
 	if(!SPIFFS::init()) return;
 
-	auto disp = new Display();
+	auto disp = new Display(EfuseMeta::getRev());
 	Services.set(Service::Display, disp);
 
 	auto& canvas = disp->getCanvas();

@@ -3,10 +3,9 @@
 #include "Color.h"
 #include "Util/EfuseMeta.h"
 
-Display::Display() : canvas(&lgfx){
+Display::Display(uint8_t revision) : revision(revision){
 	setupBus();
-
-	if(EfuseMeta::getRev() == 1){
+	if(revision == 1){
 		setupPanel2();
 	}else{
 		setupPanel1();
