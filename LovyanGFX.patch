@@ -1,0 +1,16 @@
+Subject: [PATCH] LovyanGFX
+---
+Index: CMakeLists.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt	(revision 50a1800eb771ff8c028334d055ad37e1f12ec863)
++++ b/CMakeLists.txt	(date 1753861513292)
+@@ -36,3 +36,4 @@
+ message(STATUS "LovyanGFX use components = ${COMPONENT_REQUIRES}")
+ 
+ register_component()
++target_compile_options(${COMPONENT_LIB} PRIVATE -Wno-error=array-bounds)
+\ No newline at end of file
