@@ -71,10 +71,10 @@ void Pins::initPinMaps(){
 	};
 
 	Revision2 = {
-			{ Pin::BtnA,     16 },
-			{ Pin::BtnB,     17 },
-			{ Pin::BtnC,     9 },
-			{ Pin::BtnD,     8 },
+			{ Pin::BtnA,     8 },
+			{ Pin::BtnB,     9 },
+			{ Pin::BtnC,     17 },
+			{ Pin::BtnD,     16 },
 			{ Pin::LedBl,    6 },
 			{ Pin::LedRed,   10 },
 			{ Pin::Buzz,     7 },
