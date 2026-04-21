@@ -14,7 +14,21 @@ Battery::Battery(ADC& adc) : SleepyThreaded(MeasureIntverval, "Battery", 3 * 102
 		ESP_ERROR_CHECK(adc_oneshot_io_to_channel(pin, &unit, &chan));
 		assert(unit == adc.getUnit());
 
-		const auto atten = EfuseMeta::getRev() == 1 ? ADC_ATTEN_DB_2_5 : ADC_ATTEN_DB_0;
+		adc_atten_t atten;
+		switch(EfuseMeta::getRev()){
+			case 0:
+				atten = ADC_ATTEN_DB_0;
+				break;
+			case 1:
+				atten = ADC_ATTEN_DB_2_5;
+				break;
+			case 2:
+				atten = ADC_ATTEN_DB_2_5;
+				break;
+			default:
+				atten = ADC_ATTEN_DB_0;
+				break;
+		}
 
 		adc.config(chan, {
 				.atten = atten,
@@ -50,10 +64,15 @@ void Battery::begin(){
 }
 
 const Battery::BattRange& Battery::getRange(){
-	if(EfuseMeta::getRev() == 1){
-		return RangeRev2;
-	}else{
-		return RangeRev1;
+	switch(EfuseMeta::getRev()){
+		case 0:
+			return RangeRev1;
+		case 1:
+			return RangeRev2;
+		case 2:
+			return RangeRev2;
+		default:
+			return RangeRev1;
 	}
 }
 
@@ -66,8 +85,16 @@ Battery::Level Battery::getLevel() const{
 }
 
 bool Battery::isCharging(){
-	if(EfuseMeta::getRev() == 0) return false;
-	return readerBatt->getRaw() >= ChrgThresh;
+	switch(EfuseMeta::getRev()){
+		case 0:
+			return false;
+		case 1:
+			return readerBatt->getRaw() >= ChrgThresh;
+		case 2:
+			return readerBatt->getRaw() >= ChrgThresh;
+		default:
+			return false;
+	}
 }
 
 bool Battery::isShutdown() const{

@@ -194,8 +194,17 @@ void Power::sleepLight(){
 
 void Power::sleepDeep(){
 	setupWake();
-	if(EfuseMeta::getRev() == 0){
-		esp_sleep_enable_timer_wakeup(DeepSleepWakeInterval);
+	switch(EfuseMeta::getRev()){
+		case 0:
+			esp_sleep_enable_timer_wakeup(DeepSleepWakeInterval);
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		default:
+			esp_sleep_enable_timer_wakeup(DeepSleepWakeInterval);
+			break;
 	}
 	powerOff();
 }
@@ -224,7 +233,22 @@ void Power::powerOff(){
 		gpio_hold_en((gpio_num_t) pin);
 	}
 
-	PinOut buzzPin(PIN_BUZZ, EfuseMeta::getRev() == 0);
+	bool buzzActiveLow;
+	switch(EfuseMeta::getRev()){
+		case 0:
+			buzzActiveLow = true;
+			break;
+		case 1:
+			buzzActiveLow = false;
+			break;
+		case 2:
+			buzzActiveLow = false;
+			break;
+		default:
+			buzzActiveLow = true;
+			break;
+	}
+	PinOut buzzPin(PIN_BUZZ, buzzActiveLow);
 	buzzPin.off();
 
 	gpio_deep_sleep_hold_en();

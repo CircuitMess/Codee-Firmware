@@ -47,6 +47,7 @@ private:
 	void setupBus();
 	void setupPanel1();
 	void setupPanel2();
+	void setupPanel3();
 };
 
 

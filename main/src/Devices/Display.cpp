@@ -10,10 +10,19 @@ Display::Display(bool overrideLatestRev) : canvas(&lgfx){
 	}
 
 	setupBus();
-	if(revision == 1){
-		setupPanel2();
-	}else{
-		setupPanel1();
+	switch(revision){
+		case 0:
+			setupPanel1();
+			break;
+		case 1:
+			setupPanel2();
+			break;
+		case 2:
+			setupPanel3();
+			break;
+		default:
+			setupPanel1();
+			break;
 	}
 
 	// LGFX init -> panel init -> bus init
@@ -86,6 +95,28 @@ void Display::setupPanel2(){
 			.dlen_16bit = false,
 			.bus_shared = false
 	};
+	panel.config(cfg);
+}
+
+void Display::setupPanel3(){
+	lgfx::Panel_Device::config_t cfg = {
+		.pin_cs = -1,
+		.pin_rst = TFT_RST,
+		.pin_busy = -1,
+		.memory_width = 128,
+		.memory_height = 128,
+		.panel_width = 128,
+		.panel_height = 128,
+		.offset_x = 0,
+		.offset_y = 0,
+		.offset_rotation = 1,
+		.readable = false,
+		.invert = false,
+		.rgb_order = false,
+		.dlen_16bit = false,
+		.bus_shared = false
+	};
+
 	panel.config(cfg);
 }
 

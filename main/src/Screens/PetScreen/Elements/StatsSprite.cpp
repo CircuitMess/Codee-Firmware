@@ -22,8 +22,17 @@ StatsSprite::StatsSprite(lv_obj_t* parent, uint8_t oil, uint8_t happ, uint8_t ba
 	this->happ = new StatSprite(*this, StatSprite::Happiness, happ);
 	this->batt = new StatSprite(*this, StatSprite::Battery, batt);
 
-	if(EfuseMeta::getRev() == 0){
-		lv_obj_add_flag(*this->batt, LV_OBJ_FLAG_HIDDEN);
+	switch(EfuseMeta::getRev()){
+		case 0:
+			lv_obj_add_flag(*this->batt, LV_OBJ_FLAG_HIDDEN);
+			break;
+		case 1:
+			break;
+		case 2:
+			break;
+		default:
+			lv_obj_add_flag(*this->batt, LV_OBJ_FLAG_HIDDEN);
+			break;
 	}
 
 	this->level = lv_image_create(*this);

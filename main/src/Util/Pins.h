@@ -30,10 +30,10 @@ private:
 
 	void initPinMaps();
 
-	//For original Bit, Bit 2
+	//For original Codee
 	PinMap Revision1;
 
-	//For Bit v3
+	//For Codee 2.0
 	PinMap Revision2;
 
 	std::vector<PinMap*> pinMaps = { &Revision1, &Revision2 };

@@ -10,15 +10,21 @@ int8_t Pins::get(Pin pin){
 		uint8_t revision = 0;
 		EfuseMeta::readRev(revision);
 
-		if(revision == 0){
-			instance->currentMap = &instance->Revision1;
-		}else if(revision == 1){
-			instance->currentMap = &instance->Revision2;
-		}else{
-			while(true){
-				EfuseMeta::log();
-				while(true);
-			}
+		switch(revision){
+			case 0:
+				instance->currentMap = &instance->Revision1;
+				break;
+			case 1:
+				instance->currentMap = &instance->Revision2;
+				break;
+			case 2:
+				instance->currentMap = &instance->Revision2;
+				break;
+			default:
+				while(true){
+					EfuseMeta::log();
+					while(true);
+				}
 		}
 	}
 
@@ -88,4 +94,3 @@ void Pins::initPinMaps(){
 			{ Pin::TftRst,   5 },
 	};
 }
-
